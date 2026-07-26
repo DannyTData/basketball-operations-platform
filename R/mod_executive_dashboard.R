@@ -551,7 +551,7 @@ mod_executive_dashboard_server <- function(id, selected_team) {
       
       
       # --------------------------------------------------------
-      # Executive Status Banner
+      # Compact executive status strip
       # --------------------------------------------------------
       
       output$executive_status <- shiny::renderUI({
@@ -561,15 +561,40 @@ mod_executive_dashboard_server <- function(id, selected_team) {
         
         if (
           is.null(assessment) ||
-          is.null(team)
+          is.null(team) ||
+          nrow(team) == 0
         ) {
           return(NULL)
         }
         
+        conference_rank <- as.numeric(
+          team$conference_rank[[1]]
+        )
+        
+        win_pct <- as.numeric(
+          team$win_pct[[1]]
+        )
+        
+        point_diff <- as.numeric(
+          team$point_diff[[1]]
+        )
+        
+        recommendation <- dplyr::case_when(
+          assessment$status == "Championship Contender" ~ "BUY",
+          assessment$status == "Playoff Team" ~ "SELECTIVE BUY",
+          assessment$status == "Play-In Team" ~ "HOLD",
+          TRUE ~ "SELL"
+        )
+        
+        decision_window <- dplyr::case_when(
+          assessment$status == "Championship Contender" ~ "NOW",
+          assessment$status == "Playoff Team" ~ "DEADLINE",
+          assessment$status == "Play-In Team" ~ "EVALUATE",
+          TRUE ~ "OFFSEASON"
+        )
+        
         shiny::div(
-          
-          class = "status-banner status-banner-compact",
-          
+          class = "executive-status-strip",
           style = paste0(
             "--status-accent:",
             assessment$color,
@@ -577,76 +602,91 @@ mod_executive_dashboard_server <- function(id, selected_team) {
           ),
           
           shiny::div(
-            
-            class = "status-primary",
+            class = "executive-status-primary",
             
             shiny::div(
-              class = "status-label",
-              "COMPETITIVE STATUS"
+              class = "executive-status-label",
+              "Competitive Status"
             ),
             
             shiny::div(
-              class = "status-value",
+              class = "executive-status-name",
               assessment$status
             ),
             
             shiny::div(
-              class = "status-supporting-copy",
+              class = "executive-status-context",
               
               paste0(
                 "#",
-                team$conference_rank[[1]],
-                " Conference • ",
-                sprintf("%.3f", as.numeric(team$win_pct[[1]])),
-                " Win % • ",
-                sprintf("%+.1f", as.numeric(team$point_diff[[1]]))
+                conference_rank,
+                " Conference"
+              ),
+              
+              shiny::span(
+                class = "executive-status-dot",
+                "•"
+              ),
+              
+              sprintf(
+                "%.3f Win %%",
+                win_pct
+              ),
+              
+              shiny::span(
+                class = "executive-status-dot",
+                "•"
+              ),
+              
+              sprintf(
+                "%+.1f Point Differential",
+                point_diff
               )
             )
           ),
           
           shiny::div(
-            
-            class = "status-signal-grid",
+            class = "executive-status-metrics",
             
             shiny::div(
-              class = "status-signal",
+              class = "executive-status-metric",
               
               shiny::div(
-                class = "status-label",
-                "GRADE"
+                class = "executive-status-label",
+                "Grade"
               ),
               
               shiny::div(
-                class = "grade-value",
+                class = "executive-status-metric-value",
                 assessment$grade
               )
             ),
             
             shiny::div(
-              class = "status-signal",
+              class = "executive-status-metric",
               
               shiny::div(
-                class = "status-label",
-                "RECOMMENDATION"
+                class = "executive-status-label",
+                "Recommendation"
               ),
               
               shiny::div(
-                class = "status-signal-value",
-                assessment$recommendation
+                class = "executive-status-metric-value",
+                recommendation
               )
             ),
             
             shiny::div(
-              class = "status-signal",
+              class = "executive-status-metric",
               
               shiny::div(
-                class = "status-label",
-                "WINDOW"
+                class = "executive-status-label",
+                "Window"
               ),
               
               shiny::div(
-                class = "status-signal-value",
-                assessment$competitive_window
+                class = "executive-status-metric-value",
+                decision_window
               )
             )
           )
