@@ -1,0 +1,614 @@
+player,team,age,weight,height,pos,drafted,type,signing_method,extension,signing_date,length,signing,expiry,exp_year,cap_hit,cap_hit_percent,aav,base_salary,likely_incentive,unlikely_incentive
+Stephen Curry,GSW,38,185,6' 2,PG,7 - Round 1 - 2009 (GSW),Veteran Extension,Bird Exception,✔,"Aug 29, 2024",1,UFA,UFA,2027,"$62,587,158",37.0%,"$62,587,158","$62,587,158",$0,$0
+Joel Embiid,PHI,32,270,7' 0,C,3 - Round 1 - 2014 (PHI),Veteran Extension,Bird Exception,✔,"Sep 19, 2024",2-3,UFA,UFA,2029,"$59,539,200",35.0%,"$64,302,336","$59,539,200",$0,$0
+Joel Embiid,PHI,32,270,7' 0,C,3 - Round 1 - 2014 (PHI),Designated Veteran Extension,Bird Exception,✔,"Aug 17, 2021",3-4,UFA,UFA,2027,"$59,033,114",35.0%,"$53,320,232","$59,033,114",$0,$0
+Nikola Jokic,DEN,31,284,6' 11,C,41 - Round 2 - 2014 (DEN),Designated Veteran Extension,Bird Exception,✔,"Jul 8, 2022",4-5,UFA,UFA,2028,"$59,033,114",35.0%,"$55,224,526","$59,033,114",$0,$0
+Giannis Antetokounmpo,MIA,31,243,6' 11,"PF, C, SF, SG",15 - Round 1 - 2013 (MIL),Veteran Extension,Bird Exception,✔,"Oct 23, 2023",2-3,UFA,UFA,2028,"$58,456,566",35.0%,"$58,456,566","$58,456,566",$0,$0
+Anthony Davis,WAS,33,253,6' 10,"C, PF",1 - Round 1 - 2012 (NOP),Veteran Extension,Bird Exception,✔,"Aug 6, 2023",2-3,UFA,UFA,2028,"$58,456,566",35.0%,"$58,456,566","$58,456,566",$0,$0
+Jayson Tatum,BOS,28,210,6' 8,"SF, PF",3 - Round 1 - 2017 (BOS),Designated Veteran Extension,Bird Exception,✔,"Jul 6, 2024",4-5,UFA,UFA,2030,"$58,456,566",35.0%,"$62,786,682","$58,456,566",$0,$0
+Jaylen Brown,PHI,29,223,6' 6,"SG, SF",3 - Round 1 - 2016 (BOS),Designated Veteran Extension,Bird Exception,✔,"Jul 26, 2023",5,UFA,UFA,2029,"$57,736,382",35.0%,"$57,078,728","$57,078,728",$0,$0
+Devin Booker,PHX,29,206,6' 5,SG,13 - Round 1 - 2015 (PHX),Designated Veteran Extension,Bird Exception,✔,"Jul 6, 2022",4,UFA,UFA,2028,"$57,078,728",35.0%,"$55,110,496","$57,078,728",$0,$0
+Karl-Anthony Towns,NYK,30,248,7' 0,"PF, C",1 - Round 1 - 2015 (MIN),Designated Veteran Extension,Bird Exception,✔,"Jul 6, 2022",3-4,UFA,UFA,2028,"$57,078,728",35.0%,"$55,110,496","$57,078,728",$0,$0
+Jimmy Butler,GSW,36,230,6' 6,"SF, SG",30 - Round 1 - 2011 (CHI),Veteran Extension,Bird Exception,,"Feb 6, 2025",2,UFA,UFA,2027,"$56,832,773",35.0%,"$55,479,612","$56,832,773",$0,$0
+Paul George,BOS,36,230,6' 8,"SF, SG",10 - Round 1 - 2010 (IND),Veteran Contract,Cap Room,,"Jul 6, 2024",3-4,UFA,UFA,2028,"$54,126,380",35.0%,"$52,896,235","$54,126,380",$0,$0
+Bam Adebayo,MIA,28,260,6' 9,"C, PF",14 - Round 1 - 2017 (MIA),Veteran Extension,Bird Exception,✔,"Jul 6, 2024",2-3,UFA,UFA,2029,"$51,935,268",31.0%,"$56,090,089","$51,935,268",$0,$0
+Luka Doncic,LAL,27,230,6' 8,"PG, SG",3 - Round 1 - 2018 (ATL),Veteran Extension,Bird Exception,✔,"Aug 2, 2025",2-3,UFA,UFA,2029,"$51,033,600",30.0%,"$55,116,288","$51,033,600",$0,$0
+De'Aaron Fox,SAS,28,185,6' 3,PG,5 - Round 1 - 2017 (SAC),Veteran Extension,Bird Exception,✔,"Aug 4, 2025",4,UFA,UFA,2030,"$51,033,600",30.0%,"$57,157,632","$51,033,600",$0,$0
+Kawhi Leonard,TOR,35,225,6' 6,SF,15 - Round 1 - 2011 (IND),Veteran Extension,Bird Exception,✔,"Jan 10, 2024",3,UFA,UFA,2027,"$50,300,000",35.0%,"$49,835,267","$50,300,000",$0,$0
+Cade Cunningham,DET,24,220,6' 6,PG,1 - Round 1 - 2021 (DET),Rookie Scale Extension,Bird Exception,✔,"Jul 10, 2024",5,RFA,UFA,2030,"$50,105,628",30.0%,"$53,817,156","$50,105,628",$0,$0
+Donovan Mitchell,CLE,29,215,6' 2,SG,13 - Round 1 - 2017 (DEN),Veteran Extension,Bird Exception,✔,"Jul 7, 2024",2-3,UFA,UFA,2028,"$50,105,628",30.0%,"$50,105,628","$50,105,628",$0,$0
+Evan Mobley,CLE,25,215,6' 11,"PF, C",3 - Round 1 - 2021 (CLE),Rookie Scale Extension,Bird Exception,✔,"Jul 22, 2024",5,RFA,UFA,2030,"$50,105,628",30.0%,"$53,817,156","$50,105,628",$0,$0
+Jamal Murray,DEN,29,215,6' 4,"PG, SG",7 - Round 1 - 2016 (DEN),Veteran Extension,Bird Exception,✔,"Sep 11, 2024",4,UFA,UFA,2029,"$50,105,628",30.0%,"$51,961,392","$50,105,628",$0,$0
+Trae Young,WAS,27,164,6' 2,PG,5 - Round 1 - 2018 (DAL),Veteran Extension,Bird Exception,✔,"Jul 6, 2026",3-4,UFA,UFA,2030,"$49,488,300",30.0%,"$53,199,923","$49,488,300",$0,$0
+Jaren Jackson Jr.,UTA,26,242,6' 10,"C, PF",4 - Round 1 - 2018 (MEM),Veteran Extension,Bird Exception,✔,"Jul 13, 2025",4-5,UFA,UFA,2030,"$49,000,000",23.0%,"$48,000,000","$49,000,000",$0,$0
+Luka Doncic,LAL,27,230,6' 8,"PG, SG",3 - Round 1 - 2018 (ATL),Designated Rookie Scale Extension,Bird Exception,✔,"Aug 10, 2021",4-5,RFA,UFA,2027,"$48,967,380",30.0%,"$43,031,940","$48,967,380",$0,$0
+Zach LaVine,SAC,31,200,6' 5,SG,13 - Round 1 - 2014 (MIN),Veteran Contract,Bird Exception,,"Jul 7, 2022",4-5,UFA,UFA,2027,"$48,967,380",30.0%,"$43,031,940","$48,967,380",$0,$0
+Trae Young,WAS,27,164,6' 2,PG,5 - Round 1 - 2018 (DAL),Designated Rookie Scale Extension,Bird Exception,✔,"Aug 6, 2021",4-5,RFA,UFA,2027,"$48,967,380",30.0%,"$43,031,940","$48,967,380",$0,$0
+Anthony Edwards,MIN,24,225,6' 4,"SF, SG",1 - Round 1 - 2020 (MIN),Rookie Scale Extension,Bird Exception,✔,"Jul 8, 2023",5,RFA,UFA,2029,"$48,924,624",30.0%,"$48,924,624","$48,924,624",$0,$0
+Tyrese Haliburton,IND,26,185,6' 5,PG,12 - Round 1 - 2020 (SAC),Rookie Scale Extension,Bird Exception,✔,"Jul 6, 2023",5,RFA,UFA,2029,"$48,924,624",30.0%,"$48,924,624","$48,924,624",$0,$0
+Pascal Siakam,IND,32,245,6' 8,PF,27 - Round 1 - 2016 (TOR),Veteran Contract,Bird Exception,,"Jul 6, 2024",4,UFA,UFA,2028,"$48,924,624",30.0%,"$47,237,568","$48,924,624",$0,$0
+Lauri Markkanen,UTA,29,240,7' 1,"SF, PF",7 - Round 1 - 2017 (MIN),Veteran Extension,Bird Exception,✔,"Aug 7, 2024",5,UFA,UFA,2029,"$46,113,154",30.0%,"$47,608,909","$46,113,154",$0,$0
+Domantas Sabonis,SAC,30,240,6' 10,"C, PF",11 - Round 1 - 2016 (IND),Veteran Extension,Bird Exception,,"Jul 6, 2023",5,UFA,UFA,2028,"$45,472,000",21.0%,"$43,323,200","$45,472,000",$0,"$2,600,000"
+Kevin Durant,HOU,37,240,6' 11,"PF, SF, SG",2 - Round 1 - 2007 (SEA),Veteran Extension,Bird Exception,✔,"Oct 19, 2025",1-2,UFA,UFA,2028,"$43,902,439",26.0%,"$45,000,000","$43,902,439",$0,$0
+Paolo Banchero,ORL,23,250,6' 10,PF,1 - Round 1 - 2022 (ORL),Rookie Scale Extension,Bird Exception,,"Jul 7, 2025",4-5,RFA,UFA,2031,"$42,527,925",25.0%,"$49,332,393","$42,527,925",$0,$0
+OG Anunoby,NYK,28,240,6' 7,SF,23 - Round 1 - 2017 (TOR),Veteran Extension,Bird Exception,,"Jul 6, 2024",5,UFA,UFA,2029,"$42,500,000",26.0%,"$42,500,000","$42,500,000",$0,$0
+James Harden,CLE,36,220,6' 5,"PG, SG",3 - Round 1 - 2009 (OKC),Veteran Contract,Bird Exception,,"Jul 6, 2025",1-2,UFA,UFA,2027,"$42,317,307",25.0%,"$40,750,000","$42,317,307",$0,$0
+Darius Garland,LAC,26,192,6' 1,PG,5 - Round 1 - 2019 (CLE),Designated Rookie Scale Extension,Bird Exception,✔,"Jul 8, 2022",5,RFA,UFA,2028,"$42,166,510",26.4%,"$39,446,090","$42,166,510",$0,$0
+Ja Morant,POR,26,174,6' 2,PG,2 - Round 1 - 2019 (MEM),Designated Rookie Scale Extension,Bird Exception,✔,"Jul 6, 2022",5,RFA,UFA,2028,"$42,166,510",26.4%,"$39,446,090","$42,166,510",$0,$0
+Zion Williamson,NOP,26,284,6' 6,PF,1 - Round 1 - 2019 (NOP),Designated Rookie Scale Extension,Bird Exception,✔,"Jul 6, 2022",5,RFA,UFA,2028,"$42,166,510",25.0%,"$39,446,090","$42,166,510",$0,$0
+Scottie Barnes,TOR,24,237,6' 8,"SG, PF",4 - Round 1 - 2021 (TOR),Rookie Scale Extension,Bird Exception,✔,"Jul 8, 2024",5,RFA,UFA,2030,"$41,754,690",25.0%,"$44,847,630","$41,754,690",$0,$0
+Franz Wagner,ORL,24,220,6' 10,SF,8 - Round 1 - 2021 (ORL),Rookie Scale Extension,Bird Exception,✔,"Jul 6, 2024",5,RFA,UFA,2030,"$41,754,690",25.0%,"$44,847,630","$41,754,690",$0,$0
+Chet Holmgren,OKC,24,208,7' 1,C,2 - Round 1 - 2022 (OKC),Rookie Scale Extension,Bird Exception,,"Jul 13, 2025",5,RFA,UFA,2031,"$41,368,000",24.0%,"$47,986,880","$41,368,000",$0,$0
+Jalen Williams,OKC,25,211,6' 5,"SG, SF",12 - Round 1 - 2022 (OKC),Rookie Scale Extension,Bird Exception,,"Jul 13, 2025",5,RFA,UFA,2031,"$41,368,000",24.0%,"$47,986,880","$41,368,000",$0,$0
+Austin Reaves,LAL,28,197,6' 5,SG,-,Veteran Contract,Bird Exception,,"Jul 12, 2026",3-4,UFA,UFA,2030,"$41,240,250",25.0%,"$45,000,000","$41,240,250",$0,$0
+Shai Gilgeous-Alexander,OKC,27,195,6' 6,"PG, SG",11 - Round 1 - 2018 (CHA),Designated Rookie Scale Extension,Bird Exception,✔,"Aug 6, 2021",5,RFA,UFA,2027,"$40,806,150",25.0%,"$35,859,950","$40,806,150",$0,$0
+Michael Porter Jr.,BKN,28,218,6' 10,SF,14 - Round 1 - 2018 (DEN),Designated Rookie Scale Extension,Bird Exception,✔,"Sep 29, 2021",5,RFA,UFA,2027,"$40,806,150",25.0%,"$35,859,950","$40,806,150",$0,$0
+LaMelo Ball,MIN,24,180,6' 7,"SG, PG",3 - Round 1 - 2020 (CHA),Rookie Scale Extension,Bird Exception,✔,"Jul 6, 2023",5,RFA,UFA,2029,"$40,770,520",25.0%,"$40,770,520","$40,770,520",$0,$0
+Tyrese Maxey,PHI,25,200,6' 2,"PG, SG",21 - Round 1 - 2020 (PHI),Veteran Contract,Bird Exception,,"Jul 7, 2024",5,RFA,UFA,2029,"$40,770,520",25.0%,"$40,770,520","$40,770,520",$0,$0
+Brandon Ingram,LAC,28,190,6' 8,"PF, SF",2 - Round 1 - 2016 (LAL),Veteran Extension,Bird Exception,,"Feb 12, 2025",2-3,UFA,UFA,2028,"$40,000,000",25.0%,"$40,000,000","$40,000,000",$0,$0
+Kyrie Irving,DAL,34,195,6' 2,"PG, SG",1 - Round 1 - 2011 (CLE),Veteran Extension,Bird Exception,,"Jul 6, 2025",2-3,UFA,UFA,2028,"$39,491,282",24.0%,"$39,491,282","$39,491,282",$0,$0
+Desmond Bane,ORL,28,215,6' 6,"SG, SF",30 - Round 1 - 2020 (BOS),Rookie Scale Extension,Bird Exception,✔,"Jul 8, 2023",5,RFA,UFA,2029,"$39,446,090",23.0%,"$41,180,000","$39,446,090",$0,"$1,733,910"
+Jalen Brunson,NYK,29,190,6' 2,PG,33 - Round 2 - 2018 (DAL),Veteran Extension,Bird Exception,✔,"Jul 12, 2024",3-4,UFA,UFA,2029,"$37,739,521",23.0%,"$39,137,281","$37,739,521",$0,$0
+Rudy Gobert,MIN,34,258,7' 1,C,27 - Round 1 - 2013 (DEN),Veteran Extension,Bird Exception,,"Oct 24, 2024",2-3,UFA,UFA,2028,"$36,500,000",23.0%,"$36,500,000","$36,500,000",$0,$0
+Jalen Green,PHX,24,186,6' 4,SG,2 - Round 1 - 2021 (HOU),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",2-3,RFA,UFA,2028,"$36,251,166",22.0%,"$35,100,000","$36,000,000",$0,$0
+Alperen Şengün,HOU,23,243,6' 11,"C, PF",16 - Round 1 - 2021 (OKC),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",4-5,RFA,UFA,2030,"$35,642,202",22.0%,"$37,000,000","$35,642,202",$0,$0
+Jrue Holiday,POR,36,220,6' 4,"PG, SG",17 - Round 1 - 2009 (PHI),Veteran Extension,Bird Exception,✔,"Apr 11, 2024",3-4,UFA,UFA,2028,"$34,800,000",20.0%,"$33,600,000","$34,800,000",$0,$0
+Jerami Grant,MEM,32,213,6' 7,"PF, SF",39 - Round 2 - 2014 (PHI),Veteran Contract,Bird Exception,,"Jul 9, 2023",4-5,UFA,UFA,2028,"$34,206,898",20.3%,"$32,000,000","$34,206,898",$0,$0
+Jordan Poole,NOP,27,194,6' 4,SG,28 - Round 1 - 2019 (GSW),Rookie Scale Extension,Bird Exception,✔,"Oct 15, 2022",4,RFA,UFA,2027,"$34,044,642",20.0%,"$35,000,000","$34,044,642",$0,"$4,250,000"
+Mikal Bridges,NYK,29,209,6' 6,"SG, SF",10 - Round 1 - 2018 (PHI),Veteran Extension,Bird Exception,✔,"Aug 1, 2025",3-4,UFA,UFA,2030,"$33,482,145",20.0%,"$37,500,000","$33,482,145",$0,$0
+Julius Randle,BKN,31,250,6' 9,"C, PF",7 - Round 1 - 2014 (LAL),Veteran Contract,Bird Exception,,"Jul 15, 2025",2-3,UFA,UFA,2028,"$33,333,334",20.0%,"$33,333,333","$33,333,334",$0,$0
+Tyler Herro,MIL,26,205,6' 5,SG,13 - Round 1 - 2019 (MIA),Rookie Scale Extension,Bird Exception,✔,"Oct 2, 2022",4,RFA,UFA,2027,"$33,000,000",20.9%,"$32,500,000","$33,000,000",$0,"$2,500,000"
+Dejounte Murray,NOP,29,180,6' 4,"SG, PG",29 - Round 1 - 2016 (SAS),Veteran Extension,Bird Exception,,"Jul 9, 2023",3-4,UFA,UFA,2028,"$32,785,071",18.0%,"$30,127,557","$28,767,536",$0,"$2,435,997"
+Immanuel Quickley,TOR,27,190,6' 2,PG,25 - Round 1 - 2020 (OKC),Veteran Contract,Bird Exception,,"Jul 8, 2024",5,RFA,UFA,2029,"$32,500,000",23.0%,"$35,000,000","$32,500,000",$0,"$2,500,000"
+Jalen Suggs,ORL,25,205,6' 5,PG,5 - Round 1 - 2021 (ORL),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",5,RFA,UFA,2030,"$32,400,000",23.0%,"$30,100,000","$32,400,000",$0,$0
+Aaron Gordon,DEN,30,235,6' 8,"PF, SF",4 - Round 1 - 2014 (ORL),Veteran Extension,Bird Exception,✔,"Oct 21, 2024",2-3,UFA,UFA,2029,"$31,978,037",19.0%,"$36,350,680","$31,978,037",$0,"$1,680,000"
+Derrick White,BOS,32,190,6' 4,"SG, PG",29 - Round 1 - 2017 (SAS),Veteran Extension,Bird Exception,✔,"Jul 6, 2024",3-4,UFA,UFA,2029,"$30,348,000",17.0%,"$31,472,000","$28,458,000","$1,890,000",$0
+Andrew Wiggins,MIA,31,210,6' 7,"SF, SG",1 - Round 1 - 2014 (CLE),Veteran Extension,Bird Exception,,"Oct 15, 2022",3-4,UFA,UFA,2027,"$30,169,644",18.0%,"$27,250,001","$30,169,644",$0,$0
+Walker Kessler,LAL,24,245,7' 2,"C, PF",22 - Round 1 - 2022 (MEM),Veteran Contract,Bird Exception,,"Jul 7, 2026",3-4,RFA,UFA,2030,"$30,108,821",18.0%,"$32,366,983","$30,108,821",$0,$0
+Jalen Johnson,ATL,24,219,6' 8,"PF, SF",20 - Round 1 - 2021 (ATL),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",5,RFA,UFA,2030,"$30,000,000",19.0%,"$30,000,000","$30,000,000",$0,$0
+RJ Barrett,TOR,26,214,6' 6,SG,3 - Round 1 - 2019 (NYK),Rookie Scale Extension,Bird Exception,✔,"Sep 1, 2022",4,RFA,UFA,2027,"$29,616,071",18.5%,"$30,000,000","$29,616,071",$0,"$3,598,209"
+Isaiah Hartenstein,OKC,28,250,7' 0,"C, PF",43 - Round 2 - 2017 (HOU),Veteran Contract,Cap Room,,"Jul 6, 2024",2-3,UFA,UFA,2027,"$28,500,000",21.0%,"$29,000,000","$28,500,000",$0,$0
+Jarrett Allen,CLE,28,243,6' 9,C,22 - Round 1 - 2017 (BKN),Veteran Extension,Bird Exception,✔,"Aug 2, 2024",3,UFA,UFA,2029,"$28,000,000",16.0%,"$30,240,000","$28,000,000",$0,$0
+Draymond Green,GSW,36,230,6' 6,"PF, SF",35 - Round 2 - 2012 (GSW),Veteran Contract,Bird Exception,,"Jul 8, 2023",3-4,UFA,UFA,2027,"$27,678,571",16.0%,"$25,000,000","$27,678,571",$0,$0
+Trey Murphy III,NOP,26,206,6' 8,"SF, SG",17 - Round 1 - 2021 (MEM),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",4,RFA,UFA,2029,"$27,000,000",16.0%,"$28,000,000","$27,000,000",$0,$0
+Devin Vassell,SAS,25,200,6' 5,SG,11 - Round 1 - 2020 (SAS),Rookie Scale Extension,Bird Exception,✔,"Oct 3, 2023",5,RFA,UFA,2029,"$27,000,000",20.0%,"$29,200,000","$27,000,000",$0,"$2,200,000"
+Coby White,CHA,26,210,6' 4,"SG, PG",7 - Round 1 - 2019 (CHI),Veteran Contract,Bird Exception,,"Jul 6, 2026",3,UFA,UFA,2029,"$26,811,593",16.0%,"$24,666,667","$26,811,593",$0,$0
+Myles Turner,MIL,30,250,6' 11,C,11 - Round 1 - 2015 (IND),Veteran Contract,Cap Room,,"Jul 6, 2025",3-4,UFA,UFA,2029,"$26,584,164",16.0%,"$27,217,121","$26,584,164",$0,$0
+Jaden McDaniels,MIN,25,185,6' 9,"SF, PF",28 - Round 1 - 2020 (LAL),Rookie Scale Extension,Bird Exception,✔,"Oct 23, 2023",5,RFA,UFA,2029,"$26,200,001",16.0%,"$27,200,000","$26,200,001",$0,"$1,000,000"
+DeMar DeRozan,-,36,220,6' 6,"SF, SG",9 - Round 1 - 2009 (TOR),Veteran Contract,Bird Exception,,"Jul 8, 2024",3,UFA,UFA,2027,"$25,740,000",17.0%,"$25,630,000","$25,740,000",$0,"$1,000,000"
+Dyson Daniels,ATL,23,199,6' 7,"SG, SF",8 - Round 1 - 2022 (NOP),Rookie Scale Extension,Bird Exception,✔,"Oct 20, 2025",4,RFA,UFA,2030,"$25,000,000",15.0%,"$25,000,000","$25,000,000",$0,$0
+Josh Giddey,CHI,23,214,6' 7,"PF, SF",6 - Round 1 - 2021 (OKC),Veteran Contract,Bird Exception,,"Sep 24, 2025",4,RFA,UFA,2029,"$25,000,000",16.0%,"$25,000,000","$25,000,000",$0,$0
+Fred VanVleet,HOU,32,197,6' 0,PG,-,Veteran Extension,Bird Exception,,"Jul 6, 2025",1-2,UFA,UFA,2027,"$25,000,000",16.0%,"$25,000,000","$25,000,000",$0,$0
+De'Andre Hunter,SAC,28,221,6' 7,SF,4 - Round 1 - 2019 (LAL),Rookie Scale Extension,Bird Exception,✔,"Oct 17, 2022",4,RFA,UFA,2027,"$24,910,714",15.6%,"$23,750,000","$24,910,714",$0,"$1,250,000"
+Jonathan Kuminga,ATL,23,225,6' 7,"SF, PF",7 - Round 1 - 2021 (GSW),Veteran Contract,Bird Exception,,"Sep 30, 2025",1-2,RFA,UFA,2027,"$24,300,000",15.0%,"$23,400,000","$24,300,000",$0,$0
+Keegan Murray,SAC,25,225,6' 8,PF,4 - Round 1 - 2022 (SAC),Rookie Scale Extension,Rookie Exception,✔,"Oct 16, 2025",5,RFA,UFA,2031,"$24,137,936",14.0%,"$28,000,000","$24,137,936",$0,$0
+Jabari Smith Jr.,HOU,23,220,6' 11,PF,3 - Round 1 - 2022 (HOU),Rookie Scale Extension,Bird Exception,✔,"Jul 6, 2025",5,RFA,UFA,2031,"$23,643,411",14.0%,"$24,400,000","$23,643,411",$0,$0
+Naz Reid,CHA,26,264,6' 9,C,-,Veteran Contract,Bird Exception,,"Jul 15, 2025",4-5,UFA,UFA,2030,"$23,275,862",14.0%,"$25,000,000","$23,275,862",$0,$0
+Isaiah Hartenstein,OKC,28,250,7' 0,"C, PF",43 - Round 2 - 2017 (HOU),Veteran Extension,Bird Exception,✔,"Jul 6, 2026",2-3,UFA,UFA,2029,"$23,148,148",14.0%,"$25,000,000","$23,148,148",$0,$0
+Nicolas Claxton,CHI,27,215,6' 11,"C, PF",31 - Round 2 - 2019 (BKN),Veteran Contract,Bird Exception,,"Jul 6, 2024",4,UFA,UFA,2028,"$23,147,727",20.0%,"$25,000,000","$23,147,727",$0,"$715,907"
+Cameron Johnson,DEN,30,210,6' 8,"SF, PF",11 - Round 1 - 2019 (MIN),Veteran Contract,Bird Exception,,"Jul 6, 2023",4,RFA,UFA,2027,"$23,062,500",18.0%,"$27,000,000","$22,500,000","$562,500","$3,937,500"
+Miles Bridges,PHX,28,225,6' 7,"SF, PF",12 - Round 1 - 2018 (LAC),Veteran Contract,Bird Exception,,"Jul 14, 2024",3,UFA,UFA,2027,"$22,826,087",19.0%,"$25,000,000","$22,826,087",$0,$0
+Kentavious Caldwell-Pope,MEM,33,204,6' 5,SG,8 - Round 1 - 2013 (DET),Veteran Contract,Cap Room,,"Jul 6, 2024",2-3,UFA,UFA,2027,"$21,621,500",16.0%,"$22,000,000","$21,621,500",$0,$0
+Christian Braun,DEN,25,220,6' 6,SG,21 - Round 1 - 2022 (DEN),Rookie Scale Extension,Bird Exception,✔,"Oct 20, 2025",5,RFA,UFA,2031,"$21,551,726",13.0%,"$25,000,000","$21,551,726",$0,$0
+Norman Powell,CHI,33,215,6' 4,SG,46 - Round 2 - 2015 (MIL),Veteran Contract,Cap Room,,"Jul 10, 2026",1-2,UFA,UFA,2028,"$21,500,000",13.0%,"$22,037,500","$21,500,000",$0,$0
+CJ McCollum,ATL,34,190,6' 3,SG,10 - Round 1 - 2013 (POR),Veteran Extension,Bird Exception,✔,"Jun 22, 2026",1,UFA,UFA,2027,"$21,000,000",12.0%,"$21,000,000","$21,000,000",$0,$0
+Josh Hart,NYK,31,215,6' 5,"SF, SG",30 - Round 1 - 2017 (UTA),Veteran Extension,Bird Exception,✔,"Aug 9, 2023",3-4,UFA,UFA,2028,"$20,923,760",12.0%,"$20,228,820","$20,923,760",$0,$0
+Kyle Kuzma,MIL,30,221,6' 8,PF,27 - Round 1 - 2017 (BKN),Veteran Contract,Bird Exception,,"Jul 7, 2023",4,UFA,UFA,2027,"$20,365,152",19.0%,"$25,550,000","$19,431,819","$300,000","$2,700,000"
+Malik Monk,SAC,28,200,6' 3,SG,11 - Round 1 - 2017 (CHA),Veteran Contract,Early-Bird Exception,,"Jul 6, 2024",3-4,UFA,UFA,2028,"$20,190,035",12.0%,"$19,493,827","$20,190,035",$0,$0
+Shaedon Sharpe,POR,23,210,6' 5,SG,7 - Round 1 - 2022 (POR),Rookie Scale Extension,Bird Exception,✔,"Oct 20, 2025",4,RFA,UFA,2030,"$20,089,287",12.0%,"$22,500,000","$20,089,287",$0,$0
+Kristaps Porzingis,GSW,30,240,7' 2,PF,4 - Round 1 - 2015 (NYK),Veteran Extension,Bird Exception,✔,"Jun 30, 2026",1-2,UFA,UFA,2028,"$20,000,000",12.0%,"$20,000,000","$20,000,000",$0,$0
+Dillon Brooks,PHX,30,225,6' 7,"SF, SG",45 - Round 2 - 2017 (HOU),Veteran Contract,Bird Exception,,"Jul 7, 2023",4,UFA,UFA,2027,"$19,992,727",16.6%,"$22,500,000","$19,992,727",$0,"$1,000,000"
+P.J. Washington,DAL,27,230,6' 7,PF,12 - Round 1 - 2019 (CHA),Designated Veteran Extension,Bird Exception,✔,"Sep 10, 2025",4,RFA,UFA,2030,"$19,813,044",12.0%,"$22,190,609","$19,813,044",$0,$0
+Alex Caruso,OKC,32,186,6' 5,"PG, SG",-,Veteran Extension,Bird Exception,✔,"Dec 22, 2024",4,UFA,UFA,2029,"$19,550,160",12.0%,"$20,274,240","$19,550,160",$0,$0
+Andrew Nembhard,IND,26,191,6' 4,PG,31 - Round 2 - 2022 (IND),Veteran Extension,Bird Exception,✔,"Jul 25, 2024",3,RFA,UFA,2028,"$19,550,160",12.0%,"$19,550,160","$19,550,160",$0,$0
+Ivica Zubac,IND,29,240,7' 0,C,32 - Round 2 - 2016 (LAL),Veteran Extension,Bird Exception,,"Sep 3, 2024",3,UFA,UFA,2028,"$19,550,160",12.0%,"$19,550,160","$19,550,160",$0,$0
+Jakob Poeltl,TOR,30,253,7' 0,C,9 - Round 1 - 2016 (TOR),Veteran Contract,Bird Exception,,"Jul 6, 2023",3-4,UFA,UFA,2027,"$19,500,000",14.0%,"$20,000,000","$19,500,000",$0,"$500,000"
+Ayo Dosunmu,MIN,26,201,6' 4,PG,38 - Round 2 - 2021 (CHI),Veteran Contract,Bird Exception,,"Jul 10, 2026",4-5,UFA,UFA,2031,"$19,310,345",12.0%,"$22,400,000","$19,310,345",$0,$0
+Grayson Allen,CHA,30,198,6' 3,SG,21 - Round 1 - 2018 (UTA),Veteran Extension,Bird Exception,✔,"Apr 16, 2024",3-4,UFA,UFA,2028,"$18,125,000",10.0%,"$17,500,000","$18,125,000",$0,$0
+Wendell Carter Jr.,ORL,27,270,6' 10,C,7 - Round 1 - 2018 (CHI),Veteran Extension,Bird Exception,✔,"Oct 7, 2024",2-3,UFA,UFA,2029,"$18,102,000",11.0%,"$19,550,160","$18,102,000",$0,$0
+Toumani Camara,POR,26,230,6' 7,PF,52 - Round 2 - 2023 (PHX),Veteran Extension,Bird Exception,✔,"Oct 19, 2025",4,UFA,UFA,2030,"$18,080,358",11.0%,"$20,250,000","$18,080,358",$0,$0
+Patrick Williams,CHI,24,235,6' 6,"PF, SF",4 - Round 1 - 2020 (CHI),Veteran Contract,Bird Exception,,"Jul 6, 2024",5,RFA,UFA,2029,"$18,000,000",13.0%,"$18,000,000","$18,000,000",$0,$0
+Luguentz Dort,ATL,27,220,6' 4,"SF, PF",-,Veteran Contract,Bird Exception,,"Jul 6, 2022",4-5,RFA,UFA,2027,"$17,722,222",12.0%,"$17,500,000","$17,722,222",$0,"$1,000,000"
+Keldon Johnson,SAS,26,220,6' 6,SF,29 - Round 1 - 2019 (SAS),Designated Rookie Scale Extension,Bird Exception,✔,"Jul 18, 2022",4,RFA,UFA,2027,"$17,500,000",16.2%,"$18,500,000","$17,500,000",$0,"$1,500,000"
+Klay Thompson,DAL,36,220,6' 5,SG,11 - Round 1 - 2011 (GSW),Veteran Contract,Bird Exception,,"Jul 1, 2024",3,UFA,UFA,2027,"$17,460,317",11.0%,"$16,666,667","$17,460,317",$0,$0
+Daniel Gafford,DAL,27,265,6' 10,C,38 - Round 2 - 2019 (CHI),Veteran Extension,Bird Exception,✔,"Jul 12, 2025",3,UFA,UFA,2029,"$17,263,584",10.0%,"$18,126,763","$17,263,584",$0,$0
+Santi Aldama,DAL,25,215,7' 0,PF,30 - Round 1 - 2021 (MEM),Veteran Contract,Bird Exception,✔,"Jul 15, 2025",2-3,RFA,UFA,2028,"$17,007,043",12.0%,"$17,500,001","$17,007,043",$0,$0
+John Collins,DET,28,226,6' 9,PF,19 - Round 1 - 2017 (ATL),Veteran Contract,Bird Exception,,"Jul 7, 2026",3,UFA,UFA,2029,"$17,000,000",10.0%,"$17,000,000","$17,000,000",$0,$0
+Victor Wembanyama,SAS,22,235,7' 4,"PF, C",1 - Round 1 - 2023 (SAS),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$16,868,246",9.0%,"$13,793,692","$16,868,246",$0,$0
+Max Strus,CLE,30,215,6' 5,"SG, SF",-,Veteran Extension,Bird Exception,,"Jul 6, 2023",4,UFA,UFA,2027,"$16,660,836",10.7%,"$15,574,260","$16,660,836",$0,$0
+Nikola Jovic,MIA,23,240,6' 10,"SF, SG",27 - Round 1 - 2022 (MIA),Rookie Scale Extension,Bird Exception,✔,"Oct 3, 2025",4,RFA,UFA,2030,"$16,200,000",10.0%,"$15,600,000","$16,200,000",$0,$0
+Onyeka Okongwu,ATL,25,240,6' 10,"PF, C",6 - Round 1 - 2020 (ATL),Rookie Scale Extension,Bird Exception,✔,"Oct 23, 2023",4,Rk,UFA,2028,"$16,120,000",9.0%,"$15,500,000","$16,120,000",$0,$0
+Bogdan Bogdanovic,HOU,33,225,6' 5,SG,27 - Round 1 - 2014 (PHX),Veteran Extension,Bird Exception,✔,"Mar 16, 2023",3-4,UFA,UFA,2027,"$16,020,000",14.0%,"$17,000,000","$16,020,000",$0,$0
+Duncan Robinson,DET,32,215,6' 7,"PF, SF",-,Veteran Contract,Bird Exception,,"Jul 7, 2025",3,UFA,UFA,2028,"$15,992,957",11.0%,"$15,992,957","$15,992,957",$0,$0
+Terance Mann,BKN,29,215,6' 6,SG,48 - Round 2 - 2019 (LAC),Veteran Extension,Bird Exception,✔,"Sep 27, 2024",3,UFA,UFA,2028,"$15,500,000",10.0%,"$15,666,667","$15,500,000",$0,$0
+Julian Champagnie,SAS,25,217,6' 7,"SG, SF",-,Veteran Extension,Bird Exception,✔,"Jun 29, 2026",3,UFA,UFA,2029,"$15,350,000",9.0%,"$15,000,000","$15,350,000",$0,$0
+Gary Trent Jr.,MIL,27,204,6' 5,SG,37 - Round 2 - 2018 (SAC),Veteran Contract,Bird Exception,,"Jul 15, 2026",4,UFA,UFA,2030,"$15,200,000",9.0%,"$16,000,000","$15,200,000",$0,$0
+Brandon Miller,CHA,23,200,6' 7,"SF, SG",2 - Round 1 - 2023 (CHA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2023",2-4,Rk,RFA,2027,"$15,104,626",8.0%,"$12,344,607","$15,104,626",$0,$0
+Tobias Harris,SAS,33,226,6' 8,"PF, SF",19 - Round 1 - 2011 (CHB),Veteran Contract,MLE,,"Jul 6, 2026",2,UFA,UFA,2028,"$15,044,000",9.0%,"$15,420,100","$15,044,000",$0,$0
+Mitchell Robinson,BOS,28,240,7' 0,C,36 - Round 2 - 2018 (NYK),Veteran Contract,MLE,,"Jul 6, 2026",2-3,UFA,UFA,2029,"$15,044,000",9.0%,"$15,796,200","$15,044,000",$0,$0
+Isaiah Stewart,MEM,25,250,6' 8,"PF, C",16 - Round 1 - 2020 (POR),Rookie Scale Extension,Bird Exception,✔,"Jul 11, 2023",3-4,RFA,UFA,2028,"$15,000,000",10.0%,"$16,000,000","$15,000,000",$0,"$1,000,000"
+Obi Toppin,IND,28,220,6' 9,PF,8 - Round 1 - 2020 (NYK),Veteran Extension,Bird Exception,,"Jul 6, 2024",4,RFA,UFA,2028,"$15,000,000",9.0%,"$15,000,000","$15,000,000",$0,"$480,000"
+Herbert Jones,NOP,27,206,6' 7,"SG, SF",35 - Round 2 - 2021 (NOP),Veteran Contract,Early-Bird Exception,,"Jul 6, 2023",4,RFA,UFA,2027,"$14,898,786",8.8%,"$13,456,968","$14,898,786",$0,$0
+Austin Reaves,LAL,28,197,6' 5,SG,-,Veteran Contract,Early-Bird Exception,,"Jul 6, 2023",3-4,RFA,UFA,2027,"$14,898,786",9.0%,"$13,456,968","$14,898,786",$0,$0
+Caris LeVert,MIL,31,205,6' 7,"SF, SG",20 - Round 1 - 2016 (IND),Veteran Contract,MLE,,"Jul 7, 2025",2,UFA,UFA,2027,"$14,809,200",9.0%,"$14,456,600","$14,809,200",$0,$0
+Dennis Schroder,CLE,32,175,6' 1,PG,17 - Round 1 - 2013 (ATL),Veteran Contract,Bird Exception,,"Jul 7, 2025",3,UFA,UFA,2028,"$14,809,200",9.0%,"$14,809,200","$14,809,200",$0,$0
+AJ Dybantsa,WAS,19,210,"6'9""","SF, PF",1 - Round 1 - 2026 (WAS),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2026",2-4,Rk,RFA,2030,"$14,748,000",9.0%,"$16,728,513","$14,748,000",$0,$0
+Josh Green,MIN,25,200,6' 6,"SG, SF",18 - Round 1 - 2020 (DAL),Rookie Scale Extension,Bird Exception,✔,"Oct 23, 2023",3,RFA,UFA,2027,"$14,679,012",8.0%,"$13,666,667","$14,679,012",$0,$0
+Bobby Portis,MIA,31,250,6' 9,"C, PF",22 - Round 1 - 2015 (CHI),Veteran Contract,Bird Exception,,"Jul 6, 2025",2-3,UFA,UFA,2028,"$14,521,414",9.0%,"$14,521,414","$14,521,414",$0,$0
+Cooper Flagg,DAL,19,205,6' 9,PF,1 - Round 1 - 2025 (DAL),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2025",2-4,Rk,RFA,2029,"$14,517,480",9.0%,"$15,682,556","$14,517,480",$0,$0
+Nickeil Alexander-Walker,ATL,27,205,6' 5,SG,17 - Round 1 - 2019 (BKN),Veteran Contract,Bird Exception,,"Jul 6, 2025",4,UFA,UFA,2029,"$14,403,710",10.0%,"$15,161,800","$14,403,710",$0,$0
+Grant Williams,CHA,27,236,6' 7,PF,22 - Round 1 - 2019 (BOS),Veteran Contract,Bird Exception,,"Jul 11, 2023",4,RFA,UFA,2027,"$14,265,750",9.1%,"$13,335,375","$14,265,750",$0,$0
+Dorian Finney-Smith,CHA,33,220,6' 7,"PF, SF",-,Veteran Contract,MLE,,"Jul 6, 2025",3-4,UFA,UFA,2029,"$14,196,974",8.0%,"$13,176,250","$13,335,000",$0,$0
+Jock Landale,ATL,30,255,6' 11,"C, PF",-,Veteran Contract,MLE,,"Jul 10, 2026",1,UFA,UFA,2027,"$14,100,000",9.0%,"$14,100,000","$14,100,000",$0,$0
+Tari Eason,HOU,25,215,6' 8,PF,17 - Round 1 - 2022 (HOU),Veteran Contract,Cap Room,,"Jul 9, 2026",4-5,RFA,UFA,2031,"$14,053,356",9.0%,"$16,289,892","$14,053,356",$0,$0
+Rui Hachimura,LAC,28,230,6' 8,PF,9 - Round 1 - 2019 (WAS),Veteran Contract,MLE,,"Jul 6, 2026",1-2,UFA,UFA,2028,"$14,000,000",8.0%,"$14,000,000","$14,000,000",$0,$0
+Robert Williams III,POR,28,249,6' 9,C,27 - Round 1 - 2018 (BOS),Veteran Extension,Bird Exception,✔,"Jun 30, 2026",3,UFA,UFA,2029,"$14,000,000",8.0%,"$14,500,000","$14,000,000",$0,$0
+Corey Kispert,ATL,27,224,6' 6,SF,15 - Round 1 - 2021 (WAS),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",3-4,RFA,UFA,2029,"$13,975,000",9.0%,"$13,512,500","$13,975,000",$0,$0
+Quentin Grimes,LAL,26,207,6' 5,SG,25 - Round 1 - 2021 (NYK),Veteran Contract,Cap Room,,"Jul 6, 2026",3-4,UFA,UFA,2030,"$13,953,489",8.0%,"$15,000,000","$13,953,489",$0,$0
+Zaccharie Risacher,DAL,21,200,6' 8,SF,1 - Round 1 - 2024 (ATL),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$13,826,040",9.0%,"$14,256,859","$13,826,040",$0,$0
+Scoot Henderson,POR,22,207,6' 3,PG,3 - Round 1 - 2023 (POR),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$13,585,523",7.0%,"$11,090,901","$13,585,523",$0,$0
+Damian Lillard,POR,35,200,6' 2,PG,6 - Round 1 - 2012 (POR),Veteran Contract,MLE,,"Jul 19, 2025",2-3,UFA,UFA,2028,"$13,398,800",9.0%,"$13,868,933","$13,398,800",$0,$0
+Darryn Peterson,UTA,19,205,"6'6""","PG, SG",2 - Round 1 - 2026 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2026",2-4,Rk,RFA,2030,"$13,195,320",8.0%,"$14,971,074","$13,195,320",$0,$0
+Deni Avdija,POR,25,228,6' 8,"SG, SF",9 - Round 1 - 2020 (WAS),Rookie Scale Extension,Bird Exception,✔,"Oct 23, 2023",4,RFA,UFA,2028,"$13,125,000",10.0%,"$13,750,000","$13,125,000",$0,$0
+Steven Adams,HOU,32,265,6' 11,C,12 - Round 1 - 2013 (OKC),Veteran Extension,Bird Exception,✔,"Jun 14, 2025",3,UFA,UFA,2028,"$13,000,000",9.0%,"$13,000,000","$13,000,000",$0,$0
+Sandro Mamukelashvili,LAL,27,240,6' 9,"C, PF",54 - Round 2 - 2021 (MIL),Veteran Contract,Cap Room,,"Jul 6, 2026",3-4,UFA,UFA,2030,"$13,000,000",8.0%,"$13,000,000","$13,000,000",$0,$0
+Dylan Harper,SAS,20,215,6' 5,"PG, SG",2 - Round 1 - 2025 (SAS),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$12,989,040",8.0%,"$14,035,028","$12,989,040",$0,$0
+Donte DiVincenzo,MIN,29,203,6' 4,SG,17 - Round 1 - 2018 (MIL),Veteran Contract,MLE,,"Jul 8, 2023",4,UFA,UFA,2027,"$12,535,000",8.0%,"$12,467,500","$12,535,000",$0,"$750,000"
+Brandon Clarke,-,29,215,6' 8,PF,21 - Round 1 - 2019 (OKC),Rookie Scale Extension,Bird Exception,✔,"Oct 16, 2022",4,RFA,UFA,2027,"$12,500,000",9.7%,"$13,000,000","$12,500,000",$0,"$500,000"
+Moses Moody,GSW,24,211,6' 5,SG,14 - Round 1 - 2021 (GSW),Rookie Scale Extension,Bird Exception,✔,"Oct 21, 2024",3,RFA,UFA,2028,"$12,500,000",7.0%,"$13,000,000","$12,500,000",$0,"$500,000"
+Jarred Vanderbilt,LAL,27,214,6' 8,"PF, SF",11 - Round 2 - 2018 (ORL),Veteran Extension,Bird Exception,✔,"Sep 18, 2023",3-4,RFA,UFA,2028,"$12,428,571",7.0%,"$12,000,000","$12,428,571",$0,$0
+Davion Mitchell,MIA,27,210,6' 0,PG,9 - Round 1 - 2021 (SAC),Veteran Contract,Bird Exception,✔,"Jul 6, 2025",2,RFA,UFA,2027,"$12,400,000",8.0%,"$12,000,000","$12,400,000",$0,$0
+Alexandre Sarr,WAS,21,205,7' 0,C,2 - Round 1 - 2024 (WAS),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$12,370,680",8.0%,"$12,759,100","$12,370,680",$0,$0
+Amen Thompson,HOU,23,200,6' 7,PG,4 - Round 1 - 2023 (HOU),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2023",2-4,Rk,RFA,2027,"$12,258,609",6.0%,"$10,002,122","$12,258,609",$0,$0
+Cameron Boozer,MEM,18,250,"6'9""",PF,3 - Round 1 - 2026 (MEM),Rookie Scale Contract,Rookie Exception,,"Jul 13, 2026",2-4,Rk,RFA,2030,"$11,849,760",7.0%,"$13,450,642","$11,849,760",$0,$0
+Isaac Okoro,CHI,25,225,6' 4,"SG, SF",5 - Round 1 - 2020 (CLE),Veteran Extension,Bird Exception,,"Sep 17, 2024",3,RFA,UFA,2027,"$11,814,814",7.0%,"$12,649,999","$11,814,814",$0,"$1,772,221"
+Mark Williams,PHX,24,240,7' 1,"PF, C",15 - Round 1 - 2022 (CHA),Veteran Contract,Bird Exception,,"Jul 7, 2026",3,RFA,UFA,2029,"$11,728,395",7.0%,"$12,666,667","$11,728,395",$0,$0
+VJ Edgecombe,PHI,20,190,6' 4,"SG, SF",3 - Round 1 - 2025 (PHI),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2025",2-4,Rk,RFA,2029,"$11,663,880",7.0%,"$12,609,620","$11,663,880",$0,$0
+Jusuf Nurkic,UTA,31,290,6' 11,C,16 - Round 1 - 2014 (CHI),Veteran Contract,Bird Exception,,"Jul 9, 2026",2,UFA,UFA,2028,"$11,458,333",7.0%,"$11,000,000","$11,458,333",$0,$0
+Isaiah Joe,DET,27,165,6' 4,SG,49 - Round 2 - 2020 (PHI),Veteran Contract,Early-Bird Exception,,"Jul 7, 2024",3-4,UFA,UFA,2028,"$11,323,006",9.0%,"$12,000,000","$11,323,006",$0,$0
+Ausar Thompson,DET,23,205,6' 7,"SG, SF",5 - Round 1 - 2023 (DET),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2023",2-4,Rk,RFA,2027,"$11,117,925",6.0%,"$9,061,601","$11,117,925",$0,$0
+Reed Sheppard,HOU,22,185,6' 2,"SG, PG",3 - Round 1 - 2024 (HOU),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$11,108,880",7.0%,"$11,463,256","$11,108,880",$0,$0
+T.J. McConnell,IND,34,190,6' 1,PG,-,Veteran Extension,Bird Exception,,"Sep 3, 2024",3-4,UFA,UFA,2029,"$11,000,000",7.0%,"$11,200,000","$11,000,000",$0,$0
+Aaron Nesmith,IND,26,215,6' 5,SF,14 - Round 1 - 2020 (BOS),Rookie Scale Extension,Bird Exception,✔,"Oct 23, 2023",3,RFA,UFA,2027,"$11,000,000",7.0%,"$11,000,000","$11,000,000",$0,$0
+Royce O'Neale,CHA,33,226,6' 6,"PF, SF",-,Veteran Contract,Bird Exception,,"Jul 6, 2024",4,UFA,UFA,2028,"$10,875,000",7.0%,"$11,000,000","$10,875,000",$0,"$500,000"
+Sam Hauser,BOS,28,217,6' 7,SF,-,Veteran Extension,Bird Exception,✔,"Jul 23, 2024",4,UFA,UFA,2029,"$10,848,215",6.0%,"$11,250,000","$10,848,215",$0,$0
+Collin Gillespie,PHX,27,195,6' 1,PG,-,Veteran Contract,Early-Bird Exception,,"Jul 7, 2026",4,UFA,UFA,2030,"$10,714,286",6.0%,"$12,000,000","$10,714,286",$0,$0
+Caleb Wilson,CHI,19,205,"6'9""","PF, C",4 - Round 1 - 2026 (CHI),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$10,683,720",6.0%,"$12,130,171","$10,683,720",$0,$0
+Kon Knueppel,CHA,20,215,6' 6,"SF, SG",4 - Round 1 - 2025 (CHA),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$10,516,560",6.0%,"$11,371,753","$10,516,560",$0,$0
+Derrick Jones Jr.,LAC,29,210,6' 6,"PF, SF",-,Veteran Contract,MLE,,"Jul 9, 2024",3,UFA,UFA,2027,"$10,476,190",7.0%,"$10,000,000","$10,476,190",$0,$0
+Luke Kornet,SAS,30,250,7' 1,"C, PF",-,Veteran Contract,MLE,,"Jul 7, 2025",4,UFA,UFA,2029,"$10,450,000",7.0%,"$10,175,000","$10,450,000",$0,$0
+Anthony Black,ORL,22,200,6' 7,"SG, PG",6 - Round 1 - 2023 (ORL),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$10,106,316",5.0%,"$8,232,459","$10,106,316",$0,$0
+AJ Green,MIL,26,190,6' 4,"SG, SF",-,Veteran Extension,Bird Exception,✔,"Oct 17, 2025",4,UFA,UFA,2030,"$10,044,644",6.0%,"$11,250,000","$10,044,644",$0,$0
+Stephon Castle,SAS,21,215,6' 6,"PG, SG",4 - Round 1 - 2024 (SAS),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$10,015,920",6.0%,"$10,337,925","$10,015,920",$0,$0
+Caleb Martin,DAL,30,205,6' 5,SF,-,Veteran Contract,Cap Room,,"Jul 6, 2024",4,UFA,UFA,2028,"$10,001,494",6.0%,"$10,074,203","$8,963,901",$0,"$1,344,585"
+Day'Ron Sharpe,BKN,24,265,6' 10,C,29 - Round 1 - 2021 (BKN),Veteran Extension,Cap Room,✔,"Jul 6, 2026",2,UFA,UFA,2028,"$10,000,000",6.0%,"$10,000,000","$10,000,000",$0,$0
+Jonas Valanciunas,-,34,265,6' 11,C,5 - Round 1 - 2011 (TOR),Veteran Contract,MLE,,"Jul 6, 2024",3,UFA,UFA,2027,"$10,000,000",7.0%,"$10,098,333","$10,000,000",$0,$0
+Keaton Wagler,LAC,19,180,"6'6""","SG, PG",5 - Round 1 - 2026 (LAC),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$9,674,760",6.0%,"$11,014,581","$9,674,760","$50,000",$0
+Buddy Hield,ATL,33,220,6' 4,SG,6 - Round 1 - 2016 (NOP),Veteran Contract,Bird Exception,,"Jul 6, 2024",3-4,UFA,UFA,2028,"$9,658,536",6.0%,"$9,439,024","$9,658,536",$0,$0
+Ace Bailey,UTA,19,200,6' 9,SF,5 - Round 1 - 2025 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2025",2-4,Rk,RFA,2029,"$9,523,080",6.0%,"$10,302,446","$9,473,080","$50,000",$0
+Kevin Huerter,DET,27,190,6' 6,SG,19 - Round 1 - 2018 (ATL),Veteran Contract,Bird Exception,,"Jul 9, 2026",2-3,UFA,UFA,2029,"$9,507,042",6.0%,"$9,000,000","$9,507,042",$0,$0
+Naji Marshall,DAL,28,220,6' 6,SF,-,Veteran Contract,MLE,,"Jul 6, 2024",3,UFA,UFA,2027,"$9,428,571",6.0%,"$9,000,000","$9,428,571",$0,$0
+Jalen Smith,CHI,26,244,6' 8,PF,10 - Round 1 - 2020 (PHX),Veteran Contract,MLE,,"Jul 8, 2024",3,UFA,UFA,2027,"$9,428,571",6.0%,"$9,000,000","$9,428,571",$0,$0
+Collin Sexton,LAL,27,190,6' 3,"PG, SG",8 - Round 1 - 2018 (CLE),Veteran Contract,Room-MLE,,"Jul 11, 2026",1-2,UFA,UFA,2028,"$9,366,000",6.0%,"$9,600,000","$9,366,000",$0,$0
+Bilal Coulibaly,WAS,21,195,6' 7,SF,7 - Round 1 - 2023 (IND),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$9,240,012",5.0%,"$7,518,783","$9,240,012",$0,$0
+Aaron Wiggins,ATL,27,190,6' 5,SG,55 - Round 2 - 2021 (OKC),Veteran Contract,Bird Exception,,"Jul 7, 2024",4-5,RFA,UFA,2029,"$9,224,300",7.0%,"$9,400,000","$8,831,776","$392,524",$0
+Ty Jerome,MEM,29,195,6' 5,"SG, PG",24 - Round 1 - 2019 (PHI),Veteran Contract,Room-MLE,,"Jul 14, 2025",2-3,UFA,UFA,2028,"$9,220,050",6.0%,"$9,220,050","$9,220,050",$0,$0
+Brook Lopez,LAC,38,282,7' 1,C,10 - Round 1 - 2008 (NJN),Veteran Contract,MLE,,"Jul 6, 2025",2,UFA,UFA,2027,"$9,187,500",6.0%,"$8,968,750","$9,187,500",$0,$0
+Sam Merrill,CLE,30,205,6' 4,SG,60 - Round 2 - 2020 (NOP),Veteran Contract,Bird Exception,,"Jul 6, 2025",4,UFA,UFA,2029,"$9,160,715",5.0%,"$9,500,000","$9,160,715",$0,$0
+Moritz Wagner,BKN,29,245,6' 11,C,25 - Round 1 - 2018 (LAL),Veteran Contract,Bird Exception,,"Jul 1, 2026",2,UFA,UFA,2028,"$9,134,615",6.0%,"$9,500,000","$9,134,615",$0,$0
+Ron Holland II,DET,21,206,6' 8,"SF, PF",5 - Round 1 - 2024 (DET),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$9,069,600",6.0%,"$9,365,846","$9,069,600",$0,$0
+Keon Ellis,BKN,26,175,6' 4,SG,-,Veteran Contract,Cap Room,,"Jul 6, 2026",1-2,UFA,UFA,2028,"$9,000,000",5.0%,"$9,000,000","$9,000,000",$0,$0
+Quinten Post,MEM,26,238,7' 0,"C, PF",52 - Round 2 - 2024 (OKC),Veteran Contract,MLE,,"Jul 8, 2026",3,RFA,UFA,2029,"$9,000,000",5.0%,"$10,005,000","$9,000,000",$0,"$1,350,000"
+Dean Wade,PHI,29,228,6' 9,PF,-,Veteran Contract,MLE,,"Jul 6, 2026",4,UFA,UFA,2030,"$9,000,000",5.0%,"$9,675,000","$9,000,000",$0,$0
+Mikel Brown Jr.,BKN,20,180,"6'5""","PG, SG",6 - Round 1 - 2026 (BKN),Rookie Contract,Rookie Exception,,"Jul 2, 2026",2-4,Rk,RFA,2030,"$8,787,000",5.0%,"$10,033,982","$8,787,000","$100,000",$0
+Tre Johnson,WAS,20,190,6' 5,SG,6 - Round 1 - 2025 (WAS),Rookie Scale Contract,Rookie Exception,,"Jul 5, 2025",2-4,Rk,RFA,2029,"$8,649,600",5.0%,"$9,359,783","$7,928,800","$720,800",$0
+Zach Collins,CHI,28,240,6' 9,"C, PF",10 - Round 1 - 2017 (SAC),Veteran Extension,Bird Exception,✔,"Jun 30, 2026",1-2,UFA,UFA,2028,"$8,500,000",5.0%,"$8,500,000","$8,500,000",$0,$0
+Jarace Walker,IND,22,235,6' 7,"PF, SF",8 - Round 1 - 2023 (WAS),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$8,478,541",4.0%,"$6,891,525","$8,478,541",$0,$0
+Max Christie,DAL,23,190,6' 5,SG,35 - Round 2 - 2022 (LAL),Veteran Contract,Early-Bird Exception,,"Jul 6, 2024",3-4,RFA,UFA,2028,"$8,285,714",5.0%,"$8,000,000","$8,285,714",$0,$0
+Tidjane Salaün,CHA,20,207,6' 10,"SF, PF",6 - Round 1 - 2024 (CHA),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2024",2-4,Rk,RFA,2028,"$8,237,880",5.0%,"$8,508,868","$8,237,880",$0,$0
+Deandre Ayton,WAS,27,252,7' 0,C,1 - Round 1 - 2018 (PHX),Veteran Contract,MLE,,"Jul 6, 2025",2,UFA,UFA,2027,"$8,104,000",5.0%,"$8,104,000","$8,104,000",$0,$0
+Kelly Oubre Jr.,IND,30,210,6' 8,SF,15 - Round 1 - 2015 (ATL),Veteran Contract,MLE,,"Jul 7, 2026",2,UFA,UFA,2028,"$8,050,000",5.0%,"$8,250,000","$8,050,000",$0,$0
+Darius Acuff,SAC,19,180,"6'2""",PG,7 - Round 1 - 2026 (SAC),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2026",2-4,Rk,RFA,2030,"$8,021,640",5.0%,"$9,118,533","$7,921,640","$100,000",$0
+Harrison Barnes,SAS,34,225,6' 7,"PF, SF",7 - Round 1 - 2012 (GSW),Veteran Contract,Bird Exception,,"Jul 8, 2026",1,UFA,UFA,2027,"$8,000,000",5.0%,"$8,000,000","$8,000,000",$0,$0
+Tre Jones,CHI,26,190,6' 1,PG,41 - Round 2 - 2020 (SAS),Veteran Contract,Bird Exception,,"Jul 6, 2025",3,UFA,UFA,2028,"$8,000,000",5.0%,"$8,000,000","$8,000,000",$0,$0
+Kevon Looney,LAL,30,222,6' 9,"C, PF",30 - Round 1 - 2015 (GSW),Veteran Contract,MLE,,"Jul 6, 2025",2,UFA,UFA,2027,"$8,000,000",5.0%,"$8,000,000","$8,000,000",$0,$0
+Tre Mann,CHA,25,178,6' 4,PG,18 - Round 1 - 2021 (OKC),Veteran Contract,Bird Exception,,"Jul 13, 2025",3,UFA,UFA,2028,"$8,000,000",5.0%,"$8,000,000","$8,000,000",$0,$0
+Jeremiah Fears,NOP,19,190,6' 3,PG,7 - Round 1 - 2025 (NOP),Rookie Scale Contract,Rookie Exception,,"Jul 5, 2025",2-4,Rk,RFA,2029,"$7,896,240",5.0%,"$8,548,407","$7,796,240","$100,000",$0
+Taylor Hendricks,MEM,22,215,6' 9,"PF, C",9 - Round 1 - 2023 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2023",2-4,Rk,RFA,2027,"$7,805,900",4.0%,"$6,337,895","$7,805,900",$0,$0
+Jaylin Williams,OKC,24,240,6' 9,PF,34 - Round 2 - 2022 (OKC),Veteran Contract,Bird Exception,,"Jun 29, 2025",3,UFA,UFA,2028,"$7,774,648",5.0%,"$8,000,000","$7,774,648",$0,$0
+Payton Pritchard,BOS,28,195,6' 1,PG,26 - Round 1 - 2020 (BOS),Rookie Scale Extension,Bird Exception,✔,"Oct 10, 2023",4,RFA,UFA,2028,"$7,767,857",4.0%,"$7,500,000","$7,767,857",$0,$0
+Goga Bitadze,ORL,26,250,6' 11,C,18 - Round 1 - 2019 (IND),Veteran Contract,Early-Bird Exception,,"Jul 6, 2024",3,UFA,UFA,2027,"$7,608,696",6.0%,"$8,333,333","$7,608,696",$0,$0
+Donovan Clingan,POR,22,280,7' 2,C,7 - Round 1 - 2024 (POR),Rookie Scale Contract,Rookie Exception,,"Jul 4, 2024",2-4,Rk,RFA,2028,"$7,519,920",5.0%,"$7,771,255","$7,519,920",$0,$0
+Zeke Nnaji,DEN,25,240,6' 10,PF,22 - Round 1 - 2020 (DEN),Rookie Scale Extension,Bird Exception,✔,"Oct 23, 2023",3-4,RFA,UFA,2028,"$7,466,667",6.0%,"$8,000,000","$7,466,667",$0,$0
+Cason Wallace,OKC,22,195,6' 3,"PG, SG",10 - Round 1 - 2023 (DAL),Rookie Scale Contract,Rookie Exception,,"Jul 7, 2023",2-4,Rk,RFA,2027,"$7,420,806",4.0%,"$6,022,082","$7,420,806",$0,$0
+Kingston Flemings,ATL,19,170,"6'3""",PG,8 - Round 1 - 2026 (ATL),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2026",2-4,Rk,RFA,2030,"$7,348,580",4.0%,"$8,357,705","$7,248,580","$100,000",$0
+Jett Howard,DAL,22,215,6' 8,SF,11 - Round 1 - 2023 (ORL),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,UFA,2027,"$7,337,938",4.0%,"$5,793,195","$7,337,938",$0,$0
+Dereck Lively II,DAL,22,230,7' 1,C,12 - Round 1 - 2023 (OKC),Rookie Contract,Rookie Exception,,"Jul 8, 2023",2-4,Rk,RFA,2027,"$7,239,130",3.0%,"$5,570,673","$7,239,130",$0,$0
+Egor Demin,BKN,20,200,6' 8,"PG, SF",8 - Round 1 - 2025 (BKN),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$7,233,720",4.0%,"$7,835,170","$7,133,720","$100,000",$0
+Kenrich Williams,OKC,31,210,6' 7,"PF, SF",-,Veteran Extension,Bird Exception,✔,"Jul 20, 2022",3-4,UFA,UFA,2027,"$7,163,000",5.0%,"$6,792,500","$7,163,000",$0,$0
+Gradey Dick,LAC,22,200,6' 7,"SG, SF",13 - Round 1 - 2023 (TOR),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2023",2-4,Rk,RFA,2027,"$7,131,510",3.0%,"$5,355,638","$7,131,510",$0,$0
+Clint Capela,HOU,32,256,6' 10,C,25 - Round 1 - 2014 (HOU),Veteran Contract,Bird Exception,,"Jul 6, 2025",3,UFA,UFA,2028,"$7,035,000",4.0%,"$7,035,000","$7,035,000",$0,$0
+Jordan Hawkins,NOP,24,190,6' 5,SG,14 - Round 1 - 2023 (NOP),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2023",2-4,Rk,RFA,2027,"$7,021,895",3.0%,"$5,149,764","$7,021,895",$0,$0
+Isaiah Jackson,LAC,24,205,6' 8,C,22 - Round 1 - 2021 (IND),Veteran Contract,Bird Exception,,"Jul 11, 2025",3,UFA,UFA,2028,"$7,000,000",5.0%,"$7,000,000","$7,000,000",$0,$0
+Rob Dillingham,CHI,21,175,6' 2,PG,8 - Round 1 - 2024 (SAS),Rookie Scale Contract,Rookie Exception,,"Jul 8, 2024",2-4,Rk,RFA,2028,"$6,889,320",4.0%,"$7,122,894","$6,889,320",$0,$0
+Al Horford,GSW,40,240,6' 8,"C, PF",3 - Round 1 - 2007 (ATL),Veteran Extension,Non-Bird Exception,✔,"Jul 6, 2026",1-2,UFA,UFA,2028,"$6,822,000",4.0%,"$6,992,550","$6,822,000",$0,$0
+Morez Johnson,DAL,20,235,"6'9""","PF, C",9 - Round 1 - 2026 (DAL),Rookie Contract,Rookie Exception,,"Jul 2, 2026",2-4,Rk,RFA,2030,"$6,754,800",4.0%,"$7,686,289","$6,754,800",$0,$0
+Collin Murray-Boyles,TOR,21,245,6' 7,PF,9 - Round 1 - 2025 (TOR),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2025",2-4,Rk,RFA,2029,"$6,649,560",4.0%,"$7,205,691","$6,549,560","$100,000",$0
+Keyonte George,UTA,22,185,6' 4,SG,16 - Round 1 - 2023 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2023",2-4,Rk,RFA,2027,"$6,563,925",3.0%,"$4,704,221","$6,563,925",$0,$0
+Saddiq Bey,NOP,27,215,6' 8,"PF, SF",19 - Round 1 - 2020 (BKN),Veteran Contract,MLE,,"Jul 11, 2024",3,UFA,UFA,2027,"$6,440,678",5.0%,"$6,666,667","$6,440,678",$0,"$349,206"
+Brayden Burries,MIL,20,200,"6'4""",SG,10 - Round 1 - 2026 (MIL),Rookie Contract,Rookie Exception,,"Jul 5, 2026",2-4,Rk,RFA,2030,"$6,417,360",4.0%,"$7,463,807","$6,417,360","$641,736",$0
+Zach Edey,MEM,24,305,7' 3,C,9 - Round 1 - 2024 (MEM),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$6,332,760",4.0%,"$6,550,644","$6,332,760",$0,$0
+Khaman Maluach,PHX,19,250,7' 1,C,10 - Round 1 - 2025 (HOU),Rookie Scale Contract,Rookie Exception,,"Jul 7, 2025",2-4,Rk,RFA,2029,"$6,316,680",4.0%,"$6,846,700","$6,316,680",$0,$0
+Day'Ron Sharpe,BKN,24,265,6' 10,C,29 - Round 1 - 2021 (BKN),Veteran Contract,Cap Room,✔,"Sep 3, 2025",2,UFA,UFA,2027,"$6,250,000",4.0%,"$6,250,000","$6,250,000",$0,$0
+Ziaire Williams,LAL,24,185,6' 9,SF,10 - Round 1 - 2021 (NOP),Veteran Contract,Cap Room,,"Sep 8, 2025",1-2,UFA,UFA,2027,"$6,250,000",4.0%,"$6,250,000","$6,250,000",$0,$0
+John Konchar,UTA,30,210,6' 5,SG,-,Veteran Extension,Bird Exception,✔,"Jul 6, 2022",3,UFA,UFA,2027,"$6,165,000",4.6%,"$6,165,000","$6,165,000",$0,$0
+Yaxel Lendeborg,GSW,23,240,"6'9""","SF, PF",11 - Round 1 - 2026 (GSW),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2026",2-4,Rk,RFA,2030,"$6,096,240",4.0%,"$7,025,712","$6,096,240",$0,$0
+Tim Hardaway Jr.,MIA,34,205,6' 5,"SG, SF",24 - Round 1 - 2013 (NYK),Veteran Contract,MLE,,"Jul 6, 2026",1,UFA,UFA,2027,"$6,065,000",4.0%,"$6,065,000","$6,065,000",$0,$0
+Luke Kennard,PHX,30,206,6' 5,SG,12 - Round 1 - 2017 (DET),Veteran Contract,Taxpayer-MLE,,"Jul 14, 2026",1-2,UFA,UFA,2028,"$6,064,000",4.0%,"$6,215,600","$6,064,000",$0,$0
+Marcus Smart,HOU,32,220,6' 3,"PG, SG",6 - Round 1 - 2014 (BOS),Veteran Contract,Taxpayer-MLE,,"Jul 10, 2026",1-2,UFA,UFA,2028,"$6,064,000",4.0%,"$6,215,600","$6,064,000",$0,$0
+Cody Williams,UTA,21,190,6' 8,SF,10 - Round 1 - 2024 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$6,015,600",4.0%,"$6,224,273","$6,015,600",$0,$0
+Cedric Coward,MEM,22,206,6' 5,"SG, SF",11 - Round 1 - 2025 (POR),Rookie Scale Contract,Rookie Exception,,"Jul 7, 2025",2-4,Rk,RFA,2029,"$6,001,080",4.0%,"$6,586,466","$5,901,080","$100,000",$0
+Jaden Hardy,LAL,24,198,6' 3,"SG, PG",37 - Round 2 - 2022 (SAC),Veteran Extension,Bird Exception,✔,"Oct 22, 2024",3,RFA,UFA,2028,"$6,000,000",4.0%,"$6,000,000","$6,000,000",$0,$0
+Jaxson Hayes,UTA,26,220,7' 0,"C, PF",8 - Round 1 - 2019 (ATL),Veteran Contract,MLE,,"Jul 9, 2026",1-2,UFA,UFA,2028,"$6,000,000",4.0%,"$6,000,000","$6,000,000",$0,$0
+Jake LaRavia,LAL,24,235,6' 7,"SF, PF",19 - Round 1 - 2022 (MIN),Veteran Contract,MLE,,"Jul 6, 2025",2,UFA,UFA,2027,"$6,000,000",4.0%,"$6,000,000","$6,000,000",$0,$0
+Josh Okogie,UTA,27,213,6' 4,SG,20 - Round 1 - 2018 (MIN),Veteran Contract,MLE,,"Jul 9, 2026",1-2,UFA,UFA,2028,"$6,000,000",4.0%,"$6,000,000","$6,000,000",$0,$0
+Anfernee Simons,PHI,27,200,6' 3,SG,24 - Round 1 - 2018 (POR),Veteran Contract,MLE,,"Jul 6, 2026",1-2,UFA,UFA,2028,"$6,000,000",4.0%,"$6,150,000","$6,000,000",$0,$0
+Al Horford,GSW,40,240,6' 8,"C, PF",3 - Round 1 - 2007 (ATL),Veteran Contract,Taxpayer-MLE,,"Oct 1, 2025",1-2,UFA,UFA,2027,"$5,969,250",4.0%,"$5,827,125","$5,969,250",$0,$0
+D'Angelo Russell,MEM,30,193,6' 3,PG,2 - Round 1 - 2015 (LAL),Veteran Contract,Taxpayer-MLE,,"Jul 6, 2025",2,UFA,UFA,2027,"$5,969,250",4.0%,"$5,827,125","$5,969,250",$0,$0
+Jaime Jaquez Jr.,MIL,25,230,6' 6,"SF, SG",18 - Round 1 - 2023 (MIA),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$5,939,141",2.0%,"$4,249,285","$5,931,451","$7,690",$0
+Nicolas Batum,LAC,37,230,6' 7,"SF, SG",25 - Round 1 - 2008 (HOU),Veteran Contract,Non-Bird Exception,,"Jul 6, 2025",1-2,UFA,UFA,2027,"$5,881,680",4.0%,"$5,741,640","$5,881,680",$0,$0
+Jordan Goodwin,PHX,27,215,6' 3,SG,-,Veteran Contract,Early-Bird Exception,,"Jul 7, 2026",2-3,UFA,UFA,2029,"$5,864,198",4.0%,"$6,333,333","$5,864,198",$0,$0
+Aday Mara,OKC,21,240,"7'3""",C,12 - Round 1 - 2026 (OKC),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$5,791,680",4.0%,"$7,009,340","$5,791,680",$0,$0
+Guerschon Yabusele,-,30,265,6' 7,PF,16 - Round 1 - 2016 (BOS),Veteran Contract,Taxpayer-MLE,,"Jul 6, 2025",2,UFA,UFA,2027,"$5,775,000",4.0%,"$5,637,500","$5,775,000",$0,$0
+Spencer Jones,DEN,25,225,6' 7,PF,-,Veteran Contract,MLE,,"Jul 25, 2026",2,RFA,UFA,2028,"$5,769,231",3.0%,"$6,000,000","$5,769,231",$0,$0
+Ousmane Dieng,MIL,23,185,6' 9,PF,11 - Round 1 - 2022 (NYK),Veteran Contract,Bird Exception,✔,"Jul 9, 2026",2-3,RFA,UFA,2029,"$5,750,000",3.0%,"$5,750,000","$5,750,000",$0,$0
+Matas Buzelis,CHI,21,196,6' 8,SF,11 - Round 1 - 2024 (CHI),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$5,715,360",4.0%,"$5,987,681","$5,715,360",$0,$0
+Noa Essengue,CHI,19,194,6' 8,PF,12 - Round 1 - 2025 (CHI),Rookie Scale Contract,Rookie Exception,,"Jul 4, 2025",2-4,Rk,RFA,2029,"$5,701,200",4.0%,"$6,333,486","$5,701,200",$0,$0
+Kris Dunn,LAC,32,205,6' 3,PG,5 - Round 1 - 2016 (MIN),Veteran Contract,Early-Bird Exception,,"Jul 6, 2024",3,UFA,UFA,2027,"$5,684,800",4.0%,"$5,426,400","$5,684,800",$0,$0
+Brandin Podziemski,GSW,23,205,6' 4,SG,19 - Round 1 - 2023 (GSW),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2023",2-4,Rk,RFA,2027,"$5,679,458",2.0%,"$4,059,955","$5,679,458",$0,$0
+Bradley Beal,LAC,33,207,6' 4,SG,3 - Round 1 - 2012 (WAS),Veteran Contract,MLE,,"Jul 18, 2025",1-2,UFA,UFA,2027,"$5,621,700",3.0%,"$5,487,850","$5,621,700",$0,$0
+Paul Reed,DET,27,210,6' 9,"C, PF",58 - Round 2 - 2020 (PHI),Veteran Contract,Early-Bird Exception,,"Jul 7, 2025",2,UFA,UFA,2027,"$5,602,689",3.0%,"$5,469,292","$5,602,689",$0,$0
+Khris Middleton,WAS,34,222,6' 7,SF,-,Veteran Contract,Bird Exception,,"Jul 7, 2026",3,UFA,UFA,2029,"$5,591,122",3.0%,"$5,870,678","$5,591,122",$0,$0
+Nate Ament,MIL,19,190,"6'9""","SF, SG",13 - Round 1 - 2026 (MIA),Rookie Contract,Rookie Exception,,"Jul 8, 2026",2-4,Rk,RFA,2030,"$5,502,000",3.0%,"$6,495,019","$4,951,800","$550,200",$0
+Landry Shamet,NYK,29,190,6' 5,SG,26 - Round 1 - 2018 (PHI),Veteran Contract,Bird Exception,,"Jul 6, 2026",4,UFA,UFA,2030,"$5,490,967",3.0%,"$5,994,617","$5,490,967",$0,$0
+Precious Achiuwa,SAC,26,243,6' 8,PF,20 - Round 1 - 2020 (MIA),Veteran Contract,Biannual Exception,,"Jul 7, 2026",2,UFA,UFA,2028,"$5,477,000",3.0%,"$5,613,925","$5,477,000",$0,$0
+Cam Whitmore,WAS,22,230,6' 6,SF,20 - Round 1 - 2023 (HOU),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2023",2-4,Rk,RFA,2027,"$5,458,310",2.0%,"$3,898,828","$5,458,310",$0,$0
+Nikola Topić,OKC,20,200,6' 6,PG,12 - Round 1 - 2024 (OKC),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$5,429,760",3.0%,"$5,757,712","$5,429,760",$0,$0
+Derik Queen,NOP,21,250,6' 9,"PF, C",13 - Round 1 - 2025 (ATL),Rookie Scale Contract,Rookie Exception,,"Jul 5, 2025",2-4,Rk,RFA,2029,"$5,416,080",3.0%,"$6,088,949","$5,316,080","$100,000",$0
+Noah Clowney,BKN,21,210,6' 10,"PF, C",21 - Round 1 - 2023 (BKN),Rookie Scale Contract,Rookie Exception,,"Jul 11, 2023",2-4,Rk,RFA,2027,"$5,414,034",2.0%,"$3,786,569","$5,414,034",$0,$0
+Kevin Porter Jr.,MIL,26,203,6' 5,"PG, SG",30 - Round 1 - 2019 (MIL),Veteran Contract,Room-MLE,,"Jul 7, 2025",1-2,UFA,UFA,2027,"$5,390,700",3.0%,"$5,262,350","$5,390,700",$0,$0
+Marcus Smart,HOU,32,220,6' 3,"PG, SG",6 - Round 1 - 2014 (BOS),Veteran Contract,Biannual Exception,,"Jul 22, 2025",1-2,UFA,UFA,2027,"$5,390,700",3.0%,"$5,262,350","$5,390,700",$0,$0
+De'Anthony Melton,GSW,28,200,6' 2,PG,46 - Round 2 - 2018 (HOU),Veteran Contract,MLE,,"Jul 1, 2026",1-2,UFA,UFA,2028,"$5,365,854",3.0%,"$5,500,000","$5,365,854",$0,$0
+Kris Murray,MEM,25,218,6' 8,"PF, SF",23 - Round 1 - 2023 (POR),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$5,315,004",2.0%,"$3,571,131","$5,315,004",$0,$0
+Jordan Miller,LAC,26,194,6' 5,SF,48 - Round 2 - 2023 (LAC),Veteran Contract,Bird Exception,,"Jul 9, 2026",2-3,RFA,UFA,2029,"$5,300,000",3.0%,"$5,100,000","$5,300,000",$0,$0
+Hannes Steinbach,CHA,20,180,"6'11""","PF, C",14 - Round 1 - 2026 (CHA),Rookie Contract,Rookie Exception,,"Jul 6, 2026",2-4,Rk,RFA,2030,"$5,227,200",3.0%,"$6,245,477","$5,227,200",$0,$0
+Marcus Sasser,DAL,25,195,6' 1,"SG, PG",25 - Round 1 - 2023 (MEM),Rookie Contract,Biannual Exception,,"Jul 5, 2023",2-4,Rk,RFA,2027,"$5,198,983",2.0%,"$3,366,206","$5,198,983",$0,$0
+Devin Carter,ATL,24,195,6' 2,SG,13 - Round 1 - 2024 (SAC),Rookie Scale Contract,Rookie Exception,,"Jul 9, 2024",2-4,Rk,RFA,2028,"$5,158,080",3.0%,"$5,535,424","$5,158,080",$0,$0
+Carter Bryant,SAS,20,220,6' 6,SF,14 - Round 1 - 2025 (SAS),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$5,145,360",3.0%,"$5,854,965","$4,287,800","$857,560",$0
+Ben Sheppard,IND,24,190,6' 6,SG,26 - Round 1 - 2023 (IND),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2023",2-4,Rk,RFA,2027,"$5,031,668",2.0%,"$3,255,857","$5,031,668",$0,$0
+Kenrich Williams,OKC,31,210,6' 7,"PF, SF",-,Veteran Contract,Bird Exception,,"Jul 6, 2026",1,UFA,UFA,2027,"$5,000,000",3.0%,"$5,500,000","$5,000,000",$0,"$500,000"
+Dailyn Swain,CHI,20,225,"6'8""","SF, PF",15 - Round 1 - 2026 (CHI),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$4,965,480",3.0%,"$6,003,571","$4,965,480",$0,$0
+Carlton Carrington,WAS,20,190,6' 4,"SG, PG",14 - Round 1 - 2024 (POR),Rookie Scale Contract,Rookie Exception,,"Jul 7, 2024",2-4,Rk,RFA,2028,"$4,900,560",3.0%,"$5,322,692","$4,900,560",$0,$0
+Thomas Sorber,OKC,20,250,6' 9,"C, PF",15 - Round 1 - 2025 (OKC),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$4,887,720",3.0%,"$5,628,183","$4,073,100","$814,620",$0
+Brice Sensabaugh,UTA,22,235,6' 6,SF,28 - Round 1 - 2023 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2023",2-4,Rk,RFA,2027,"$4,862,237",2.0%,"$3,144,019","$4,862,237",$0,$0
+Julian Strawther,DEN,24,205,6' 6,SF,29 - Round 1 - 2023 (IND),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2023",2-4,Rk,RFA,2027,"$4,826,931",2.0%,"$3,121,183","$4,826,931",$0,$0
+Kobe Brown,IND,26,250,6' 7,"SG, SF",30 - Round 1 - 2023 (LAC),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2023",2-4,Rk,UFA,2027,"$4,792,059",2.0%,"$3,098,545","$4,792,059",$0,$0
+Bennett Stirtz,OKC,22,180,"6'4""",PG,16 - Round 1 - 2026 (MEM),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$4,717,320",3.0%,"$5,911,510","$4,717,320",$0,$0
+Kel'el Ware,MIL,22,250,7' 0,C,15 - Round 1 - 2024 (MIA),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2024",2-4,Rk,RFA,2028,"$4,654,920",3.0%,"$5,116,518","$4,649,920","$5,000",$0
+Hansen Yang,POR,21,270,7' 1,C,16 - Round 1 - 2025 (MEM),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2025",2-4,Rk,RFA,2029,"$4,643,520",3.0%,"$5,348,397","$4,593,520","$50,000",$0
+Gui Santos,GSW,24,185,6' 7,SF,55 - Round 2 - 2022 (GSW),Veteran Extension,Bird Exception,✔,"Feb 28, 2026",2-3,RFA,UFA,2029,"$4,629,630",3.0%,"$5,000,000","$4,629,630",$0,$0
+Jose Alvarado,NYK,28,179,6' 0,PG,-,Veteran Extension,Bird Exception,✔,"Sep 30, 2024",1-2,UFA,UFA,2027,"$4,500,000",3.0%,"$4,500,000","$4,500,000",$0,$0
+Josh Minott,BKN,23,205,6' 8,SF,45 - Round 2 - 2022 (BOS),Veteran Contract,Cap Room,,"Jul 6, 2026",1-2,UFA,UFA,2028,"$4,500,000",3.0%,"$4,500,000","$4,500,000",$0,$0
+Ebuka Okorie,DET,19,175,"6'2""",PG,17 - Round 1 - 2026 (OKC),Rookie Contract,Rookie Exception,,"Jul 6, 2026",2-4,Rk,RFA,2030,"$4,481,280",3.0%,"$5,471,894","$4,481,280","$100,000",$0
+Jose Alvarado,NYK,28,179,6' 0,PG,-,Veteran Extension,Bird Exception,,"Jul 6, 2026",3,UFA,UFA,2029,"$4,439,656",3.0%,"$4,794,828","$4,439,656",$0,$0
+Jared McCain,OKC,22,195,6' 3,"SG, PG",16 - Round 1 - 2024 (PHI),Rookie Scale Contract,Rookie Exception,,"Jul 4, 2024",2-4,Rk,RFA,2028,"$4,422,600",3.0%,"$4,862,147","$4,422,600",$0,$0
+Joan Beringer,MIN,19,230,6' 11,C,17 - Round 1 - 2025 (MIN),Rookie Scale Contract,Rookie Exception,,"Jul 7, 2025",2-4,Rk,RFA,2029,"$4,411,200",2.0%,"$5,082,911","$3,998,700","$412,500",$0
+Christian Anderson,CHA,20,175,"6'2""",PG,18 - Round 1 - 2026 (CHA),Rookie Contract,Rookie Exception,,"Jul 6, 2026",2-4,Rk,RFA,2030,"$4,257,480",3.0%,"$5,153,310","$4,257,480",$0,$0
+Dalton Knecht,LAL,25,215,6' 6,"SG, SF",17 - Round 1 - 2024 (LAL),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$4,201,080",3.0%,"$4,620,805","$4,201,080",$0,$0
+Walter Clayton Jr.,MEM,23,195,6' 4,"PG, SG",18 - Round 1 - 2025 (WAS),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2025",2-4,Rk,RFA,2029,"$4,190,520",3.0%,"$4,831,118","$4,140,520","$50,000",$0
+Allen Graves,TOR,19,220,"6'9""",PF,19 - Round 1 - 2026 (TOR),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2026",2-4,Rk,RFA,2030,"$4,065,720",2.0%,"$4,923,777","$3,965,720","$100,000",$0
+Nolan Traore,BKN,20,185,6' 3,PG,19 - Round 1 - 2025 (BKN),Rookie Scale Contract,Rookie Exception,,"Jul 4, 2025",2-4,Rk,RFA,2029,"$4,002,000",2.0%,"$4,615,971","$3,902,000","$100,000",$0
+Daniss Jenkins,DET,24,165,6' 4,PG,-,Veteran Contract,Biannual Exception,,"Feb 9, 2026",2,RFA,RFA,2027,"$4,000,000",2.0%,"$3,904,762","$4,000,000",$0,$0
+Ryan Rollins,MIL,23,180,6' 3,SG,44 - Round 2 - 2022 (ATL),Veteran Contract,Early-Bird Exception,,"Jul 8, 2025",2-3,UFA,UFA,2028,"$4,000,000",3.0%,"$4,000,000","$4,000,000",$0,$0
+Tristan Da Silva,ORL,25,217,6' 8,PF,18 - Round 1 - 2024 (ORL),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$3,991,200",3.0%,"$4,391,907","$3,991,200",$0,$0
+Miles McBride,NYK,25,195,6' 2,PG,36 - Round 2 - 2021 (NYK),Veteran Extension,Bird Exception,✔,"Dec 30, 2023",3,RFA,UFA,2027,"$3,956,523",3.0%,"$4,333,333","$3,956,523",$0,$0
+Javonte Green,DET,32,205,6' 5,SF,-,Veteran Contract,Non-Bird Exception,,"Jul 8, 2026",1,UFA,UFA,2027,"$3,943,679",2.0%,"$3,943,679","$3,943,679",$0,$0
+Jayden Quaintance,SAS,18,215,"6'9""","PF, C",20 - Round 1 - 2026 (SAS),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$3,902,760",2.0%,"$4,899,030","$3,902,760",$0,$0
+Gary Trent Jr.,MIL,27,204,6' 5,SG,37 - Round 2 - 2018 (SAC),Veteran Contract,Non-Bird Exception,,"Jul 6, 2025",1-2,UFA,UFA,2027,"$3,881,962",2.0%,"$3,789,534","$3,881,962",$0,$0
+DeAndre Jordan,NOP,37,265,6' 11,C,35 - Round 2 - 2008 (LAC),Veteran Contract,Minimum Salary Exception,,"Jul 10, 2026",2,UFA,UFA,2028,"$3,876,529",2.0%,"$3,973,442","$3,876,529",$0,$0
+LeBron James,PHI,41,250,"6'9""","PF, PG, SF, SG",1 - Round 1 - 2003 (CLE),Veteran Contract,Minimum Salary Exception,,"Jul 24, 2026",1-2,UFA,UFA,2028,"$3,876,528",2.0%,"$3,973,442","$3,876,528",$0,$0
+Sviatoslav Mykhailiuk,UTA,29,205,6' 7,"SF, SG",47 - Round 2 - 2018 (LAL),Veteran Contract,Cap Room,,"Aug 10, 2024",3-4,UFA,UFA,2028,"$3,850,000",2.0%,"$3,762,500","$3,850,000",$0,$0
+Haywood Highsmith,PHX,29,220,6' 5,SF,-,Veteran Contract,Minimum Salary Exception,,"Feb 18, 2026",2,UFA,UFA,2027,"$3,846,142",1.0%,"$2,337,063","$3,846,142",$0,$0
+Kasparas Jakucionis,MIL,20,205,6' 5,"PG, SG",20 - Round 1 - 2025 (MIA),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2025",2-4,Rk,RFA,2029,"$3,841,680",2.0%,"$4,432,652","$3,691,680","$150,000",$0
+Pat Connaughton,CHA,33,209,6' 5,"SG, SF",41 - Round 2 - 2015 (BKN),Veteran Contract,Minimum Salary Exception,,"Feb 9, 2026",2,UFA,UFA,2027,"$3,815,861",1.0%,"$2,565,838","$3,815,861",$0,$0
+Taj Gibson,MEM,41,232,6' 9,"C, PF",26 - Round 1 - 2009 (CHI),Veteran Contract,Minimum Salary Exception,,"Feb 26, 2026",2,UFA,UFA,2027,"$3,815,861",1.0%,"$2,388,307","$3,815,861",$0,$0
+Gary Harris,DET,31,210,6' 4,SG,19 - Round 1 - 2014 (CHI),Veteran Contract,Minimum Salary Exception,,"Jul 8, 2025",1-2,UFA,UFA,2027,"$3,815,861",2.0%,"$3,725,007","$3,815,861",$0,$0
+Taurean Prince,DET,32,218,6' 6,SF,12 - Round 1 - 2016 (UTA),Veteran Contract,Minimum Salary Exception,,"Jul 8, 2025",1-2,UFA,UFA,2027,"$3,815,861",2.0%,"$3,559,818","$3,815,861",$0,$0
+Ja'Kobe Walter,TOR,21,180,6' 4,SG,19 - Round 1 - 2024 (TOR),Rookie Scale Contract,Rookie Exception,,"Jul 4, 2024",2-4,Rk,RFA,2028,"$3,811,800",2.0%,"$4,196,283","$3,811,800",$0,$0
+Will Riley,WAS,20,180,6' 9,SF,21 - Round 1 - 2025 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2025",2-4,Rk,RFA,2029,"$3,688,320",2.0%,"$4,305,048","$3,488,320","$200,000",$0
+Jaylon Tyson,CLE,23,215,6' 6,SF,20 - Round 1 - 2024 (CLE),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$3,658,560",2.0%,"$4,029,675","$3,658,560",$0,$0
+Labaron Philon,PHI,20,177,"6'4""",PG,22 - Round 1 - 2026 (PHI),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$3,597,120",2.0%,"$4,509,878","$3,597,120","$100,000",$0
+Drake Powell,BKN,20,195,6' 5,SG,22 - Round 1 - 2025 (ATL),Rookie Scale Contract,Rookie Exception,,"Jul 8, 2025",2-4,Rk,RFA,2029,"$3,540,600",2.0%,"$4,180,998","$3,440,600","$100,000",$0
+Yves Missi,NOP,22,235,6' 11,C,21 - Round 1 - 2024 (NOP),Rookie Scale Contract,Rookie Exception,,"Jul 8, 2024",2-4,Rk,RFA,2028,"$3,512,760",2.0%,"$3,913,707","$3,512,760",$0,$0
+Mo Bamba,UTA,28,231,7' 0,C,6 - Round 1 - 2018 (ORL),Veteran Contract,Minimum Salary Exception,,"Jul 10, 2026",1-2,UFA,UFA,2028,"$3,506,659",2.0%,"$3,603,490","$3,506,659",$0,$0
+Zuby Ejiofor,ATL,22,240,"6'9""",PF,23 - Round 1 - 2026 (ATL),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2026",2-4,Rk,RFA,2030,"$3,453,360",2.0%,"$4,330,924","$3,303,360","$150,000",$0
+De'Anthony Melton,GSW,28,200,6' 2,PG,46 - Round 2 - 2018 (HOU),Veteran Contract,Minimum Salary Exception,,"Oct 1, 2025",1-2,UFA,UFA,2027,"$3,451,779",2.0%,"$3,266,350","$3,451,779",$0,$0
+Dominick Barlow,PHI,23,224,6' 9,"PF, C",-,Veteran Contract,MLE,,"Feb 5, 2026",2,RFA,UFA,2027,"$3,415,000",2.0%,"$3,415,000","$3,415,000",$0,$0
+Ariel Hukporti,PHI,24,246,7' 0,C,58 - Round 2 - 2024 (DAL),Veteran Contract,Biannual Exception,,"Jul 6, 2026",1,UFA,UFA,2027,"$3,400,000",2.0%,"$3,400,000","$3,400,000",$0,$0
+Asa Newell,ATL,20,220,6' 10,"PF, C",23 - Round 1 - 2025 (NOP),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$3,399,480",2.0%,"$4,060,163","$3,249,480","$150,000",$0
+DaRon Holmes,DEN,23,225,6' 9,PF,22 - Round 1 - 2024 (PHX),Rookie Scale Contract,Rookie Exception,,"Jul 8, 2024",2-4,Rk,RFA,2028,"$3,372,120",2.0%,"$3,800,914","$3,372,120",$0,$0
+Cameron Carr,LAL,21,175,"6'5""",SG,24 - Round 1 - 2026 (NYK),Rookie Contract,Rookie Exception,,"Jul 2, 2026",2-4,Rk,RFA,2030,"$3,315,360",2.0%,"$4,255,373","$3,315,360","$100,000",$0
+Nique Clifford,SAC,24,175,6' 5,SF,24 - Round 1 - 2025 (OKC),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$3,263,400",2.0%,"$3,942,450","$3,163,400","$100,000",$0
+A.J. Johnson,MEM,21,160,6' 5,PG,23 - Round 1 - 2024 (MIL),Rookie Scale Contract,Rookie Exception,,"Jul 5, 2024",2-4,Rk,RFA,2028,"$3,237,120",2.0%,"$3,654,072","$3,237,120",$0,$0
+Sergio De Larrea,DAL,20,175,"6'5""",PG,25 - Round 1 - 2026 (LAL),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$3,182,280",2.0%,"$4,082,381","$3,182,280",$0,$0
+Ron Harper Jr.,BOS,26,233,6' 5,"SG, SF",-,Veteran Extension,Non-Bird Exception,✔,"Jul 6, 2026",3-4,UFA,UFA,2030,"$3,150,752",2.0%,"$3,426,057","$3,150,752",$0,$0
+Jase Richardson,ORL,20,180,6' 1,SG,25 - Round 1 - 2025 (ORL),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$3,132,360",2.0%,"$3,827,141","$3,132,360",$0,$0
+Kyshawn George,WAS,22,200,6' 8,"SF, SG",24 - Round 1 - 2024 (NYK),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$3,108,000",2.0%,"$3,584,043","$3,108,000",$0,$0
+Jaylen Clark,MIN,24,205,6' 5,SG,53 - Round 2 - 2023 (MIN),Veteran Contract,Bird Exception,,"Jul 10, 2026",3,RFA,UFA,2029,"$3,086,420",2.0%,"$3,333,333","$3,086,420",$0,$0
+Tarris Reed Jr.,SAS,22,260,"6'10""","PF, C",26 - Round 1 - 2026 (DEN),Rookie Contract,Rookie Exception,,"Jul 3, 2026",2-4,Rk,RFA,2030,"$3,076,920",2.0%,"$4,083,139","$3,076,920",$0,$0
+Ben Saraf,BKN,20,200,6' 6,"PG, SG",26 - Round 1 - 2025 (BKN),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$3,028,560",2.0%,"$3,701,704","$2,928,560","$100,000",$0
+Killian Hayes,SAC,24,195,6' 4,"PG, SG",7 - Round 1 - 2020 (DET),Veteran Contract,Minimum Salary Exception,,"Mar 15, 2026",2,UFA,UFA,2027,"$3,018,158",,"$1,731,408","$3,018,158",$0,$0
+Tarik Biberovic,DAL,25,218,6' 7,"SF, SG",56 - Round 2 - 2023 (MEM),Rookie Contract,MLE,,"Jul 10, 2026",1-2,Rk,RFA,2028,"$3,000,000",2.0%,"$3,000,000","$3,000,000",$0,$0
+Julian Champagnie,SAS,25,217,6' 7,"SG, SF",-,Veteran Contract,Cap Room,,"Jul 6, 2023",3-4,RFA,UFA,2027,"$3,000,000",2.0%,"$3,000,000","$3,000,000",$0,$0
+Kyle Filipowski,UTA,22,250,6' 11,C,32 - Round 2 - 2024 (UTA),Rookie Contract,Cap Room,,"Aug 12, 2024",3-4,Rk,RFA,2028,"$3,000,000",2.0%,"$3,000,000","$3,000,000",$0,$0
+Tristan Vukcevic,WAS,23,220,7' 0,"PF, C",42 - Round 2 - 2023 (WAS),Veteran Contract,MLE,,"Feb 21, 2026",2-3,RFA,UFA,2028,"$3,000,000",2.0%,"$2,952,381","$3,000,000",$0,$0
+Chris Cenac Jr.,BOS,19,230,"6'10""","PF, C",27 - Round 1 - 2026 (BOS),Rookie Contract,Rookie Exception,,"Jul 4, 2026",2-4,Rk,RFA,2030,"$2,988,120",2.0%,"$3,835,908","$2,988,120",$0,$0
+Pacôme Dadiet,NYK,20,210,6' 9,PF,25 - Round 1 - 2024 (NYK),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2024",2-4,Rk,RFA,2028,"$2,983,680",1.0%,"$3,253,242","$2,486,400","$497,280",$0
+Joshua Jefferson,BKN,22,240,"6'9""","C, PF",28 - Round 1 - 2026 (MIN),Rookie Contract,Rookie Exception,,"Jul 10, 2026",2-4,Rk,RFA,2030,"$2,969,520",2.0%,"$3,862,920","$2,969,520","$100,000",$0
+Alex Karaban,SAC,23,225,"6'8""","SF, PF",29 - Round 1 - 2026 (CLE),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2026",2-4,Rk,RFA,2030,"$2,948,280",2.0%,"$3,785,218","$2,848,280","$100,000",$0
+Danny Wolf,BKN,22,250,6' 11,"PF, C",27 - Round 1 - 2025 (BKN),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$2,941,440",2.0%,"$3,596,050","$2,841,440","$100,000",$0
+Koa Peat,PHX,19,235,"6'8""",PF,30 - Round 1 - 2026 (DAL),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2026",2-4,Rk,RFA,2030,"$2,926,800",2.0%,"$3,757,883","$2,926,800",$0,$0
+Hugo Gonzalez,BOS,20,200,6' 6,SF,28 - Round 1 - 2025 (BOS),Rookie Scale Contract,Rookie Exception,,"Jul 1, 2025",2-4,Rk,RFA,2029,"$2,923,560",2.0%,"$3,574,536","$2,661,060","$262,500",$0
+Liam McNeeley,CHA,20,210,6' 7,"SF, PF",29 - Round 1 - 2025 (PHX),Rookie Scale Contract,Rookie Exception,,"Jul 3, 2025",2-4,Rk,RFA,2029,"$2,902,080",2.0%,"$3,548,535","$2,902,080",$0,$0
+Yanic Niederhauser,LAC,23,242,6' 11,C,30 - Round 1 - 2025 (LAC),Rookie Scale Contract,Rookie Exception,,"Jul 7, 2025",2-4,Rk,RFA,2029,"$2,880,960",2.0%,"$3,522,899","$2,780,960","$100,000",$0
+Ajay Mitchell,OKC,24,190,6' 4,"PG, SG",38 - Round 2 - 2024 (NYK),Veteran Contract,Non-Bird Exception,,"Jul 6, 2025",2-3,RFA,UFA,2028,"$2,850,000",2.0%,"$2,900,000","$2,850,000",$0,$0
+Terrence Shannon Jr.,MIN,25,215,6' 6,SG,27 - Round 1 - 2024 (MIN),Rookie Scale Contract,Rookie Exception,,"Jul 8, 2024",2-4,Rk,RFA,2028,"$2,801,640",2.0%,"$3,269,130","$2,801,640",$0,$0
+Dalano Banton,-,26,203,6' 8,PG,46 - Round 2 - 2021 (TOR),Veteran Contract,Minimum Salary Exception,,"Apr 11, 2026",1-2,UFA,UFA,2027,"$2,801,346",,"$1,414,820","$2,801,346",$0,$0
+Luka Garza,BOS,27,243,6' 10,C,52 - Round 2 - 2021 (DET),Veteran Contract,Minimum Salary Exception,,"Jul 8, 2025",2,UFA,UFA,2027,"$2,801,346",2.0%,"$2,631,405","$2,801,346",$0,$0
+Sandro Mamukelashvili,LAL,27,240,6' 9,"C, PF",54 - Round 2 - 2021 (MIL),Veteran Contract,Minimum Salary Exception,,"Jul 3, 2025",1-2,UFA,UFA,2027,"$2,801,346",2.0%,"$2,631,405","$2,801,346",$0,$0
+Micah Potter,POR,28,248,6' 9,"PF, C",-,Veteran Contract,Minimum Salary Exception,,"Dec 26, 2025",2,UFA,UFA,2027,"$2,801,346",1.0%,"$2,164,576","$2,801,346",$0,$0
+Jericho Sims,MIL,27,250,6' 10,PF,58 - Round 2 - 2021 (NYK),Veteran Contract,Minimum Salary Exception,,"Jul 9, 2025",1-2,UFA,UFA,2027,"$2,801,346",2.0%,"$2,631,405","$2,801,346",$0,$0
+Trendon Watford,PHI,25,245,6' 8,"SF, PF",-,Veteran Contract,Minimum Salary Exception,,"Jul 1, 2025",2,UFA,UFA,2027,"$2,801,346",2.0%,"$2,631,405","$2,801,346",$0,$0
+Ryan Dunn,PHX,23,216,6' 7,"SF, PF",28 - Round 1 - 2024 (PHX),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$2,784,240",2.0%,"$3,249,588","$2,784,240",$0,$0
+Isaiah Collier,UTA,21,210,6' 4,PG,29 - Round 1 - 2024 (UTA),Rookie Scale Contract,Rookie Exception,,"Jul 2, 2024",2-4,Rk,RFA,2028,"$2,763,960",2.0%,"$3,225,947","$2,763,960",$0,$0
+Baylor Scheierman,BOS,25,205,6' 6,"SG, SF",30 - Round 1 - 2024 (BOS),Rookie Scale Contract,Rookie Exception,,"Jul 6, 2024",2-4,Rk,RFA,2028,"$2,744,040",2.0%,"$3,202,588","$2,744,040",$0,$0
+Justin Champagnie,WAS,25,206,6' 6,"SF, PF",-,Veteran Contract,MLE,✔,"Mar 3, 2025",3-4,RFA,UFA,2028,"$2,667,944",1.0%,"$2,455,652","$2,667,944",$0,$0
+Jay Huff,IND,27,240,7' 1,C,-,Veteran Contract,MLE,,"Oct 28, 2024",4,UFA,UFA,2028,"$2,667,944",1.0%,"$2,527,660","$2,667,944",$0,$0
+Vit Krejci,POR,26,195,6' 8,SG,37 - Round 2 - 2020 (WAS),Veteran Contract,MLE,,"Jul 12, 2024",4,RFA,UFA,2028,"$2,667,944",2.0%,"$2,546,303","$2,667,944",$0,$0
+Neemias Queta,BOS,26,248,7' 0,C,39 - Round 2 - 2021 (SAC),Veteran Contract,Bird Exception,,"Jul 6, 2024",3,RFA,UFA,2027,"$2,667,944",2.0%,"$2,393,376","$2,667,944",$0,$0
+Mohamed Diawara,NYK,21,225,6' 9,"PF, SF",51 - Round 2 - 2025 (LAC),Veteran Contract,Non-Bird Exception,,"Jul 6, 2026",3-4,RFA,UFA,2030,"$2,622,139",2.0%,"$2,819,685","$2,622,139",$0,$0
+Kobe Sanders,LAC,24,207,6' 8,"SG, SF",50 - Round 2 - 2025 (NYK),Veteran Contract,Non-Bird Exception,,"Jul 7, 2026",4,UFA,UFA,2030,"$2,622,139",2.0%,"$2,819,685","$2,622,139",$0,$0
+Jamaree Bouyea,PHX,27,180,6' 2,"PG, SG",-,Veteran Contract,Minimum Salary Exception,,"Mar 2, 2026",1-2,RFA,UFA,2027,"$2,584,539",,"$1,579,375","$2,584,539",$0,$0
+Jamal Cain,ORL,27,191,6' 7,SF,-,Veteran Contract,Minimum Salary Exception,,"Mar 20, 2026",1-2,RFA,UFA,2027,"$2,584,539",,"$1,456,330","$2,584,539",$0,$0
+JD Davison,HOU,23,195,6' 1,PG,53 - Round 2 - 2022 (BOS),Veteran Contract,Minimum Salary Exception,,"Apr 7, 2026",1-2,RFA,UFA,2027,"$2,584,539",,"$1,333,285","$2,584,539",$0,$0
+Ron Harper Jr.,BOS,26,233,6' 5,"SG, SF",-,Veteran Contract,Minimum Salary Exception,,"Apr 4, 2026",1-2,UFA,UFA,2027,"$2,584,539",,"$1,353,792","$2,584,539",$0,$0
+Quenton Jackson,IND,27,173,6' 4,"SG, PG",-,Veteran Contract,MLE,,"Feb 27, 2026",3,RFA,UFA,2028,"$2,584,539",,"$2,040,278","$2,584,539",$0,$0
+Bryce McGowens,NOP,23,190,6' 6,SG,40 - Round 2 - 2022 (MIN),Veteran Contract,MLE,,"Feb 20, 2026",2-3,RFA,UFA,2028,"$2,584,539",,"$2,076,736","$2,584,539",$0,$0
+Josh Minott,BKN,23,205,6' 8,SF,45 - Round 2 - 2022 (BOS),Veteran Contract,Minimum Salary Exception,,"Jul 7, 2025",1-2,UFA,UFA,2027,"$2,584,539",2.0%,"$2,481,705","$2,584,539",$0,$0
+Dru Smith,MIA,28,200,6' 2,PG,-,Veteran Contract,Early-Bird Exception,,"Aug 16, 2025",2-3,RFA,UFA,2028,"$2,584,539",2.0%,"$2,632,717","$2,584,539",$0,$0
+Dalen Terry,PHI,23,210,6' 6,"PG, SF, SG",18 - Round 1 - 2022 (CHI),Veteran Contract,MLE,,"Apr 10, 2026",1-2,RFA,UFA,2027,"$2,584,539",,"$1,355,235","$2,584,539",$0,$0
+Jabari Walker,PHI,23,237,6' 7,PF,57 - Round 2 - 2022 (POR),Veteran Contract,Minimum Salary Exception,,"Feb 19, 2026",2,RFA,UFA,2027,"$2,584,539",,"$1,654,569","$2,584,539",$0,$0
+Pete Nance,MIL,26,225,6' 9,"PF, C",-,Veteran Contract,Minimum Salary Exception,,"Jul 8, 2026",1-2,UFA,UFA,2028,"$2,537,526",2.0%,"$2,647,219","$2,537,526",$0,$0
+Sidy Cissoko,POR,22,220,6' 6,"PG, SF",44 - Round 2 - 2023 (SAS),Veteran Contract,Minimum Salary Exception,,"Feb 20, 2026",2,RFA,RFA,2027,"$2,497,812",,"$1,592,028","$2,497,812",$0,$0
+Jordan Miller,LAC,26,194,6' 5,SF,48 - Round 2 - 2023 (LAC),Veteran Contract,Minimum Salary Exception,,"Feb 18, 2026",2,RFA,RFA,2027,"$2,497,812",,"$1,605,225","$2,497,812",$0,$0
+Olivier-Maxence Prosper,MEM,24,230,6' 7,"SF, PF",24 - Round 1 - 2023 (SAC),Veteran Contract,Minimum Salary Exception,,"Mar 4, 2026",1-2,RFA,UFA,2027,"$2,497,812",,"$1,512,846","$2,497,812",$0,$0
+Nick Smith Jr.,-,22,185,6' 2,"PG, SG",27 - Round 1 - 2023 (CHA),Veteran Contract,Minimum Salary Exception,,"Apr 12, 2026",1-2,RFA,UFA,2027,"$2,497,812",,"$1,255,505","$2,497,812",$0,$0
+Moussa Diabaté,CHA,24,210,6' 10,"PF, C",43 - Round 2 - 2022 (LAC),Veteran Contract,Room-MLE,,"Feb 9, 2025",3,UFA,UFA,2027,"$2,461,462",1.0%,"$1,896,653","$2,461,462",$0,$0
+Scotty Pippen Jr.,MEM,23,170,6' 2,"PG, SG",-,Veteran Contract,MLE,,"Oct 15, 2024",3-4,UFA,UFA,2028,"$2,461,462",1.0%,"$2,402,233","$2,461,462",$0,$0
+Kyle Anderson,TOR,32,230,6' 8,"SF, PF",30 - Round 1 - 2014 (SAS),Veteran Contract,Minimum Salary Exception,,"Jul 6, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Marvin Bagley III,DEN,27,235,6' 10,PF,2 - Round 1 - 2018 (SAC),Veteran Contract,Minimum Salary Exception,,"Jul 14, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,506,659","$3,506,659",$0,$0
+Charles Bassey,GSW,25,230,6' 10,C,53 - Round 2 - 2021 (PHI),Veteran Contract,Minimum Salary Exception,,"Jul 9, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$2,845,883","$2,845,883",$0,$0
+Bogdan Bogdanovic,HOU,33,225,6' 5,SG,27 - Round 1 - 2014 (PHX),Veteran Contract,Minimum Salary Exception,,"Jul 8, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,524,115","$3,524,115",$0,$0
+Thomas Bryant,CLE,28,248,6' 9,C,42 - Round 2 - 2017 (WAS),Veteran Contract,Minimum Salary Exception,NA,"Jul 7, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,524,115","$3,524,115",$0,$0
+Branden Carlson,POR,27,220,7' 0,C,-,Veteran Contract,Minimum Salary Exception,NA,"Jul 1, 2026",1,UFA,RFA,2027,"$2,449,421",1.0%,"$2,449,421","$2,449,421",$0,$0
+Jevon Carter,ORL,30,190,6' 0,PG,32 - Round 2 - 2018 (MEM),Veteran Contract,Minimum Salary Exception,NA,"Jul 1, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,506,659","$3,506,659",$0,$0
+Jordan Clarkson,NYK,34,194,6' 5,"PG, SG",46 - Round 2 - 2014 (WAS),Veteran Contract,Minimum Salary Exception,NA,"Jul 10, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Mike Conley,BOS,38,175,6' 1,PG,4 - Round 1 - 2007 (MEM),Veteran Contract,Minimum Salary Exception,NA,"Jul 6, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Isaiah Crawford,HOU,24,220,6' 6,SF,-,Veteran Contract,Non-Bird Exception,NA,"Jul 22, 2026",3-4,RFA,UFA,2030,"$2,449,421",1.0%,"$2,818,695","$2,449,421",$0,$0
+Andre Drummond,NYK,32,279,6' 11,C,9 - Round 1 - 2012 (DET),Veteran Contract,Minimum Salary Exception,NA,"Jul 6, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Simone Fontecchio,MIA,30,220,6' 7,SF,-,Veteran Contract,Minimum Salary Exception,NA,"Jul 2, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$2,625,627","$2,625,627",$0,$0
+Nah'Shon Bones Hyland,MIN,25,169,6' 2,"PG, SG",26 - Round 1 - 2021 (DEN),Veteran Contract,Minimum Salary Exception,NA,"Jul 3, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$2,845,883","$2,845,883",$0,$0
+Jonathan Isaac,ORL,28,230,6' 10,"PF, SF",6 - Round 1 - 2017 (ORL),Veteran Contract,Minimum Salary Exception,NA,"Jul 1, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,524,115","$3,524,115",$0,$0
+Tyus Jones,DEN,30,196,6' 0,PG,24 - Round 1 - 2015 (CLE),Veteran Contract,Minimum Salary Exception,NA,"Jul 14, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Kevon Looney,LAL,30,222,6' 9,"C, PF",30 - Round 1 - 2015 (GSW),Veteran Contract,Minimum Salary Exception,NA,"Jul 12, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Trey Lyles,MIN,30,234,6' 9,PF,12 - Round 1 - 2015 (UTA),Veteran Contract,Minimum Salary Exception,NA,"Jul 10, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Jordan McLaughlin,SAS,30,185,5' 11,PG,-,Veteran Contract,Minimum Salary Exception,NA,"Jul 13, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,286,399","$3,286,399",$0,$0
+Larry Nance Jr.,IND,33,245,6' 6,"C, PF",27 - Round 1 - 2015 (LAL),Veteran Contract,Minimum Salary Exception,NA,"Jul 9, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,529","$3,876,529",$0,$0
+Daeqwon Plowden,SAC,27,216,6' 4,PG,-,Veteran Contract,Minimum Salary Exception,NA,"Jul 3, 2026",2,RFA,UFA,2028,"$2,449,421",1.0%,"$2,556,911","$2,449,421",$0,$0
+Jae’Sean Tate,HOU,30,230,6' 4,SF,-,Veteran Contract,Minimum Salary Exception,NA,"Jul 23, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,066,143","$3,066,143",$0,$0
+Matisse Thybulle,LAL,29,202,6' 5,SG,20 - Round 1 - 2019 (BOS),Veteran Contract,Minimum Salary Exception,NA,"Jul 20, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,286,399","$3,286,399",$0,$0
+Nikola Vucevic,ORL,35,265,6' 9,C,16 - Round 1 - 2011 (PHI),Veteran Contract,Minimum Salary Exception,NA,"Jul 1, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$3,876,528","$3,876,528",$0,$0
+Ziaire Williams,LAL,24,185,6' 9,SF,10 - Round 1 - 2021 (NOP),Veteran Contract,Minimum Salary Exception,NA,"Jul 19, 2026",1,UFA,UFA,2027,"$2,449,421",2.0%,"$2,845,883","$2,845,883",$0,$0
+Justin Edwards,PHI,22,217,6' 7,"SF, SG",-,Veteran Contract,Non-Bird Exception,NA,"Jul 6, 2025",2-3,RFA,UFA,2028,"$2,411,090",1.0%,"$2,358,779","$2,411,090",$0,$0
+Mouhamadou Gueye,MIN,28,210,6' 9,PF,-,Veteran Contract,Minimum Salary Exception,NA,"Apr 9, 2026",1-2,UFA,UFA,2027,"$2,411,090",,"$1,229,091","$2,411,090",$0,$0
+Sion James,CHA,23,220,6' 5,"PG, SF",33 - Round 2 - 2025 (CHA),Rookie Contract,Second Round Rookie Exception,NA,"Jul 4, 2025",3-4,Rk,RFA,2029,"$2,411,090",1.0%,"$2,492,241","$2,411,090",$0,$0
+Ryan Kalkbrenner,CHA,24,256,7' 1,C,34 - Round 2 - 2025 (CHA),Rookie Contract,Second Round Rookie Exception,NA,"Jul 3, 2025",3-4,Rk,RFA,2029,"$2,411,090",1.0%,"$2,492,241","$2,411,090",$0,$0
+Tolu Smith III,DET,25,254,6' 11,PF,-,Veteran Contract,Minimum Salary Exception,NA,"Apr 7, 2026",1-2,RFA,RFA,2027,"$2,411,090",,"$1,240,864","$2,411,090",$0,$0
+Cam Spencer,MEM,26,205,6' 3,"PG, SG",53 - Round 2 - 2024 (MIN),Veteran Contract,Cap Room,NA,"Jul 14, 2025",3-4,RFA,RFA,2029,"$2,411,090",2.0%,"$2,599,130","$2,411,090",$0,$0
+Nae'Qwan Tomlin,CLE,25,210,6' 8,"SF, PF",-,Veteran Contract,Minimum Salary Exception,NA,"Feb 11, 2026",2,RFA,RFA,2027,"$2,411,090",,"$1,564,620","$2,411,090",$0,$0
+Jahmir Young,MIA,25,185,6' 0,"PG, SG",-,Veteran Contract,Minimum Salary Exception,NA,"Apr 11, 2026",1-2,RFA,RFA,2027,"$2,411,090",,"$1,217,318","$2,411,090",$0,$0
+Toumani Camara,POR,26,230,6' 7,PF,52 - Round 2 - 2023 (PHX),Rookie Contract,Second Round Rookie Exception,NA,"Jul 3, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$1,909,826","$2,406,205",$0,$0
+Mouhamed Gueye,ATL,23,210,6' 11,PF,39 - Round 2 - 2023 (CHA),Rookie Contract,Second Round Rookie Exception,NA,"Jul 3, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$1,909,826","$2,406,205",$0,$0
+GG Jackson II,MEM,21,210,6' 9,"PF, C",45 - Round 2 - 2023 (MEM),Rookie Contract,MLE,NA,"Feb 9, 2024",3-4,Rk,RFA,2027,"$2,406,205",1.0%,"$2,127,792","$2,406,205",$0,$0
+Andre Jackson Jr.,MIL,24,209,6' 6,"SG, PG, SF",36 - Round 2 - 2023 (ORL),Rookie Contract,Second Round Rookie Exception,NA,"Jul 7, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$1,909,826","$2,406,205",$0,$0
+Trayce Jackson-Davis,TOR,26,245,6' 9,"PF, C",57 - Round 2 - 2023 (WAS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$1,909,826","$2,406,205",$0,$0
+Leonard Miller,CHI,22,220,6' 10,SF,33 - Round 2 - 2023 (SAS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 8, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$2,079,935","$2,406,205",$0,$0
+Julian Phillips,MIN,22,201,6' 6,"PF, SF",35 - Round 2 - 2023 (BOS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 12, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$2,029,935","$2,406,205",$0,$0
+Jalen Pickett,DEN,26,202,6' 2,PG,32 - Round 2 - 2023 (IND),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$2,056,971","$2,406,205",$0,$0
+Craig Porter Jr.,CLE,26,180,6' 1,PG,-,Rookie Contract,MLE,NA,"Feb 14, 2024",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$2,004,935","$2,406,205",$0,$0
+Jordan Walsh,BOS,22,205,6' 6,SF,38 - Round 2 - 2023 (SAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2023",3-4,Rk,UFA,2027,"$2,406,205",1.0%,"$1,909,826","$2,406,205",$0,$0
+Jamison Battle,TOR,25,220,6' 7,SF,-,Rookie Contract,MLE,NA,"Feb 7, 2025",3,Rk,RFA,2027,"$2,296,271",1.0%,"$1,750,549","$2,296,271",$0,$0
+Adem Bona,PHI,23,235,6' 10,"PF, C",41 - Round 2 - 2024 (PHI),Rookie Contract,Second Round Rookie Exception,NA,"Jul 21, 2024",3-4,Rk,RFA,2028,"$2,296,271",1.0%,"$1,973,949","$2,296,271",$0,$0
+Cameron Christie,LAC,20,190,6' 5,PG,46 - Round 2 - 2024 (LAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 5, 2024",3-4,Rk,RFA,2028,"$2,296,271",1.0%,"$1,973,949","$2,296,271",$0,$0
+Johnny Furphy,IND,21,200,6' 8,"SG, SF",35 - Round 2 - 2024 (SAS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2024",3-4,Rk,RFA,2028,"$2,296,271",1.0%,"$2,147,371","$2,296,271",$0,$0
+Oso Ighodaro,PHX,23,235,6' 11,PF,40 - Round 2 - 2024 (POR),Rookie Contract,Second Round Rookie Exception,NA,"Jul 4, 2024",3-4,Rk,RFA,2028,"$2,296,271",1.0%,"$1,973,949","$2,296,271",$0,$0
+Bronny James,LAL,21,210,6' 2,"PG, SG",55 - Round 2 - 2024 (LAL),Rookie Contract,Second Round Rookie Exception,NA,"Jul 3, 2024",3-4,Rk,RFA,2028,"$2,296,271",1.0%,"$1,973,949","$2,296,271",$0,$0
+Tyler Kolek,NYK,25,195,6' 2,PG,34 - Round 2 - 2024 (POR),Rookie Contract,Second Round Rookie Exception,NA,"Jul 3, 2024",2-4,Rk,RFA,2028,"$2,296,271",1.0%,"$2,265,671","$2,296,271",$0,$0
+Pelle Larsson,MIA,25,215,6' 5,"SG, SF",44 - Round 2 - 2024 (ATL),Rookie Contract,Second Round Rookie Exception,NA,"Jul 2, 2024",2-3,Rk,RFA,2027,"$2,296,271",1.0%,"$1,802,934","$2,296,271",$0,$0
+Karlo Matković,NOP,25,231,6' 10,"PF, C",52 - Round 2 - 2022 (NOP),Rookie Contract,Second Round Rookie Exception,NA,"Jul 22, 2024",2-3,Rk,RFA,2027,"$2,296,271",1.0%,"$1,886,267","$2,296,271",$0,$0
+Jonathan Mogbo,SAC,24,225,6' 9,PF,31 - Round 2 - 2024 (TOR),Rookie Contract,Second Round Rookie Exception,NA,"Jul 3, 2024",2-3,Rk,UFA,2027,"$2,296,271",1.0%,"$2,037,971","$2,296,271",$0,$0
+Jamal Shead,TOR,23,200,6' 1,PG,45 - Round 2 - 2024 (SAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 4, 2024",2-3,Rk,RFA,2027,"$2,296,271",1.0%,"$2,037,971","$2,296,271",$0,$0
+Jaylen Wells,MEM,22,206,6' 7,SF,39 - Round 2 - 2024 (MEM),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2024",3-4,Rk,RFA,2028,"$2,296,271",1.0%,"$1,973,949","$2,296,271",$0,$0
+Moussa Cissé,DAL,23,220,6' 11,"PF, C",-,Veteran Contract,Minimum Salary Exception,NA,"Jul 18, 2026",2,RFA,RFA,2028,"$2,185,116",1.0%,"$2,378,506","$2,185,116",$0,$0
+Alijah Martin,TOR,24,210,6' 2,PG,39 - Round 2 - 2025 (TOR),Veteran Contract,Minimum Salary Exception,NA,"Jul 3, 2026",2,RFA,RFA,2028,"$2,185,116",1.0%,"$2,378,506","$2,185,116",$0,$0
+Johni Broome,PHI,23,244,6' 9,"PF, C",35 - Round 2 - 2025 (PHI),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2025",3-4,Rk,RFA,2029,"$2,150,917",1.0%,"$2,171,347","$2,150,917",$0,$0
+Dylan Cardwell,SAC,24,255,6' 10,PF,-,Rookie Contract,MLE,NA,"Feb 5, 2026",4,RFA,UFA,2029,"$2,150,917",1.0%,"$2,070,879","$2,150,917",$0,$0
+Rasheer Fleming,PHX,22,240,6' 9,PF,31 - Round 2 - 2025 (MIN),Rookie Contract,Second Round Rookie Exception,NA,"Jul 7, 2025",3-4,Rk,RFA,2029,"$2,150,917",1.0%,"$2,171,347","$2,150,917",$0,$0
+Myron Gardner,MIA,25,225,6' 5,SG,-,Rookie Contract,MLE,NA,"Feb 18, 2026",3,RFA,RFA,2028,"$2,150,917",,"$1,690,616","$2,150,917",$0,$0
+Hayden Gray,UTA,23,190,6' 4,PG,-,Rookie Contract,Minimum Salary Exception,NA,"Apr 11, 2026",1-2,Rk,UFA,2027,"$2,150,917",,"$1,082,774","$2,150,917",$0,$0
+Chaz Lanier,DET,24,206,6' 3,SG,37 - Round 2 - 2025 (DET),Rookie Contract,Second Round Rookie Exception,NA,"Jul 7, 2025",3-4,Rk,RFA,2029,"$2,150,917",1.0%,"$2,196,347","$2,150,917",$0,$0
+Bez Mbeng,UTA,24,185,6' 4,SG,-,Rookie Contract,Minimum Salary Exception,NA,"Apr 3, 2026",1-2,UFA,UFA,2027,"$2,150,917",,"$1,112,035","$2,150,917",$0,$0
+Ryan Nembhard,ATL,23,180,5' 11,PG,-,Rookie Contract,Minimum Salary Exception,NA,"Feb 28, 2026",1-2,RFA,RFA,2027,"$2,150,917",,"$1,236,396","$2,150,917",$0,$0
+Micah Peavy,NOP,24,215,6' 7,SG,40 - Round 2 - 2025 (WAS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2025",3-4,Rk,RFA,2029,"$2,150,917",1.0%,"$2,171,347","$2,150,917",$0,$0
+Noah Penda,ORL,21,215,6' 7,"SF, PF",32 - Round 2 - 2025 (BOS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 4, 2025",2-4,Rk,RFA,2029,"$2,150,917",1.0%,"$2,171,347","$2,150,917",$0,$0
+Tyrese Proctor,CLE,22,185,6' 4,PG,49 - Round 2 - 2025 (CLE),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2025",3-4,Rk,UFA,2029,"$2,150,917",1.0%,"$2,171,347","$2,150,917",$0,$0
+Maxime Raynaud,SAC,23,250,7' 1,C,42 - Round 2 - 2025 (SAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 2, 2025",2-3,Rk,RFA,2028,"$2,150,917",1.0%,"$1,983,229","$2,150,917",$0,$0
+Will Richard,GSW,23,206,6' 3,PG,56 - Round 2 - 2025 (MEM),Rookie Contract,Second Round Rookie Exception,NA,"Sep 29, 2025",3-4,Rk,RFA,2029,"$2,150,917",1.0%,"$2,171,347","$2,150,917",$0,$0
+Kobe Sanders,LAC,24,207,6' 8,"SG, SF",50 - Round 2 - 2025 (NYK),Rookie Contract,Minimum Salary Exception,NA,"Feb 7, 2026",2,RFA,RFA,2027,"$2,150,917",,"$1,313,207","$2,150,917",$0,$0
+Max Shulga,BOS,24,210,6' 4,"PG, SG",57 - Round 2 - 2025 (ORL),Rookie Contract,Minimum Salary Exception,NA,"Mar 15, 2026",1-2,RFA,UFA,2027,"$2,150,917",,"$1,181,531","$2,150,917",$0,$0
+Malachi Smith,-,26,205,"6'4""",SG,-,Veteran Contract,Minimum Salary Exception,NA,"Apr 4, 2026",1-2,UFA,UFA,2027,"$2,150,917",,"$1,108,378","$2,150,917",$0,$0
+Adou Thiero,LAL,22,220,6' 7,"SF, PF",36 - Round 2 - 2025 (BKN),Rookie Contract,Second Round Rookie Exception,NA,"Jul 6, 2025",2-3,Rk,RFA,2028,"$2,150,917",1.0%,"$1,983,229","$2,150,917",$0,$0
+Jamir Watkins,WAS,25,210,6' 6,"SG, SF",43 - Round 2 - 2025 (UTA),Rookie Contract,MLE,NA,"Feb 26, 2026",1-2,RFA,UFA,2027,"$2,150,917",1.0%,"$1,641,444","$2,150,917",$0,$0
+Amari Williams,BOS,24,250,6' 11,C,46 - Round 2 - 2025 (ORL),Rookie Contract,Minimum Salary Exception,NA,"Feb 5, 2026",2,Rk,UFA,2027,"$2,150,917",,"$1,320,523","$2,150,917",$0,$0
+Baba Miller,LAC,22,204,"6'11""",C,36 - Round 2 - 2026 (LAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 9, 2026",3-4,Rk,RFA,2030,"$1,705,630",1.0%,"$2,403,129","$1,705,630",$0,$0
+Rashaun Agee,CLE,25,231,"6'7""",PF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Drake Allen,DET,25,190,"6'4""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Donovan Atwell,CHI,22,200,"6'5""",SG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Robbie Avila,LAL,22,240,"6'10""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 26, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Chris Bell,NOP,23,195,"6'7""",PF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Nick Boyd,GSW,25,177,"6'3""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Dion Brown,BKN,23,180,"6'3""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Nimari Burnett,TOR,24,200,"6'5""",SG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Corey Camper Jr.,PHX,24,180,"6'5""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Zach Cleveland,MEM,22,220,"6'7""","SF, PF",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Melvin Council Jr.,NOP,24,185,"6'4""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Barry Dunning Jr.,POR,22,195,"6'6""","SG, SF",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+BJ Edwards,SAC,23,200,"6'5""","SG, PG",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Giovanni Emejuru,DEN,23,265,"6'10""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Wyatt Fricks,CHA,23,205,"6'10""",PF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+J'Vonne Hadley,MIA,24,210,"6'7""",SF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Keyshawn Hall,MIA,23,240,"6'7""","PF, C",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Micah Handlogten,UTA,22,255,"7'1""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Jaden Henley,DET,22,215,"6'7""",SF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Sam Hoiberg,PHX,23,185,"6'0""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Ben Humrichous,BKN,23,235,"6'9""",PF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Graham Ike,GSW,23,250,"6'9""",PF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Nate Johnson,OKC,23,204,"6'3""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Jaxon Kohler,UTA,23,245,"6'9""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+William Kyle III,LAL,22,230,"6'9""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Xaivian Lee,CLE,22,180,"6'4""","PG, SG",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Fletcher Loyer,LAC,22,180,"6'4""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 25, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Max MacKinnon,CHA,22,195,"6'5""",SF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Rienk Mast,IND,24,250,"6'10""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Robert McCray V,LAL,23,188,"6'4""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Isaac McKneely,ATL,22,195,"6'4""",SG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Mark Mitchell,DEN,22,230,"6'9""","PF, SF",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+KeShawn Murphy,WAS,23,230,"6'10""","PF, C",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Aaron Nkrumah,DEN,24,175,"6'6""",SF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Kowacie Reeves Jr.,IND,23,205,"6'7""",SG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 26, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Malik Reneau,ORL,23,232,"6'9""",PF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Chase Ross,LAL,23,210,"6'5""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Corey Stephenson,DET,22,220,"6'6""","SG, SF",-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Christoph Tilly,OKC,23,240,"7'0""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Seth Trimble,WAS,21,195,"6'3""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Tre White,MIA,23,215,"6'7""",SF,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Lamar Wilkerson,OKC,24,206,"6'6""",SG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+"Latrell Wrightsell, Jr.",CHA,25,190,"6'3""",SG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,361,969",1.0%,"$1,361,969","$1,361,969",$0,$0
+Nate Bittle,TOR,23,215,"7'0""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jul 9, 2026",1,Rk,RFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Trevon Brazile,DEN,23,220,"6'10""",PF,35 - Round 2 - 2026 (SAS),Rookie Contract,Second Round Rookie Exception,NA,"Jul 10, 2026",3-4,Rk,RFA,2030,"$1,357,763",1.0%,"$2,316,162","$1,357,763",$0,$0
+Ryan Conwell,MIA,22,215,"6'4""","PG, SG",37 - Round 2 - 2026 (OKC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2026",2-3,Rk,RFA,2029,"$1,357,763",1.0%,"$2,115,499","$1,357,763",$0,$0
+Tucker DeVries,BOS,23,220,"6'7""","SG, SF",-,Rookie Contract,Minimum Salary Exception,NA,"Jul 14, 2026",1,Rk,RFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Alpha Diallo,DEN,29,207,"6'6""",SF,-,Rookie Contract,Minimum Salary Exception,NA,"Jul 12, 2026",1,Rk,UFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Isaiah Evans,MIN,20,185,"6'6""","SF, PG",33 - Round 2 - 2026 (BKN),Rookie Contract,Second Round Rookie Exception,NA,"Jul 13, 2026",3-4,Rk,RFA,2030,"$1,357,763",1.0%,"$2,316,162","$1,357,763",$0,$0
+Keba Keita,IND,22,230,"6'8""",C,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 25, 2026",1,Rk,RFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Tamin Lipsey,IND,23,200,"6'1""",PG,-,Exhibit 10,Minimum Salary Exception,NA,"Jun 24, 2026",1,Rk,RFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Bogoljub Marković,MIL,20,190,6' 11,PF,47 - Round 2 - 2025 (MIL),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2026",3-4,Rk,RFA,2030,"$1,357,763",1.0%,"$2,316,162","$1,357,763",$0,$0
+Duke Miles,PHI,24,180,"6'0""",PG,-,Rookie Contract,Minimum Salary Exception,NA,"Jul 7, 2026",1,Rk,RFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Emanuel Sharp,SAC,22,210,"6'3""",PG,45 - Round 2 - 2026 (SAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2026",2-3,Rk,RFA,2029,"$1,357,763",1.0%,"$2,115,499","$1,357,763",$0,$0
+Meleek Thomas,CLE,19,180,"6'4""","SG, PG",34 - Round 2 - 2026 (SAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2026",4,Rk,RFA,2030,"$1,357,763",1.0%,"$2,316,162","$1,357,763",$0,$0
+Bruce Thornton,HOU,22,215,"6'2""",PG,31 - Round 2 - 2026 (NYK),Rookie Contract,Second Round Rookie Exception,NA,"Jul 7, 2026",3-4,Rk,RFA,2030,"$1,357,763",1.0%,"$2,316,162","$1,357,763",$0,$0
+Milos Uzan,BOS,23,190,"6'4""",PG,-,Rookie Contract,Minimum Salary Exception,NA,"Jul 14, 2026",1,Rk,RFA,2027,"$1,357,763",1.0%,"$1,357,763","$1,357,763",$0,$0
+Henri Veesaar,ATL,22,225,"7'0""",C,52 - Round 2 - 2026 (LAC),Rookie Contract,Second Round Rookie Exception,NA,"Jul 1, 2026",3-4,Rk,RFA,2030,"$1,357,763",1.0%,"$2,316,162","$1,357,763",$0,$0
+Michael Ajayi,CHA,23,235,"6'7""",PG,-,Two-Way Contract,Two-Way,NA,"Jul 6, 2026",2,Rk,RFA,2028,$0,,"$713,983","$678,882",$0,$0
+Trey Alexander,UTA,23,185,6' 5,SG,-,Two-Way Contract,Two-Way,NA,"Jul 7, 2026",1,UFA,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Tobe Awaka,CHI,22,255,"6'8""",PF,-,Two-Way Contract,Two-Way,NA,"Jul 3, 2026",1,Rk,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Brooks Barnhizer,OKC,24,230,6' 5,"SG, SF",44 - Round 2 - 2025 (OKC),Two-Way Contract,Two-Way,NA,"Jul 2, 2026",1,RFA,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Tamar Bates,UTA,23,195,6' 4,"PG, SG",-,Two-Way Contract,Two-Way,NA,"Jul 3, 2026",2,UFA,RFA,2028,$0,,"$713,983","$678,882",$0,$0
+Tyler Bilodeau,BKN,22,235,"6'9""",PF,43 - Round 2 - 2026 (BKN),Two-Way Contract,Two-Way,NA,"Jul 2, 2026",1,Rk,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Leaky Black,-,27,209,6' 6,SF,-,Two-Way Contract,Two-Way,NA,"Feb 21, 2026",2,UFA,UFA,2027,$0,,"$433,763","$680,985",$0,$0
+Kylan Boswell,CHA,21,205,"6'2""",PG,-,Two-Way Contract,Two-Way,NA,"Jul 6, 2026",2,Rk,RFA,2028,$0,,"$713,983","$678,882",$0,$0
+Jaden Bradley,TOR,22,200,"6'3""","PG, SG",50 - Round 2 - 2026 (TOR),Two-Way Contract,Two-Way,NA,"Jul 4, 2026",1,Rk,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Koby Brea,PHX,23,215,6' 5,"PG, SG",41 - Round 2 - 2025 (GSW),Two-Way Contract,Two-Way,NA,"Jul 6, 2026",1,RFA,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Maliq Brown,SAS,22,213,"6'8""",SF,44 - Round 2 - 2026 (SAS),Two-Way Contract,Two-Way,NA,"Jul 3, 2026",1,Rk,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Kobe Brown,IND,26,250,6' 7,"SG, SF",30 - Round 1 - 2023 (LAC),Two-Way Contract,Two-Way,NA,"Jul 9, 2026",1,UFA,UFA,2027,$0,,"$678,882","$678,882",$0,$0
+Colin Castleton,ORL,26,250,6' 10,"C, PF",-,Two-Way Contract,Two-Way,NA,"Jul 1, 2026",1,RFA,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Rafael Castro,MIL,23,220,"6'11""",C,-,Two-Way Contract,Two-Way,NA,"Jun 24, 2026",1,Rk,RFA,2027,$0,,"$680,985","$680,985",$0,$0
+Carson Cooper,MEM,22,245,"6'11""",C,-,Two-Way Contract,Two-Way,NA,"Jun 24, 2026",1,Rk,RFA,2027,$0,,"$680,985","$680,985",$0,$0
+Quadir Copeland,HOU,22,200,"6'6""",PG,-,Two-Way Contract,Two-Way,NA,"Jul 7, 2026",1,Rk,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+LJ Cryer,GSW,24,200,6' 0,PG,-,Two-Way Contract,Two-Way,NA,"Dec 2, 2025",2,UFA,RFA,2027,$0,,"$581,899","$680,985",$0,$0
+RayJ Dennis,ATL,25,180,6' 1,PG,-,Two-Way Contract,Two-Way,NA,"Dec 31, 2025",2,UFA,RFA,2027,$0,,"$528,863","$680,985",$0,$0
+Hunter Dickinson,NOP,25,255,7' 1,C,-,Two-Way Contract,Two-Way,NA,"Jul 8, 2026",1,UFA,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Josh Dix,OKC,22,205,"6'6""",PG,-,Two-Way Contract,Two-Way,NA,"Jul 3, 2026",1,Rk,RFA,2027,$0,,"$678,882","$678,882",$0,$0
+Tre Donaldson,MIA,22,198,"6'3""",PG,-,Two-Way Contract,Two-Way,,"Jul 3, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Tristan Enaruna,CLE,25,220,6' 7,"SG, SF",-,Two-Way Contract,Two-Way,,"Jan 28, 2026",2,UFA,RFA,2027,$0,NA,"$477,655","$680,985",$0,$0
+Tosan Evbuomwan,-,25,217,6' 8,PF,-,Two-Way Contract,Two-Way,,"Feb 6, 2026",2,UFA,UFA,2027,$0,NA,"$460,144","$678,882",$0,$0
+Adam Flagler,SAC,26,180,6' 1,PG,-,Two-Way Contract,Two-Way,,"Jul 1, 2026",2,UFA,RFA,2028,$0,NA,"$713,983","$678,882",$0,$0
+Enrique Freeman,MIN,25,220,6' 9,PF,50 - Round 2 - 2024 (IND),Two-Way Contract,Two-Way,,"Jul 2, 2026",1,RFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Keshon Gilbert,ATL,23,200,6' 4,PG,-,Two-Way Contract,Two-Way,,"Mar 4, 2026",2,UFA,RFA,2027,$0,NA,"$413,646","$680,985",$0,$0
+Ja'Kobi Gillespie,SAS,22,186,"6'1""",SG,42 - Round 2 - 2026 (SAS),Two-Way Contract,Two-Way,,"Jul 3, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Vladislav Goldin,MIA,25,255,7' 0,C,-,Two-Way Contract,Two-Way,,"Jun 26, 2026",1,RFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+PJ Hall,CHA,24,245,6' 8,C,-,Two-Way Contract,Two-Way,,"Dec 24, 2025",2,UFA,RFA,2027,$0,NA,"$541,664","$680,985",$0,$0
+Elijah Harkless,DET,26,195,6' 3,PG,-,Two-Way Contract,Two-Way,,"Jul 8, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Chucky Hepburn,TOR,23,190,6' 0,PG,-,Two-Way Contract,Two-Way,,"Jun 25, 2026",1,RFA,RFA,2027,$0,NA,"$680,985","$680,985",$0,$0
+Blake Hinson,UTA,26,230,6' 8,SF,-,Two-Way Contract,Two-Way,,"Feb 9, 2026",2,UFA,RFA,2027,$0,NA,"$455,709","$680,985",$0,$0
+Jett Howard,DAL,22,215,6' 8,SF,11 - Round 1 - 2023 (ORL),Two-Way Contract,Two-Way,,"Jul 20, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+CJ Huntley,PHX,24,230,6' 11,"PF, SF",-,Two-Way Contract,Two-Way,,"Mar 2, 2026",2,UFA,RFA,2027,$0,NA,"$417,304","$680,985",$0,$0
+Chaney Johnson,BKN,24,220,6' 7,SF,-,Two-Way Contract,Two-Way,✔,"Jun 29, 2026",1,RFA,RFA,2027,$0,NA,"$680,985","$680,985",$0,$0
+Kam Jones,MIL,24,200,6' 4,"SG, PG",38 - Round 2 - 2025 (SAS),Two-Way Contract,Two-Way,,"Jul 4, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+David Jones,SAS,24,210,6' 4,SF,-,Two-Way Contract,Two-Way,,"Jul 22, 2026",1,RFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Isaac Jones,DET,25,245,6' 8,PF,-,Two-Way Contract,Two-Way,,"Feb 9, 2026",2,UFA,RFA,2027,$0,NA,"$455,709","$680,985",$0,$0
+Arthur Kaluma,LAL,24,225,"6'7""",PF,-,Two-Way Contract,Two-Way,,"Jul 20, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Jayson Kent,POR,24,215,6' 8,SF,-,Two-Way Contract,Two-Way,,"Mar 3, 2026",2,UFA,RFA,2027,$0,NA,"$415,475","$680,985",$0,$0
+Tobi Lawal,DAL,23,215,"6'8""",PF,48 - Round 2 - 2026 (DAL),Two-Way Contract,Two-Way,,"Jul 3, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Malevy Leons,GSW,26,210,6' 9,PF,-,Two-Way Contract,Two-Way,,"Dec 8, 2025",2,UFA,RFA,2027,$0,NA,"$570,926","$680,985",$0,$0
+Caleb Love,PHI,24,212,6' 3,"PG, SG",-,Two-Way Contract,Two-Way,,"Jul 3, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Chris Manon,LAL,24,209,6' 4,"PG, SG",-,Two-Way Contract,Two-Way,,"Jul 3, 2026",1,RFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Nick Martinelli,LAC,22,225,"6'7""","SF, PF",55 - Round 2 - 2026 (NYK),Two-Way Contract,Two-Way,,"Jun 30, 2026",2,Rk,RFA,2028,$0,NA,"$713,983","$678,882",$0,$0
+Jahmai Mashack,MEM,23,203,6' 4,PG,59 - Round 2 - 2025 (HOU),Two-Way Contract,Two-Way,,"Nov 16, 2025",2,Rk,RFA,2027,$0,NA,"$611,160","$680,985",$0,$0
+Emanuel Miller,SAS,26,215,6' 5,"SF, PF",-,Two-Way Contract,Two-Way,,"Feb 23, 2026",2,UFA,RFA,2027,$0,NA,"$430,106","$680,985",$0,$0
+Riley Minix,CLE,25,230,6' 7,PF,-,Two-Way Contract,Two-Way,,"Feb 13, 2026",2,UFA,RFA,2027,$0,NA,"$448,394","$680,985",$0,$0
+Jonathan Mogbo,SAC,24,225,6' 9,PF,31 - Round 2 - 2024 (TOR),Two-Way Contract,Two-Way,,"Jul 2, 2026",2,UFA,RFA,2028,$0,NA,"$713,983","$678,882",$0,$0
+Alex Morales,ORL,28,180,6' 6,SG,-,Two-Way Contract,Two-Way,,"Feb 17, 2026",2,UFA,UFA,2027,$0,NA,"$441,079","$680,985",$0,$0
+Izaiyah Nelson,ORL,22,220,"6'9""","PF, C",51 - Round 2 - 2026 (WAS),Two-Way Contract,Two-Way,,"Jul 1, 2026",2,Rk,RFA,2028,$0,NA,"$713,983","$678,882",$0,$0
+Tristen Newton,HOU,25,190,6' 5,PG,49 - Round 2 - 2024 (IND),Two-Way Contract,Two-Way,,"Jan 3, 2026",2,UFA,RFA,2027,$0,NA,"$523,376","$680,985",$0,$0
+AK Okereke,LAL,23,244,"6'7""",SF,-,Two-Way Contract,Two-Way,,"Jul 3, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Felix Okpara,WAS,22,235,"6'11""",C,46 - Round 2 - 2026 (ORL),Two-Way Contract,Two-Way,,"Jul 7, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Ugonna Onyenso,DET,22,245,"7'0""",C,53 - Round 2 - 2026 (HOU),Rookie Contract,Two-Way,,"Jul 2, 2026",2,Rk,RFA,2028,$0,NA,"$713,983","$678,882",$0,$0
+Otega Oweh,OKC,23,215,"6'5""",SG,41 - Round 2 - 2026 (MIA),Two-Way Contract,Two-Way,,"Jul 3, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Sean Pedulla,LAC,23,195,6' 1,PG,-,Two-Way Contract,Two-Way,,"Feb 19, 2026",2,UFA,RFA,2027,$0,NA,"$437,421","$680,985",$0,$0
+Taelon Peter,-,24,185,6' 3,PG,54 - Round 2 - 2025 (IND),Two-Way Contract,Two-Way,,"Jul 24, 2025",2,Rk,UFA,2027,$0,NA,"$658,710","$680,985",$0,$0
+Jaron Pierre,NOP,23,210,"6'6""","PG, SG",58 - Round 2 - 2026 (NOP),Rookie Contract,Two-Way,,"Jul 24, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+John Poulakidas,DAL,23,205,6' 6,"PG, SG",-,Two-Way Contract,Two-Way,,"Feb 28, 2026",2,UFA,RFA,2027,$0,NA,"$420,961","$680,985",$0,$0
+Zyon Pullin,MIN,25,206,6' 4,PG,-,Two-Way Contract,Two-Way,,"Mar 1, 2026",2,UFA,RFA,2027,$0,NA,"$419,133","$680,985",$0,$0
+Julian Reese,WAS,23,230,6' 9,PF,-,Two-Way Contract,Two-Way,,"Feb 28, 2026",2,UFA,RFA,2027,$0,NA,"$420,961","$680,985",$0,$0
+Rayan Rupert,PHI,22,205,6' 7,SG,43 - Round 2 - 2023 (POR),Two-Way Contract,Two-Way,,"Jul 8, 2026",1,UFA,UFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Cormac Ryan,MIL,27,200,6' 5,PG,-,Two-Way Contract,Two-Way,,"Feb 26, 2026",2,UFA,RFA,2027,$0,NA,"$424,619","$680,985",$0,$0
+Payton Sandfort,-,23,215,6' 7,"SF, SG",-,Two-Way Contract,Two-Way,,"Mar 2, 2026",2,UFA,UFA,2027,$0,NA,"$417,304","$680,985",$0,$0
+Jaylin Sellers,CHI,23,205,"6'5""",PG,-,Two-Way Contract,Two-Way,,"Jun 24, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Jamarion Sharp,LAC,24,235,"7'5""",C,-,Two-Way Contract,Two-Way,,"Jul 21, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+K. J. Simpson,DEN,23,189,6' 2,PG,42 - Round 2 - 2024 (CHA),Two-Way Contract,Two-Way,,"Feb 19, 2026",2,UFA,RFA,2027,$0,NA,"$437,421","$680,985",$0,$0
+Jalen Slawson,IND,26,215,6' 7,SF,54 - Round 2 - 2023 (SAC),Two-Way Contract,Two-Way,,"Jul 22, 2026",1,RFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Javon Small,MEM,23,190,6' 1,"PG, SG",48 - Round 2 - 2025 (MEM),Two-Way Contract,Two-Way,,"Jul 10, 2025",2,Rk,RFA,2027,$0,NA,"$658,710","$680,985",$0,$0
+Tyler Smith,-,21,224,6' 9,PF,33 - Round 2 - 2024 (MIL),Two-Way Contract,Two-Way,NA,"Feb 28, 2026",2,UFA,UFA,2027,$0,NA,"$420,961","$680,985",$0,$0
+Braden Smith,IND,22,175,"6'0""",PG,38 - Round 2 - 2026 (CHI),Two-Way Contract,Two-Way,NA,"Jun 24, 2026",1,Rk,RFA,2027,$0,NA,"$680,985","$680,985",$0,$0
+Pat Spencer,PHX,30,205,6' 2,PG,-,Two-Way Contract,Two-Way,NA,"Jul 3, 2026",1,UFA,UFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Isaiah Stevens,SAC,25,185,5' 11,PG,-,Two-Way Contract,Two-Way,NA,"Jul 8, 2025",2,UFA,UFA,2027,$0,NA,"$658,710","$680,985",$0,$0
+Peter Suder,-,22,213,"6'4""",PG,-,Two-Way Contract,Two-Way,NA,"Jul 3, 2026",1,Rk,UFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Ethan Thompson,IND,27,195,6' 4,SG,-,Two-Way Contract,Two-Way,NA,"Nov 30, 2025",2,UFA,RFA,2027,$0,NA,"$594,701","$680,985",$0,$0
+John Tonje,POR,25,218,"6'4""","PG, SG",53 - Round 2 - 2025 (UTA),Two-Way Contract,Two-Way,NA,"Jul 25, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Ernest Udeh Jr.,CLE,22,260,"6'11""",C,-,Two-Way Contract,Two-Way,NA,"Jul 1, 2026",1,Rk,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Jamir Watkins,WAS,25,210,6' 6,"SG, SF",43 - Round 2 - 2025 (UTA),Two-Way Contract,Two-Way,NA,"Jul 1, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Amari Williams,BOS,24,250,6' 11,C,46 - Round 2 - 2025 (ORL),Two-Way Contract,Two-Way,NA,"Jul 1, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Jalen Wilson,ATL,25,220,6' 6,"SF, PF",51 - Round 2 - 2023 (BKN),Two-Way Contract,Two-Way,NA,"Jul 22, 2026",1,UFA,RFA,2027,$0,NA,"$678,882","$678,882",$0,$0
+Chris Youngblood,POR,24,221,6' 4,SG,-,Two-Way Contract,Two-Way,NA,"Mar 3, 2026",2,UFA,RFA,2027,$0,NA,"$415,475","$680,985",$0,$0
+Rocco Zikarsky,MIN,19,227,7' 3,C,45 - Round 2 - 2025 (CHI),Two-Way Contract,Two-Way,NA,"Jul 9, 2025",2,Rk,RFA,2027,$0,NA,"$658,710","$680,985",$0,$0

@@ -1,0 +1,22 @@
+Package: basketballops
+Title: Thompson's Basketball Intelligence
+Version: 1.0.0
+Authors@R: person(given = "Danny", family = "Thompson", role = c("aut", "cre"), email = "danthompsoniii1983@gmail.com")
+Description: An executive basketball operations decision-support platform for roster, salary cap, trade, draft, and long-range planning analysis.
+License: MIT + file LICENSE
+Imports:
+    bsicons,
+    bslib,
+    config,
+    DBI,
+    dplyr,
+    duckdb,
+    golem,
+    reactable,
+    shiny
+Encoding: UTF-8
+LazyData: true
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
