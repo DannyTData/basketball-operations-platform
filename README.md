@@ -176,7 +176,7 @@ GitHub:
 https://github.com/DannyTData
 
 LinkedIn:
-(Add your LinkedIn URL)
+(https://www.linkedin.com/in/danny-f-thompson/)
 
 ---
 
