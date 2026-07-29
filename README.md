@@ -92,7 +92,7 @@ A modular NBA Basketball Operations decision-support platform built with **R Shi
 🚧 Draft Pick Valuation
 🚧 Lineup Optimization
 
-#Future Enhancements
+# Future Enhancements
 - Player similarity search
 - CBA Worded Explanations 
 - Trade optimization
