@@ -76,6 +76,22 @@ A modular NBA Basketball Operations decision-support platform built with **R Shi
 
 ---
 
+# Project Roadmap
+✅ Executive Dashboard
+✅ Salary Cap Intelligence
+✅ Trade Analyzer
+✅ Roster Intelligence
+✅ Draft Assets
+✅ Extension Simulator
+✅ Five-Year Outlook
+✅ Depth Chart
+
+🚧 Free Agency Planner
+🚧 Trade Machine 2.0
+🚧 Player Similarity Engine
+🚧 Draft Pick Valuation
+🚧 Lineup Optimization
+
 # Project Structure
 
 ```
