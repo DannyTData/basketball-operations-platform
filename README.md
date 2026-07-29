@@ -15,6 +15,9 @@ A modular NBA Basketball Operations decision-support platform built with **R Shi
 - Roster composition
 - Executive-level KPIs
 
+<img width="1902" height="802" alt="image" src="https://github.com/user-attachments/assets/b4a46862-99fc-4a57-9dcf-7a99aaf23cae" />
+
+
 ## 👥 Roster Intelligence
 - Complete roster management
 - Contract status
