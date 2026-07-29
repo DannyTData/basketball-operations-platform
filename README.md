@@ -92,6 +92,16 @@ A modular NBA Basketball Operations decision-support platform built with **R Shi
 🚧 Draft Pick Valuation
 🚧 Lineup Optimization
 
+#Future Enhancements
+- Player similarity search
+- CBA Worded Explanations 
+- Trade optimization
+- Draft pick valuation
+- Lineup optimization
+- Injury impact analysis
+- Free agency planner
+- AI-powered executive summaries
+
 # Project Structure
 
 ```
@@ -116,7 +126,122 @@ basketball-operations-platform
 
 ---
 
-# Installation
+# Installation and Setup
+
+## Requirements
+
+Before running Thompson Basketball Intelligence, install:
+
+- R 4.3 or newer
+- RStudio
+- Git
+
+## 1. Clone the Repository
+
+Open Git Bash or a terminal and run:
+
+```bash
+git clone https://github.com/DannyTData/basketball-operations-platform.git
+```
+
+Move into the project folder:
+
+```bash
+cd basketball-operations-platform
+```
+
+## 2. Open the RStudio Project
+
+Open:
+
+```text
+basketball-operations-platform.Rproj
+```
+
+RStudio should automatically recognize the project environment.
+
+## 3. Restore the Required Packages
+
+In the RStudio Console, run:
+
+```r
+install.packages("renv")
+renv::restore()
+```
+
+The restoration process may take several minutes because it installs the package versions used to build the application.
+
+## 4. Run the Application
+
+From the RStudio Console, run:
+
+```r
+golem::run_dev()
+```
+
+The application should open in the RStudio Viewer or your default web browser.
+
+## Alternative Run Method
+
+The application can also be started with:
+
+```r
+source("dev/run_dev.R")
+```
+
+## Troubleshooting
+
+### Missing `golem`
+
+```r
+install.packages("golem")
+library(golem)
+golem::run_dev()
+```
+
+### Missing `renv`
+
+```r
+install.packages("renv")
+renv::restore()
+```
+
+### Missing database packages
+
+```r
+install.packages(c(
+  "DBI",
+  "RSQLite",
+  "duckdb"
+))
+```
+
+### Package restoration problems
+
+Restart the R session:
+
+```text
+Session → Restart R
+```
+
+Then run:
+
+```r
+renv::restore()
+```
+
+### Application does not open automatically
+
+Run:
+
+```r
+options(shiny.launch.browser = TRUE)
+golem::run_dev()
+```
+
+## Data Disclaimer
+
+TBI is a portfolio and educational project. Salary, roster, contract, draft, and transaction information may include demonstration data or planning assumptions and should not be treated as an official NBA source.
 
 Clone the repository
 
