@@ -28,6 +28,9 @@ A modular NBA Basketball Operations decision-support platform built with **R Shi
 - Qualifying Offers
 - Restricted Free Agents
 
+<img width="1565" height="1046" alt="image" src="https://github.com/user-attachments/assets/f6eddc89-41d8-4f67-a4ca-629f611b106c" />
+
+
 ## 💰 Salary Cap Intelligence
 - Team payroll
 - Salary Cap
@@ -36,6 +39,9 @@ A modular NBA Basketball Operations decision-support platform built with **R Shi
 - Second Apron
 - Player salary as % of cap
 - Payroll threshold visualization
+
+<img width="1552" height="1057" alt="image" src="https://github.com/user-attachments/assets/90a50d29-a69d-4d89-a39c-9a5ddb73e359" />
+
 
 ## 🔄 Trade Intelligence
 - Trade matching
