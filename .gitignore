@@ -4,3 +4,9 @@
 .httr-oauth
 .DS_Store
 .quarto
+
+# Local backups and RStudio files
+*.zip
+.RData
+.Rhistory
+.Rproj.user/
