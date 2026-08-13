@@ -189,9 +189,7 @@ normalize_draft_control_type <- function(x) {
     "swap obligations" = "Swap Obligation"
   )
   
-  result <- unname(aliases[[value]])
-  
-  if (is.null(result)) {
+  if (!value %in% names(aliases)) {
     stop(
       paste0(
         "Unsupported control_type: ",
@@ -202,7 +200,7 @@ normalize_draft_control_type <- function(x) {
     )
   }
   
-  result
+  unname(aliases[[value]])
 }
 
 
@@ -1308,150 +1306,59 @@ save_draft_asset_condition <- function(
 
 #' Retrieve draft assets for one organization
 #' @noRd
-get_draft_assets <- function(team_value,
-                             year_from = NULL,
-                             year_to = NULL,
-                             include_inactive = FALSE,
-                             db_path = NULL) {
-  con <- connect_db(
-    db_path = db_path,
-    read_only = FALSE
-  )
-  
-  on.exit(
-    disconnect_db(con),
-    add = TRUE
-  )
-  
-  ensure_draft_asset_tables(con)
-  
-  team <- resolve_draft_team(
-    con,
-    team_value
-  )
-  
-  team_id <- as.integer(
-    team$team_id[[1]]
-  )
-  
-  filters <- c(
-    "
-    (
-      da.current_team_id = ?
-      OR (
-        da.control_type IN ('Outgoing', 'Swap Obligation')
-        AND da.original_team_id = ?
-      )
-    )
-    "
-  )
-  
-  params <- list(team_id, team_id)
-  
-  if (!isTRUE(include_inactive)) {
-    filters <- c(
-      filters,
-      "da.is_active = 1"
-    )
-  }
-  
-  if (!is.null(year_from)) {
-    filters <- c(
-      filters,
-      "da.draft_year >= ?"
-    )
-    params <- c(
-      params,
-      list(draft_integer(year_from))
-    )
-  }
-  
-  if (!is.null(year_to)) {
-    filters <- c(
-      filters,
-      "da.draft_year <= ?"
-    )
-    params <- c(
-      params,
-      list(draft_integer(year_to))
-    )
-  }
-  
-  sql <- paste0(
-    "
-    SELECT
-      da.draft_asset_id,
-      da.draft_year,
-      da.round,
-      da.control_type,
-      ot.team_name AS original_team,
-      ct.team_name AS current_team,
-      cp.team_name AS counterparty,
-      da.protection_text,
-      da.protection_type,
-      da.protected_from_pick,
-      da.protected_through_pick,
-      da.conveyance_start_year,
-      da.conveyance_end_year,
-      da.converts_to_round,
-      da.swap_priority,
-      da.strategic_value,
-      da.internal_value,
-      da.transaction_reference,
-      da.source_name,
-      da.source_url,
-      da.source_date,
-      da.verification_status,
-      da.notes,
-      da.is_active,
-      da.created_at,
-      da.updated_at,
-      COUNT(dac.draft_condition_id) AS condition_count
-    FROM draft_assets da
-    INNER JOIN teams ot
-      ON ot.team_id = da.original_team_id
-    INNER JOIN teams ct
-      ON ct.team_id = da.current_team_id
-    LEFT JOIN teams cp
-      ON cp.team_id = da.counterparty_team_id
-    LEFT JOIN draft_asset_conditions dac
-      ON dac.draft_asset_id = da.draft_asset_id
-    WHERE ",
-    paste(filters, collapse = " AND "),
-    "
-    GROUP BY
-      da.draft_asset_id
-    ORDER BY
-      da.draft_year,
-      CASE da.round
-        WHEN 'First' THEN 1
-        ELSE 2
-      END,
-      da.control_type,
-      ot.team_name;
-    "
-  )
-  
-  result <- DBI::dbGetQuery(
-    con,
-    sql,
-    params = params
-  )
-  
-  if (nrow(result)) {
-    result$requires_manual_review <-
-      result$verification_status != "Verified" |
-      result$protection_type %in%
-      c(
-        "Conditional",
-        "Best Of",
-        "Worst Of",
-        "Range Protected",
-        "Unspecified"
-      )
-  }
-  
-  result
+get_draft_assets <- function (team_value, year_from = NULL, year_to = NULL, include_inactive = FALSE, db_path = NULL) 
+{
+    con <- connect_db(db_path = db_path, read_only = FALSE)
+    on.exit(disconnect_db(con), add = TRUE)
+    ensure_draft_asset_tables(con)
+    team <- resolve_draft_team(con, team_value)
+    team_id <- as.integer(team$team_id[[1]])
+    filters <- c("\n    (\n      da.current_team_id = ?\n      OR da.original_team_id = ?\n    )\n    ")
+    params <- list(team_id, team_id)
+    if (!isTRUE(include_inactive)) {
+        filters <- c(filters, "da.is_active = 1")
+    }
+    if (!is.null(year_from)) {
+        filters <- c(filters, "da.draft_year >= ?")
+        params <- c(params, list(draft_integer(year_from)))
+    }
+    if (!is.null(year_to)) {
+        filters <- c(filters, "da.draft_year <= ?")
+        params <- c(params, list(draft_integer(year_to)))
+    }
+    sql <- paste0("\n    SELECT\n      da.draft_asset_id,\n      da.draft_year,\n      da.round,\n\n      da.original_team_id AS perspective_original_team_id,\n      da.current_team_id AS perspective_current_team_id,\n\n      da.control_type,\n\n      ot.team_name AS original_team,\n      ct.team_name AS current_team,\n      cp.team_name AS counterparty,\n\n      da.protection_text,\n      da.protection_type,\n      da.protected_from_pick,\n      da.protected_through_pick,\n\n      da.conveyance_start_year,\n      da.conveyance_end_year,\n      da.converts_to_round,\n\n      da.swap_priority,\n      da.strategic_value,\n      da.internal_value,\n\n      da.transaction_reference,\n      da.source_name,\n      da.source_url,\n      da.source_date,\n\n      da.verification_status,\n      da.notes,\n      da.is_active,\n\n      da.created_at,\n      da.updated_at,\n\n      COUNT(dac.draft_condition_id) AS condition_count\n\n    FROM draft_assets da\n\n    INNER JOIN teams ot\n      ON ot.team_id = da.original_team_id\n\n    INNER JOIN teams ct\n      ON ct.team_id = da.current_team_id\n\n    LEFT JOIN teams cp\n      ON cp.team_id = da.counterparty_team_id\n\n    LEFT JOIN draft_asset_conditions dac\n      ON dac.draft_asset_id = da.draft_asset_id\n\n    WHERE ", 
+        paste(filters, collapse = " AND "), "\n\n    GROUP BY\n      da.draft_asset_id\n\n    ORDER BY\n      da.draft_year,\n\n      CASE da.round\n        WHEN 'First' THEN 1\n        ELSE 2\n      END,\n\n      da.control_type,\n      ot.team_name;\n    ")
+    result <- DBI::dbGetQuery(con, sql, params = params)
+    if (nrow(result)) {
+        stored_control_type <- result$control_type
+        original_id <- as.integer(result$perspective_original_team_id)
+        current_id <- as.integer(result$perspective_current_team_id)
+        result$control_type <- vapply(seq_len(nrow(result)), function(i) {
+            stored <- stored_control_type[[i]]
+            original <- original_id[[i]]
+            current <- current_id[[i]]
+            if (original == team_id && current == team_id) {
+                return(stored)
+            }
+            if (current == team_id && original != team_id) {
+                if (stored %in% c("Swap Right", "Swap Obligation")) {
+                  return("Swap Right")
+                }
+                return("Incoming")
+            }
+            if (original == team_id && current != team_id) {
+                if (stored %in% c("Swap Right", "Swap Obligation")) {
+                  return("Swap Obligation")
+                }
+                return("Outgoing")
+            }
+            stored
+        }, character(1))
+        result$perspective_original_team_id <- NULL
+        result$perspective_current_team_id <- NULL
+        result$requires_manual_review <- result$verification_status != "Verified" | result$protection_type %in% c("Conditional", "Best Of", "Worst Of", "Range Protected", "Unspecified")
+    }
+    result
 }
 
 

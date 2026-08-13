@@ -1,41 +1,63 @@
-library(DBI)
-library(RSQLite)
-library(dplyr)
+# ============================================================
+# Thompson's Basketball Intelligence
+# Depth Chart Population Maintenance
+#
+# Phase 15J safety repair:
+# This file DEFINES a maintenance function only.
+# It must never rebuild depth_chart during package loading.
+# ============================================================
 
-con <- dbConnect(
-  RSQLite::SQLite(),
-  "inst/database/tbi.sqlite"
-)
 
-current_season <- "2026-27"
+#' Rebuild the depth chart for one season
+#'
+#' This is an explicit maintenance action.
+#' It does not run during devtools::load_all().
+#'
+#' @param current_season Season to rebuild.
+#' @param db_path Optional explicit database path.
+#' @return Invisibly returns the populated depth-chart rows.
+#' @noRd
+tbi_populate_depth_chart <- function(
+    current_season = "2026-27",
+    db_path = NULL) {
 
-# Create the table if it does not already exist
-dbExecute(
-  con,
-  "
-  CREATE TABLE IF NOT EXISTS depth_chart (
-      depth_chart_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      player_id INTEGER NOT NULL,
-      team_id INTEGER NOT NULL,
-      season TEXT NOT NULL,
-      position TEXT NOT NULL,
-      depth_order INTEGER NOT NULL,
-      is_starter INTEGER NOT NULL DEFAULT 0,
-      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  if (
+    !length(current_season) ||
+    is.na(current_season[[1]]) ||
+    !nzchar(trimws(as.character(current_season[[1]])))
+  ) {
+    stop(
+      "current_season must be a non-empty season value.",
+      call. = FALSE
+    )
+  }
 
-      UNIQUE(player_id, team_id, season),
+  current_season <- trimws(
+    as.character(current_season[[1]])
+  )
 
-      FOREIGN KEY(player_id) REFERENCES players(player_id),
-      FOREIGN KEY(team_id) REFERENCES teams(team_id)
-  );
-  "
-)
 
-# Pull the current active roster
-current_roster <- dbGetQuery(
-  con,
-  "
-  SELECT
+  # Ensure canonical table exists.
+  tbi_create_depth_chart_table(
+    db_path = db_path
+  )
+
+
+  con <- connect_db(
+    db_path = db_path,
+    read_only = FALSE
+  )
+
+  on.exit(
+    disconnect_db(con),
+    add = TRUE
+  )
+
+
+  current_roster <- DBI::dbGetQuery(
+    con,
+    "
+    SELECT
       p.player_id,
       p.player_name,
       p.primary_position,
@@ -43,31 +65,48 @@ current_roster <- dbGetQuery(
       rh.team_id,
       t.team_name,
       rh.season,
-      rh.roster_status,
       rh.two_way_flag,
       COALESCE(cy.cap_hit, 0) AS cap_hit
-  FROM roster_history rh
-  INNER JOIN players p
+
+    FROM roster_history rh
+
+    INNER JOIN players p
       ON rh.player_id = p.player_id
-  INNER JOIN teams t
+
+    INNER JOIN teams t
       ON rh.team_id = t.team_id
-  LEFT JOIN contract_years cy
+
+    LEFT JOIN contract_years cy
       ON rh.player_id = cy.player_id
       AND rh.team_id = cy.team_id
       AND rh.season = cy.season
-  WHERE rh.season = ?
-      AND rh.roster_status IN ('Active', 'Qualifying Offer')
-      AND rh.end_date IS NULL
-  ",
-  params = list(current_season)
-)
 
-# Use the first listed position as the player's depth-chart position
-depth_chart_seed <- current_roster %>%
-  mutate(
-    planning_status = as.integer(
-      roster_status == "Qualifying Offer"
-    ),
+    WHERE
+      rh.season = ?
+      AND rh.roster_status = 'Active'
+      AND rh.end_date IS NULL
+    ",
+    params = list(
+      current_season
+    )
+  )
+
+
+  if (!nrow(current_roster)) {
+    stop(
+      paste0(
+        "No active roster rows found for season ",
+        current_season,
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+
+  depth_chart_seed <- dplyr::mutate(
+    current_roster,
+
     position = trimws(
       sub(
         ",.*$",
@@ -75,7 +114,8 @@ depth_chart_seed <- current_roster %>%
         primary_position
       )
     ),
-    position = case_when(
+
+    position = dplyr::case_when(
       position %in% c(
         "PG",
         "SG",
@@ -83,30 +123,45 @@ depth_chart_seed <- current_roster %>%
         "PF",
         "C"
       ) ~ position,
+
       TRUE ~ "UTIL"
     )
-  ) %>%
-  group_by(
+  )
+
+
+  depth_chart_seed <- dplyr::group_by(
+    depth_chart_seed,
     team_id,
     season,
     position
-  ) %>%
-  arrange(
-    planning_status,
+  )
+
+
+  depth_chart_seed <- dplyr::arrange(
+    depth_chart_seed,
     two_way_flag,
-    desc(cap_hit),
+    dplyr::desc(cap_hit),
     player_name,
     .by_group = TRUE
-  ) %>%
-  mutate(
-    depth_order = row_number(),
+  )
+
+
+  depth_chart_seed <- dplyr::mutate(
+    depth_chart_seed,
+    depth_order = dplyr::row_number(),
     is_starter = as.integer(
-      depth_order == 1 &
-        planning_status == 0
+      depth_order == 1L
     )
-  ) %>%
-  ungroup() %>%
-  select(
+  )
+
+
+  depth_chart_seed <- dplyr::ungroup(
+    depth_chart_seed
+  )
+
+
+  depth_chart_seed <- dplyr::select(
+    depth_chart_seed,
     player_id,
     team_id,
     season,
@@ -115,28 +170,43 @@ depth_chart_seed <- current_roster %>%
     is_starter
   )
 
-# Clear only the season being rebuilt
-dbExecute(
-  con,
-  "DELETE FROM depth_chart WHERE season = ?",
-  params = list(current_season)
-)
 
-# Insert the initial depth chart
-dbWriteTable(
-  con,
-  "depth_chart",
-  depth_chart_seed,
-  append = TRUE,
-  row.names = FALSE
-)
+  DBI::dbWithTransaction(
+    con,
+    {
 
-cat(
-  "Depth chart populated for",
-  n_distinct(depth_chart_seed$team_id),
-  "teams and",
-  nrow(depth_chart_seed),
-  "players.\n"
-)
+      DBI::dbExecute(
+        con,
+        "DELETE FROM depth_chart WHERE season = ?",
+        params = list(
+          current_season
+        )
+      )
 
-dbDisconnect(con)
+
+      DBI::dbWriteTable(
+        con,
+        "depth_chart",
+        depth_chart_seed,
+        append = TRUE,
+        row.names = FALSE
+      )
+    }
+  )
+
+
+  message(
+    "Depth chart populated for ",
+    dplyr::n_distinct(
+      depth_chart_seed$team_id
+    ),
+    " teams and ",
+    nrow(depth_chart_seed),
+    " players."
+  )
+
+
+  invisible(
+    depth_chart_seed
+  )
+}

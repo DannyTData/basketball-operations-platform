@@ -13,6 +13,24 @@
 #' @return A normalized database path.
 #' @noRd
 resolve_tbi_db_path <- function(db_path = NULL) {
+  # TBI_PHASE15J_WEB_DB_OVERRIDE
+  demo_mode <- tolower(trimws(Sys.getenv("TBI_DEMO_MODE", "false"))) %in% c("1", "true", "yes", "on")
+  demo_override <- trimws(Sys.getenv("TBI_DB_OVERRIDE", ""))
+
+  if (
+    isTRUE(demo_mode) &&
+    nzchar(demo_override) &&
+    file.exists(demo_override)
+  ) {
+    return(
+      normalizePath(
+        demo_override,
+        winslash = "/",
+        mustWork = TRUE
+      )
+    )
+  }
+
   candidates <- character()
   
   if (!is.null(db_path) && length(db_path) == 1L && nzchar(db_path)) {

@@ -504,9 +504,7 @@ draft_control_type_multiplier <- function(control_type,
     "swap_obligation" = "swap_obligation"
   )
   
-  resolved <- aliases[[key]]
-  
-  if (is.null(resolved)) {
+  if (!key %in% names(aliases)) {
     stop(
       paste0(
         "Unsupported control_type: ",
@@ -516,6 +514,10 @@ draft_control_type_multiplier <- function(control_type,
       call. = FALSE
     )
   }
+  
+  resolved <- unname(
+    aliases[[key]]
+  )
   
   multiplier <- rules$control_type_multipliers[[resolved]]
   
