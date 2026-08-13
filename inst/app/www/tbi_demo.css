@@ -1,0 +1,253 @@
+.tbi-demo-status {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border: 1px solid rgba(100, 145, 210, .28);
+  border-radius: 10px;
+  background: rgba(5, 13, 24, .92);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .24);
+  color: #b9c8da;
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+}
+
+.tbi-demo-lock {
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: rgba(53, 211, 153, .12);
+  color: #67e8b8;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .07em;
+}
+
+.tbi-demo-vault-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9990;
+  border: 1px solid rgba(83, 145, 255, .45);
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #246bfd;
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .32);
+}
+
+.tbi-demo-vault {
+  position: fixed;
+  right: 18px;
+  bottom: 68px;
+  z-index: 9995;
+  width: min(390px, calc(100vw - 36px));
+  max-height: min(610px, calc(100vh - 110px));
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, .22);
+  border-radius: 16px;
+  background: rgba(7, 16, 29, .98);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .48);
+  color: #eef4fb;
+}
+
+.tbi-demo-vault.open {
+  display: flex;
+}
+
+.tbi-demo-vault-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, .14);
+}
+
+.tbi-demo-vault-header strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 14px;
+}
+
+.tbi-demo-vault-header span {
+  display: block;
+  color: #899aaf;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.tbi-demo-icon-button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .03);
+  color: #dbe8f6;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.tbi-demo-vault-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, .12);
+}
+
+.tbi-demo-primary-button,
+.tbi-demo-secondary-button,
+.tbi-demo-load,
+.tbi-demo-delete {
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tbi-demo-primary-button {
+  border: 1px solid rgba(68, 130, 255, .55);
+  background: #246bfd;
+  color: white;
+}
+
+.tbi-demo-secondary-button {
+  border: 1px solid rgba(148, 163, 184, .22);
+  background: rgba(255, 255, 255, .04);
+  color: #c8d6e6;
+}
+
+.tbi-demo-scenario-list {
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.tbi-demo-empty {
+  padding: 22px 12px;
+  text-align: center;
+  color: #78899d;
+  font-size: 12px;
+}
+
+.tbi-demo-scenario-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 11px;
+  border: 1px solid rgba(148, 163, 184, .13);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.tbi-demo-scenario-copy {
+  min-width: 0;
+}
+
+.tbi-demo-scenario-copy strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #eef5fc;
+  font-size: 12px;
+}
+
+.tbi-demo-scenario-copy span {
+  display: block;
+  margin-top: 3px;
+  color: #74879d;
+  font-size: 10px;
+}
+
+.tbi-demo-scenario-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.tbi-demo-load {
+  border: 1px solid rgba(53, 211, 153, .28);
+  background: rgba(53, 211, 153, .09);
+  color: #68e8ba;
+}
+
+.tbi-demo-delete {
+  border: 1px solid rgba(255, 102, 122, .22);
+  background: rgba(255, 102, 122, .08);
+  color: #ff8c9d;
+}
+
+.tbi-demo-expiration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(3, 8, 16, .985);
+}
+
+.tbi-demo-expiration-overlay.visible {
+  display: flex;
+}
+
+.tbi-demo-expiration-card {
+  width: min(560px, 100%);
+  padding: 42px;
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 18px;
+  background: #091321;
+  text-align: center;
+  color: #f8fafc;
+  box-shadow: 0 30px 100px rgba(0, 0, 0, .55);
+}
+
+.tbi-demo-expiration-logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background: #246bfd;
+  color: white;
+  font-weight: 900;
+}
+
+.tbi-demo-expiration-card h2 {
+  margin: 0 0 10px;
+}
+
+.tbi-demo-expiration-card p {
+  margin: 0;
+  color: #96a8bb;
+}
+
+@media (max-width: 720px) {
+  .tbi-demo-status {
+    top: auto;
+    right: 12px;
+    bottom: 66px;
+  }
+
+  .tbi-demo-vault-toggle {
+    right: 12px;
+    bottom: 14px;
+  }
+
+  .tbi-demo-vault {
+    right: 12px;
+    bottom: 62px;
+    width: calc(100vw - 24px);
+  }
+}

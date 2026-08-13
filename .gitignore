@@ -10,3 +10,35 @@
 .RData
 .Rhistory
 .Rproj.user/
+
+# TBI temporary/generated files
+backups/
+qa/
+inst/database/backups/
+inst/database/tbi_before_*.sqlite
+data/spotrac_contract_cache/
+data/spotrac_player_contract_cache/
+data/spotrac_yearly_cache/
+data/phase15*.csv
+data/realgm_future_drafts_detailed.html
+README_FIRST.txt
+TBI_REPAIR_2025_26_REGULAR_SEASON_AND_POSITION_VALIDATION.R
+TBI_BIE_VNEXT_SIX_TEAM_RETEST_AFTER_V3_V2.R
+TBI_CUP_FINAL_CORRECTION_V3.R
+TBI_POST_REPAIR_RESUME_V3.R
+
+# TBI temporary/generated files
+backups/
+qa/
+inst/database/backups/
+inst/database/tbi_before_*.sqlite
+data/spotrac_contract_cache/
+data/spotrac_player_contract_cache/
+data/spotrac_yearly_cache/
+data/phase15*.csv
+data/realgm_future_drafts_detailed.html
+README_FIRST.txt
+TBI_REPAIR_2025_26_REGULAR_SEASON_AND_POSITION_VALIDATION.R
+TBI_BIE_VNEXT_SIX_TEAM_RETEST_AFTER_V3_V2.R
+TBI_CUP_FINAL_CORRECTION_V3.R
+TBI_POST_REPAIR_RESUME_V3.R
