@@ -20,7 +20,6 @@ app_ui <- function(request) {
     directoryPath = www_path
   )
   
-  
   # ----------------------------------------------------------
   # Team list
   # ----------------------------------------------------------
@@ -46,37 +45,77 @@ app_ui <- function(request) {
     team_choices[[1]]
   }
   
-  
   # ----------------------------------------------------------
-  # Application theme
+  # Theme
   # ----------------------------------------------------------
   
   app_theme <- bslib::bs_theme(
     version = 5,
-    bg = "#08111f",
-    fg = "#f5f7fb",
-    primary = "#4f8cff",
-    secondary = "#9aa7bd",
-    success = "#35d399",
-    danger = "#ff667a",
-    warning = "#f6c85f",
+    bg = "#0b0f17",
+    fg = "#eef2f7",
+    primary = "#2563eb",
+    secondary = "#94a3b8",
+    success = "#22c55e",
+    danger = "#ef4444",
+    warning = "#f59e0b",
     base_font = bslib::font_google("Inter"),
-    heading_font = bslib::font_google("Space Grotesk")
+    heading_font = bslib::font_google("Inter")
   )
   
+  # ----------------------------------------------------------
+  # Navigation helper
+  # ----------------------------------------------------------
+  
+  nav_item <- function(id, icon, label) {
+    shiny::actionLink(
+      inputId = id,
+      label = shiny::tagList(
+        shiny::span(
+          class = "tbi-v2-nav-icon",
+          bsicons::bs_icon(icon)
+        ),
+        shiny::span(
+          class = "tbi-v2-nav-text",
+          label
+        )
+      ),
+      class = paste(
+        "tbi-nav-link",
+        if (identical(id, "nav_executive")) "active" else ""
+      )
+    )
+  }
+  
+  nav_group <- function(label, ...) {
+    shiny::tagList(
+      shiny::div(
+        class = "tbi-v2-nav-group-label",
+        label
+      ),
+      ...
+    )
+  }
   
   # ----------------------------------------------------------
   # Page
   # ----------------------------------------------------------
   
   bslib::page_fillable(
-    title = "Thompson's Basketball Intelligence",
+    title = "TBI | Thompson's Basketball Intelligence",
     theme = app_theme,
     fillable_mobile = TRUE,
     
     shiny::tags$head(
       shiny::includeCSS(
         app_sys("app/www/tbi.css")
+      ),
+      
+      shiny::includeCSS(
+        app_sys("app/www/tbi_v2.css")
+      ),
+      
+      shiny::includeCSS(
+        app_sys("app/www/tbi_phase14.css")
       ),
       
       shiny::tags$script(
@@ -104,10 +143,14 @@ app_ui <- function(request) {
                 pageTitle.textContent = message.title;
               }
 
-              window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-              });
+              var workspace = document.querySelector('.tbi-product-workspace');
+
+              if (workspace) {
+                workspace.scrollTo({
+                  top: 0,
+                  behavior: 'smooth'
+                });
+              }
             }
           );
           "
@@ -116,157 +159,133 @@ app_ui <- function(request) {
       
       shiny::tags$meta(
         name = "theme-color",
-        content = "#08111f"
+        content = "#0b0f17"
       )
     ),
     
     shiny::div(
-      class = "tbi-product-shell",
+      class = "tbi-product-shell tbi-v2-shell tbi-phase14-shell",
       
       # ------------------------------------------------------
-      # Permanent left navigation
+      # Sidebar
       # ------------------------------------------------------
       
       shiny::tags$aside(
-        class = "tbi-product-sidebar",
+        class = "tbi-product-sidebar tbi-v2-sidebar",
         
         shiny::div(
-          class = "tbi-sidebar-header",
+          class = "tbi-v2-brand",
           
           shiny::div(
-            class = "tbi-sidebar-logo",
-            "TBI"
+            class = "tbi-v2-brand-mark",
+            shiny::span("TBI")
           ),
           
           shiny::div(
-            class = "tbi-sidebar-brand",
-            
-            shiny::strong(
-              "THOMPSON'S"
+            class = "tbi-v2-brand-copy",
+            shiny::strong("THOMPSON'S"),
+            shiny::span("Basketball Intelligence")
+          )
+        ),
+        
+        shiny::div(
+          class = "tbi-v2-workspace-chip",
+          shiny::span(class = "tbi-v2-live-dot"),
+          shiny::span("LIVE WORKSPACE")
+        ),
+        
+        shiny::tags$nav(
+          class = "tbi-primary-navigation tbi-v2-navigation",
+          
+          nav_group(
+            "EXECUTIVE",
+            nav_item(
+              "nav_executive",
+              "grid-1x2-fill",
+              "Command Center"
             ),
-            
-            shiny::span(
-              "Basketball Intelligence"
+            nav_item(
+              "nav_team",
+              "building",
+              "Team Overview"
+            )
+          ),
+          
+          nav_group(
+            "ROSTER",
+            nav_item(
+              "nav_roster",
+              "people",
+              "Roster Intelligence"
+            ),
+            nav_item(
+              "nav_depth",
+              "diagram-3",
+              "Depth Chart"
+            ),
+            nav_item(
+              "nav_player_manager",
+              "person-badge",
+              "Player Management"
+            )
+          ),
+          
+          nav_group(
+            "FINANCIAL",
+            nav_item(
+              "nav_salary",
+              "cash-stack",
+              "Cap Intelligence"
+            ),
+            nav_item(
+              "nav_extension",
+              "calculator",
+              "Extension Simulator"
+            )
+          ),
+          
+          nav_group(
+            "TRANSACTIONS",
+            nav_item(
+              "nav_trade",
+              "arrow-left-right",
+              "Trade Intelligence"
+            ),
+            nav_item(
+              "nav_draft",
+              "calendar3",
+              "Draft Intelligence"
+            )
+          ),
+          
+          nav_group(
+            "STRATEGY",
+            nav_item(
+              "nav_outlook",
+              "graph-up-arrow",
+              "Five-Year Outlook"
+            )
+          ),
+          
+          nav_group(
+            "REFERENCE",
+            nav_item(
+              "nav_cba_glossary",
+              "book",
+              "CBA Info Hub"
             )
           )
         ),
         
-        shiny::tags$nav(
-          class = "tbi-primary-navigation",
-          
-          shiny::div(
-            class = "tbi-nav-section-label",
-            "OVERVIEW"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_executive",
-            label = shiny::tagList(
-              bsicons::bs_icon("speedometer2"),
-              shiny::span("Executive Dashboard")
-            ),
-            class = "tbi-nav-link active"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_team",
-            label = shiny::tagList(
-              bsicons::bs_icon("building"),
-              shiny::span("Team Overview")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::div(
-            class = "tbi-nav-section-label",
-            "ROSTER"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_roster",
-            label = shiny::tagList(
-              bsicons::bs_icon("person-lines-fill"),
-              shiny::span("Roster Intelligence")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_player_manager",
-            label = shiny::tagList(
-              bsicons::bs_icon("person-gear"),
-              shiny::span("Player Management")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::div(
-            class = "tbi-nav-section-label",
-            "FINANCE"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_salary",
-            label = shiny::tagList(
-              bsicons::bs_icon("currency-dollar"),
-              shiny::span("Salary Cap Intelligence")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_extension",
-            label = shiny::tagList(
-              bsicons::bs_icon("calculator"),
-              shiny::span("Extension Simulator")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::div(
-            class = "tbi-nav-section-label",
-            "TEAM BUILDING"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_trade",
-            label = shiny::tagList(
-              bsicons::bs_icon("arrow-left-right"),
-              shiny::span("Trade Intelligence")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_draft",
-            label = shiny::tagList(
-              bsicons::bs_icon("calendar-event"),
-              shiny::span("Draft Intelligence")
-            ),
-            class = "tbi-nav-link"
-          ),
-          
-          shiny::actionLink(
-            inputId = "nav_outlook",
-            label = shiny::tagList(
-              bsicons::bs_icon("graph-up-arrow"),
-              shiny::span("Five-Year Outlook")
-            ),
-            class = "tbi-nav-link"
-          )
-        ),
-        
         shiny::div(
-          class = "tbi-sidebar-footer",
+          class = "tbi-sidebar-footer tbi-v2-sidebar-footer",
           
           shiny::div(
-            class = "tbi-sidebar-team",
-            
-            shiny::div(
-              class = "tbi-sidebar-footer-label",
+            class = "tbi-v2-org-block",
+            shiny::span(
+              class = "tbi-v2-org-label",
               "CURRENT ORGANIZATION"
             ),
-            
             shiny::strong(
               shiny::textOutput(
                 outputId = "sidebar_team_name",
@@ -276,117 +295,116 @@ app_ui <- function(request) {
           ),
           
           shiny::div(
-            class = "tbi-user-summary",
-            
+            class = "tbi-v2-user",
             shiny::div(
-              class = "tbi-user-avatar",
+              class = "tbi-v2-avatar",
               "DT"
             ),
-            
             shiny::div(
-              class = "tbi-user-copy",
-              
-              shiny::strong(
-                "Danny Thompson"
-              ),
-              
-              shiny::span(
-                "Basketball Operations"
-              )
+              class = "tbi-v2-user-copy",
+              shiny::strong("Danny Thompson"),
+              shiny::span("Basketball Operations")
             )
           )
         )
       ),
       
       # ------------------------------------------------------
-      # Right side of application
+      # Main application
       # ------------------------------------------------------
       
       shiny::tags$section(
-        class = "tbi-product-main",
+        class = "tbi-product-main tbi-v2-main",
         
         # ----------------------------------------------------
-        # Top application header
+        # Executive header
         # ----------------------------------------------------
         
         shiny::tags$header(
-          class = "tbi-product-header",
+          class = "tbi-product-header tbi-v2-header",
           
           shiny::div(
-            class = "tbi-header-title-group",
+            class = "tbi-v2-title-wrap",
+            
+            shiny::div(
+              class = "tbi-v2-breadcrumb",
+              shiny::span("BASKETBALL OPERATIONS"),
+              shiny::span(class = "tbi-v2-breadcrumb-divider", "/"),
+              shiny::span(class = "tbi-v2-breadcrumb-current", "DECISION SUPPORT")
+            ),
             
             shiny::h1(
               id = "tbi_page_title",
               "Executive Dashboard"
             ),
             
-            shiny::span(
-              class = "tbi-header-subtitle",
-              "Basketball Operations Decision Support"
+            shiny::div(
+              class = "tbi-v2-title-meta",
+              shiny::span(
+                class = "tbi-v2-meta-dot"
+              ),
+              shiny::span(
+                "Front Office Workspace"
+              )
             )
           ),
           
           shiny::div(
-            class = "tbi-header-controls",
+            class = "tbi-header-controls tbi-v2-header-controls",
             
             shiny::div(
-              class = "tbi-header-filter",
-              
+              class = "tbi-v2-filter",
               shiny::span(
-                class = "tbi-header-filter-label",
-                "Organization"
+                class = "tbi-v2-filter-label",
+                "ORGANIZATION"
               ),
-              
               shiny::selectInput(
                 inputId = "selected_team",
                 label = NULL,
                 choices = team_choices,
                 selected = default_team,
-                width = "220px"
+                width = "230px"
               )
             ),
             
             shiny::div(
-              class = "tbi-header-filter",
-              
+              class = "tbi-v2-filter",
               shiny::span(
-                class = "tbi-header-filter-label",
-                "Season"
+                class = "tbi-v2-filter-label",
+                "SEASON"
               ),
-              
               shiny::selectInput(
                 inputId = "selected_season",
                 label = NULL,
-                choices = c(
-                  "2026-27"
-                ),
+                choices = "2026-27",
                 selected = "2026-27",
-                width = "130px"
+                width = "128px"
               )
             ),
             
-            shiny::tags$button(
-              type = "button",
-              class = "tbi-header-icon-button",
-              title = "Notifications",
-              bsicons::bs_icon("bell")
-            ),
-            
-            shiny::tags$button(
-              type = "button",
-              class = "tbi-header-icon-button",
-              title = "Settings",
-              bsicons::bs_icon("gear")
+            shiny::div(
+              class = "tbi-v2-header-status",
+              shiny::span(class = "tbi-v2-live-dot"),
+              shiny::div(
+                shiny::span("SYSTEM"),
+                shiny::strong("OPERATIONAL")
+              )
             )
           )
         ),
         
         # ----------------------------------------------------
-        # Main data workspace
+        # Workspace
         # ----------------------------------------------------
         
         shiny::tags$main(
-          class = "tbi-product-workspace",
+          class = "tbi-product-workspace tbi-v2-workspace",
+          
+          shiny::tags$style(
+            shiny::HTML(
+              "\\n\\n/* ========================================================\\n   PHASE 15K-B4B — DEDICATED DEPTH CHART PAGE\\n   Remove non-actionable generic BIE presentation from the\\n   Depth workspace while preserving operational tools.\\n   ======================================================== */\\n.tbi-depth-page .depth-bie-toolbar,\\n.tbi-depth-page .depth-bie-explain {\\n  display: none !important;\\n}\\n\\n.tbi-depth-page .depth-v21-shell,\\n.tbi-depth-page .depth-v21-board,\\n.tbi-depth-page .depth-v23-scenario-shell {\\n  margin-top: 0;\\n}\\n"
+            )
+          ),
           
           bslib::navset_hidden(
             id = "primary_navigation",
@@ -395,10 +413,8 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Executive Dashboard",
               value = "executive",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_executive_dashboard_ui(
                   "executive_dashboard"
                 )
@@ -408,10 +424,8 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Team Overview",
               value = "team",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_team_overview_ui(
                   "team_overview"
                 )
@@ -421,15 +435,21 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Roster Intelligence",
               value = "roster",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
-                mod_depth_chart_ui("depth_chart"),
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_roster_contracts_ui(
                   "roster_contracts"
-                  
+                )
+              )
+            ),
+            
+            bslib::nav_panel(
+              title = "Depth Chart",
+              value = "depth",
+              shiny::div(
+                class = "tbi-page-content tbi-v2-page-content tbi-depth-page",
+                mod_depth_chart_ui(
+                  "depth_chart"
                 )
               )
             ),
@@ -437,20 +457,19 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Player Management",
               value = "player_manager",
-              
               shiny::div(
-                class = "tbi-page-content",
-                mod_player_manager_ui("player_manager")
+                class = "tbi-page-content tbi-v2-page-content",
+                mod_player_manager_ui(
+                  "player_manager"
+                )
               )
             ),
             
             bslib::nav_panel(
               title = "Salary Cap Intelligence",
               value = "salary",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_salary_cap_ui(
                   "salary_cap"
                 )
@@ -460,10 +479,8 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Trade Intelligence",
               value = "trade",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_trade_analyzer_ui(
                   "trade_analyzer"
                 )
@@ -473,10 +490,8 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Five-Year Outlook",
               value = "outlook",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_five_year_outlook_ui(
                   "five_year_outlook"
                 )
@@ -486,10 +501,8 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Draft Intelligence",
               value = "draft",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_draft_assets_ui(
                   "draft_assets"
                 )
@@ -499,12 +512,21 @@ app_ui <- function(request) {
             bslib::nav_panel(
               title = "Extension Simulator",
               value = "extension",
-              
               shiny::div(
-                class = "tbi-page-content",
-                
+                class = "tbi-page-content tbi-v2-page-content",
                 mod_extension_simulator_ui(
                   "extension_simulator"
+                )
+              )
+            ),
+            
+            bslib::nav_panel(
+              title = "CBA Info Hub",
+              value = "cba_glossary",
+              shiny::div(
+                class = "tbi-page-content tbi-v2-page-content",
+                mod_cba_glossary_ui(
+                  "cba_glossary"
                 )
               )
             )
