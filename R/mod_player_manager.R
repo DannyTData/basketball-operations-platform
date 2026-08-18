@@ -1693,6 +1693,431 @@ mod_player_manager_ui <- function(id) {
 
 
 # ============================================================
+# BATCHED PLAYER EVIDENCE ASSEMBLY
+# ============================================================
+
+player_manager_batched_metadata <- function(con, table_names) {
+  available_tables <- DBI::dbListTables(con)
+  fields <- stats::setNames(
+    lapply(
+      table_names,
+      function(table_name) {
+        if (!table_name %in% available_tables) {
+          return(character())
+        }
+
+        DBI::dbListFields(con, table_name)
+      }
+    ),
+    table_names
+  )
+
+  list(
+    tables = available_tables,
+    fields = fields
+  )
+}
+
+
+player_manager_sql_placeholders <- function(count) {
+  paste(rep("?", count), collapse = ",")
+}
+
+
+player_manager_batched_performance_seasons <- function(
+    con,
+    player_ids,
+    roster_season,
+    metadata) {
+  normalized_ids <- suppressWarnings(as.integer(player_ids))
+  valid_ids <- unique(normalized_ids[!is.na(normalized_ids)])
+  fallback <- rep(as.character(roster_season), length(normalized_ids))
+
+  if (!length(valid_ids)) {
+    return(fallback)
+  }
+
+  stats_fields <- metadata$fields[["player_season_stats"]]
+
+  if (
+    !"player_season_stats" %in% metadata$tables ||
+    !"player_id" %in% stats_fields ||
+    !"season" %in% stats_fields
+  ) {
+    return(fallback)
+  }
+
+  game_filter <- if ("games_played" %in% stats_fields) {
+    " AND COALESCE(games_played, 0) > 0"
+  } else {
+    ""
+  }
+
+  seasons <- tryCatch(
+    DBI::dbGetQuery(
+      con,
+      paste0(
+        "SELECT player_id, season FROM player_season_stats ",
+        "WHERE player_id IN (",
+        player_manager_sql_placeholders(length(valid_ids)),
+        ") AND season <= ?",
+        game_filter,
+        " GROUP BY player_id, season",
+        " ORDER BY player_id, season DESC"
+      ),
+      params = c(
+        as.list(valid_ids),
+        list(as.character(roster_season))
+      )
+    ),
+    error = function(e) data.frame()
+  )
+
+  if (!nrow(seasons)) {
+    return(fallback)
+  }
+
+  vapply(
+    normalized_ids,
+    function(player_id) {
+      if (is.na(player_id)) {
+        return(as.character(roster_season))
+      }
+
+      eligible <- as.character(
+        seasons$season[
+          suppressWarnings(as.integer(seasons$player_id)) == player_id
+        ]
+      )
+      eligible <- eligible[!is.na(eligible)]
+
+      if (!length(eligible)) {
+        as.character(roster_season)
+      } else {
+        eligible[[1]]
+      }
+    },
+    character(1)
+  )
+}
+
+
+player_manager_batched_evidence_rows <- function(
+    con,
+    table_name,
+    player_ids,
+    performance_seasons,
+    metadata) {
+  fields <- metadata$fields[[table_name]]
+  normalized_ids <- suppressWarnings(as.integer(player_ids))
+  valid <- !is.na(normalized_ids)
+
+  if (
+    !table_name %in% metadata$tables ||
+    !"player_id" %in% fields ||
+    !any(valid)
+  ) {
+    return(data.frame())
+  }
+
+  if ("season" %in% fields) {
+    pairs <- unique(
+      data.frame(
+        player_id = normalized_ids[valid],
+        season = as.character(performance_seasons[valid]),
+        stringsAsFactors = FALSE
+      )
+    )
+    predicates <- rep("(player_id = ? AND season = ?)", nrow(pairs))
+    params <- vector("list", nrow(pairs) * 2L)
+    params[seq.int(1L, length(params), by = 2L)] <- as.list(pairs$player_id)
+    params[seq.int(2L, length(params), by = 2L)] <- as.list(pairs$season)
+    where <- paste(predicates, collapse = " OR ")
+  } else {
+    ids <- unique(normalized_ids[valid])
+    where <- paste0(
+      "player_id IN (",
+      player_manager_sql_placeholders(length(ids)),
+      ")"
+    )
+    params <- as.list(ids)
+  }
+
+  tryCatch(
+    DBI::dbGetQuery(
+      con,
+      paste0(
+        "SELECT * FROM ",
+        table_name,
+        " WHERE ",
+        where
+      ),
+      params = params
+    ),
+    error = function(e) data.frame()
+  )
+}
+
+
+player_manager_batched_latest_row <- function(
+    evidence,
+    fields,
+    player_id,
+    performance_season) {
+  if (!is.data.frame(evidence) || !nrow(evidence)) {
+    return(data.frame())
+  }
+
+  normalized_id <- suppressWarnings(as.integer(player_id))
+
+  if (is.na(normalized_id)) {
+    return(data.frame())
+  }
+
+  keep <- suppressWarnings(as.integer(evidence$player_id)) == normalized_id
+
+  if ("season" %in% fields) {
+    keep <- keep & as.character(evidence$season) == as.character(performance_season)
+  }
+
+  candidates <- evidence[which(keep %in% TRUE), , drop = FALSE]
+
+  if (!nrow(candidates)) {
+    return(data.frame())
+  }
+
+  selected <- 1L
+
+  if ("minutes" %in% fields) {
+    minutes <- suppressWarnings(as.numeric(candidates$minutes))
+    minutes[is.na(minutes)] <- 0
+    selected <- which(minutes == max(minutes))[[1]]
+  } else if ("updated_at" %in% fields) {
+    updated <- as.character(candidates$updated_at)
+
+    if (any(!is.na(updated))) {
+      selected <- order(
+        updated,
+        decreasing = TRUE,
+        na.last = TRUE,
+        method = "radix"
+      )[[1]]
+    }
+  }
+
+  candidates[selected, , drop = FALSE]
+}
+
+
+player_manager_merge_evidence_row <- function(base, extra, prefix = NULL) {
+  if (is.null(extra) || !is.data.frame(extra) || !nrow(extra)) {
+    return(base)
+  }
+
+  extra <- extra[1, , drop = FALSE]
+  key_columns <- c(
+    "player_id",
+    "team_id",
+    "season",
+    "source_name",
+    "source_player_id",
+    "imported_at",
+    "updated_at",
+    "metric_version"
+  )
+
+  for (column in setdiff(names(extra), key_columns)) {
+    target <- column
+
+    if (target %in% names(base) && !is.null(prefix)) {
+      target <- paste0(prefix, column)
+    }
+
+    if (!target %in% names(base)) {
+      base[[target]] <- extra[[column]][[1]]
+    } else {
+      current <- base[[target]][[1]]
+      replacement <- extra[[column]][[1]]
+
+      if (
+        (is.null(current) || !length(current) || is.na(current)) &&
+          !is.null(replacement) &&
+          length(replacement) &&
+          !is.na(replacement)
+      ) {
+        base[[target]][[1]] <- replacement
+      }
+    }
+  }
+
+  base
+}
+
+
+player_manager_finish_bie_row <- function(row, performance_season) {
+  get_first_numeric <- function(candidates) {
+    for (name in candidates) {
+      if (name %in% names(row)) {
+        value <- suppressWarnings(as.numeric(row[[name]][[1]]))
+
+        if (length(value) && is.finite(value)) {
+          return(value)
+        }
+      }
+    }
+
+    NA_real_
+  }
+
+  rating <- get_first_numeric(c(
+    "bie_performance_rating",
+    "impact_bie_performance_rating"
+  ))
+  all_around <- get_first_numeric(c(
+    "all_around_impact_score",
+    "impact_all_around_impact_score"
+  ))
+  offense <- get_first_numeric(c(
+    "offensive_impact_score",
+    "impact_offensive_impact_score"
+  ))
+  defense_score <- get_first_numeric(c(
+    "defensive_impact_score",
+    "impact_defensive_impact_score"
+  ))
+  shooting_score <- get_first_numeric(c(
+    "shooting_component",
+    "impact_shooting_component",
+    "shooting_efficiency_score",
+    "shooting_shooting_efficiency_score"
+  ))
+  playmaking_score <- get_first_numeric(c(
+    "creation_component",
+    "impact_creation_component",
+    "creation_score",
+    "playmaking_creation_score"
+  ))
+  rebounding_score <- get_first_numeric(c(
+    "rebounding_component",
+    "impact_rebounding_component",
+    "rebounding_score",
+    "defense_rebounding_score"
+  ))
+
+  row$bie_player_score <- rating
+  row$bie_impact_score <- all_around
+  row$bie_offense_score <- offense
+  row$bie_defense_score <- defense_score
+  row$bie_efficiency_score <- shooting_score
+  row$bie_playmaking_score <- playmaking_score
+  row$bie_rebounding_score <- rebounding_score
+  row$bie_metric_components <- sum(is.finite(c(
+    all_around,
+    offense,
+    defense_score,
+    shooting_score,
+    playmaking_score,
+    rebounding_score
+  )))
+  row$bie_score_source <- if (is.finite(rating)) {
+    "PERFORMANCE_DATA"
+  } else {
+    "FOUNDATION"
+  }
+  row$performance_season_used <- performance_season
+  row
+}
+
+
+player_manager_batched_team_data <- function(pool, roster_season, con) {
+  if (!nrow(pool)) {
+    return(pool)
+  }
+
+  evidence_tables <- c(
+    "player_season_stats",
+    "player_season_shooting",
+    "player_season_playmaking",
+    "player_season_defense_rebounding",
+    "player_season_roles",
+    "player_season_impact"
+  )
+  metadata <- player_manager_batched_metadata(con, evidence_tables)
+  player_ids <- suppressWarnings(as.integer(pool$player_id))
+  performance_seasons <- player_manager_batched_performance_seasons(
+    con = con,
+    player_ids = player_ids,
+    roster_season = roster_season,
+    metadata = metadata
+  )
+  evidence <- stats::setNames(
+    lapply(
+      evidence_tables,
+      function(table_name) {
+        player_manager_batched_evidence_rows(
+          con = con,
+          table_name = table_name,
+          player_ids = player_ids,
+          performance_seasons = performance_seasons,
+          metadata = metadata
+        )
+      }
+    ),
+    evidence_tables
+  )
+  merge_order <- c(
+    player_season_stats = "stats_",
+    player_season_shooting = "shooting_",
+    player_season_playmaking = "playmaking_",
+    player_season_defense_rebounding = "defense_",
+    player_season_roles = "roles_",
+    player_season_impact = "impact_"
+  )
+
+  rows <- lapply(
+    seq_len(nrow(pool)),
+    function(index) {
+      row <- pool[index, , drop = FALSE]
+      player_id <- player_ids[[index]]
+      performance_season <- performance_seasons[[index]]
+
+      for (table_name in names(merge_order)) {
+        selected <- player_manager_batched_latest_row(
+          evidence = evidence[[table_name]],
+          fields = metadata$fields[[table_name]],
+          player_id = player_id,
+          performance_season = performance_season
+        )
+        row <- player_manager_merge_evidence_row(
+          row,
+          selected,
+          merge_order[[table_name]]
+        )
+      }
+
+      player_manager_finish_bie_row(row, performance_season)
+    }
+  )
+
+  all_names <- unique(unlist(lapply(rows, names)))
+  normalized <- lapply(
+    rows,
+    function(row) {
+      missing <- setdiff(all_names, names(row))
+
+      for (name in missing) {
+        row[[name]] <- NA
+      }
+
+      row[, all_names, drop = FALSE]
+    }
+  )
+
+  do.call(rbind, normalized)
+}
+
+
+# ============================================================
 # SERVER
 # ============================================================
 
@@ -2143,89 +2568,7 @@ mod_player_manager_server <- function(
       }
       
       
-      merge_evidence_row <- function(
-    base,
-    extra,
-    prefix = NULL) {
-        
-        if (
-          is.null(extra) ||
-          !is.data.frame(extra) ||
-          !nrow(extra)
-        ) {
-          return(base)
-        }
-        
-        extra <- extra[
-          1,
-          ,
-          drop = FALSE
-        ]
-        
-        key_columns <- c(
-          "player_id",
-          "team_id",
-          "season",
-          "source_name",
-          "source_player_id",
-          "imported_at",
-          "updated_at",
-          "metric_version"
-        )
-        
-        for (
-          column in
-          setdiff(
-            names(extra),
-            key_columns
-          )
-        ) {
-          
-          target <- column
-          
-          if (
-            target %in%
-            names(base) &&
-            !is.null(prefix)
-          ) {
-            target <- paste0(
-              prefix,
-              column
-            )
-          }
-          
-          if (
-            !target %in%
-            names(base)
-          ) {
-            base[[target]] <-
-              extra[[column]][[1]]
-          } else {
-            
-            current <-
-              base[[target]][[1]]
-            
-            replacement <-
-              extra[[column]][[1]]
-            
-            if (
-              (
-                is.null(current) ||
-                !length(current) ||
-                is.na(current)
-              ) &&
-              !is.null(replacement) &&
-              length(replacement) &&
-              !is.na(replacement)
-            ) {
-              base[[target]][[1]] <-
-                replacement
-            }
-          }
-        }
-        
-        base
-      }
+      merge_evidence_row <- player_manager_merge_evidence_row
       
       # ------------------------------------------------------
       # Shared transaction scenario
@@ -3064,325 +3407,29 @@ mod_player_manager_server <- function(
       # ------------------------------------------------------
       # BIE team-wide player data
       # ------------------------------------------------------
-      
+
       bie_team_player_data <- shiny::reactive({
-        
         pool <- player_pool()
-        
+
         if (!nrow(pool)) {
           return(pool)
         }
-        
+
         con <- connect_db(
           read_only = TRUE
         )
-        
+
         on.exit(
           disconnect_db(con),
           add = TRUE
         )
-        
-        rows <- lapply(
-          seq_len(
-            nrow(pool)
-          ),
-          function(i) {
-            
-            roster_row <- pool[
-              i,
-              ,
-              drop = FALSE
-            ]
-            
-            player_id <- suppressWarnings(
-              as.integer(
-                roster_row$player_id[[1]]
-              )
-            )
-            
-            perf_season <-
-              latest_player_performance_season(
-                con = con,
-                player_id =
-                  player_id,
-                roster_season =
-                  selected_season()
-              )
-            
-            stats <- latest_row_for_player(
-              con = con,
-              table_name =
-                "player_season_stats",
-              player_id =
-                player_id,
-              performance_season =
-                perf_season
-            )
-            
-            impact <- latest_row_for_player(
-              con = con,
-              table_name =
-                "player_season_impact",
-              player_id =
-                player_id,
-              performance_season =
-                perf_season
-            )
-            
-            roles <- latest_row_for_player(
-              con = con,
-              table_name =
-                "player_season_roles",
-              player_id =
-                player_id,
-              performance_season =
-                perf_season
-            )
-            
-            shooting <- latest_row_for_player(
-              con = con,
-              table_name =
-                "player_season_shooting",
-              player_id =
-                player_id,
-              performance_season =
-                perf_season
-            )
-            
-            playmaking <- latest_row_for_player(
-              con = con,
-              table_name =
-                "player_season_playmaking",
-              player_id =
-                player_id,
-              performance_season =
-                perf_season
-            )
-            
-            defense <- latest_row_for_player(
-              con = con,
-              table_name =
-                "player_season_defense_rebounding",
-              player_id =
-                player_id,
-              performance_season =
-                perf_season
-            )
-            
-            row <- roster_row
-            
-            row <- merge_evidence_row(
-              row,
-              stats,
-              "stats_"
-            )
-            
-            row <- merge_evidence_row(
-              row,
-              shooting,
-              "shooting_"
-            )
-            
-            row <- merge_evidence_row(
-              row,
-              playmaking,
-              "playmaking_"
-            )
-            
-            row <- merge_evidence_row(
-              row,
-              defense,
-              "defense_"
-            )
-            
-            row <- merge_evidence_row(
-              row,
-              roles,
-              "roles_"
-            )
-            
-            row <- merge_evidence_row(
-              row,
-              impact,
-              "impact_"
-            )
-            
-            # Map Phase-3 performance outputs into the BIE
-            # Phase-2-compatible component names consumed by
-            # the existing dark Player Fit panel.
-            get_first_numeric <- function(candidates) {
-              
-              for (nm in candidates) {
-                
-                if (
-                  nm %in% names(row)
-                ) {
-                  value <- suppressWarnings(
-                    as.numeric(
-                      row[[nm]][[1]]
-                    )
-                  )
-                  
-                  if (
-                    length(value) &&
-                    is.finite(value)
-                  ) {
-                    return(
-                      value
-                    )
-                  }
-                }
-              }
-              
-              NA_real_
-            }
-            
-            rating <- get_first_numeric(
-              c(
-                "bie_performance_rating",
-                "impact_bie_performance_rating"
-              )
-            )
-            
-            all_around <- get_first_numeric(
-              c(
-                "all_around_impact_score",
-                "impact_all_around_impact_score"
-              )
-            )
-            
-            offense <- get_first_numeric(
-              c(
-                "offensive_impact_score",
-                "impact_offensive_impact_score"
-              )
-            )
-            
-            defense_score <- get_first_numeric(
-              c(
-                "defensive_impact_score",
-                "impact_defensive_impact_score"
-              )
-            )
-            
-            shooting_score <- get_first_numeric(
-              c(
-                "shooting_component",
-                "impact_shooting_component",
-                "shooting_efficiency_score",
-                "shooting_shooting_efficiency_score"
-              )
-            )
-            
-            playmaking_score <- get_first_numeric(
-              c(
-                "creation_component",
-                "impact_creation_component",
-                "creation_score",
-                "playmaking_creation_score"
-              )
-            )
-            
-            rebounding_score <- get_first_numeric(
-              c(
-                "rebounding_component",
-                "impact_rebounding_component",
-                "rebounding_score",
-                "defense_rebounding_score"
-              )
-            )
-            
-            row$bie_player_score <-
-              rating
-            
-            row$bie_impact_score <-
-              all_around
-            
-            row$bie_offense_score <-
-              offense
-            
-            row$bie_defense_score <-
-              defense_score
-            
-            row$bie_efficiency_score <-
-              shooting_score
-            
-            row$bie_playmaking_score <-
-              playmaking_score
-            
-            row$bie_rebounding_score <-
-              rebounding_score
-            
-            components <- c(
-              all_around,
-              offense,
-              defense_score,
-              shooting_score,
-              playmaking_score,
-              rebounding_score
-            )
-            
-            row$bie_metric_components <-
-              sum(
-                is.finite(
-                  components
-                )
-              )
-            
-            row$bie_score_source <- if (
-              is.finite(
-                rating
-              )
-            ) {
-              "PERFORMANCE_DATA"
-            } else {
-              "FOUNDATION"
-            }
-            
-            row$performance_season_used <-
-              perf_season
-            
-            row
-          }
-        )
-        
-        # Normalize all rows to a common set of columns.
-        all_names <- unique(
-          unlist(
-            lapply(
-              rows,
-              names
-            )
-          )
-        )
-        
-        normalized <- lapply(
-          rows,
-          function(row) {
-            
-            missing <- setdiff(
-              all_names,
-              names(row)
-            )
-            
-            for (nm in missing) {
-              row[[nm]] <- NA
-            }
-            
-            row[
-              ,
-              all_names,
-              drop = FALSE
-            ]
-          }
-        )
-        
-        do.call(
-          rbind,
-          normalized
+
+        player_manager_batched_team_data(
+          pool = pool,
+          roster_season = selected_season(),
+          con = con
         )
       })
-      
       
       bie_evaluated_roster <- shiny::reactive({
         
