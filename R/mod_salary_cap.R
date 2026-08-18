@@ -592,6 +592,13 @@ mod_salary_cap_server <- function(
         )
       })
       
+      base_salary_data <- shiny::bindCache(
+        base_salary_data,
+        selected_team(),
+        selected_season(),
+        cache = "session"
+      )
+
       
       salary_data <- shiny::reactive({
         

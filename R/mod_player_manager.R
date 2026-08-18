@@ -67,6 +67,7 @@ mod_player_manager_ui <- function(id) {
   
   shiny::div(
     class = "tbi-module-page pi-page",
+    `data-tbi-subtab-input` = ns("active_subtab"),
     
     # --------------------------------------------------------
     # Scoped styling
@@ -1710,6 +1711,37 @@ mod_player_manager_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
+      subtab_seen <- shiny::reactiveValues(
+        overview = TRUE,
+        value = FALSE,
+        development = FALSE,
+        contract = FALSE,
+        recommendation = FALSE
+      )
+
+      shiny::observeEvent(
+        input$active_subtab,
+        {
+          tab <- as.character(input$active_subtab)
+          valid_tabs <- c(
+            "overview",
+            "value",
+            "development",
+            "contract",
+            "recommendation"
+          )
+
+          if (length(tab) == 1L && tab %in% valid_tabs) {
+            subtab_seen[[tab]] <- TRUE
+          }
+        },
+        ignoreInit = FALSE
+      )
+
+      subtab_ready <- function(tab) {
+        shiny::req(isTRUE(subtab_seen[[tab]]))
+        invisible(TRUE)
+      }
       
       # ------------------------------------------------------
       # Generic helpers
@@ -2343,6 +2375,13 @@ mod_player_manager_server <- function(
         )
       })
       
+      base_player_pool <- shiny::bindCache(
+        base_player_pool,
+        selected_team(),
+        selected_season(),
+        cache = "session"
+      )
+
       player_pool <- shiny::reactive({
         
         current <- base_player_pool()
@@ -4219,6 +4258,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_score <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4233,6 +4273,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_grade <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4259,6 +4300,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_confidence <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4281,6 +4323,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_rank <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4312,6 +4355,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_archetype <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4327,6 +4371,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_best_position <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4341,6 +4386,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_secondary_positions <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4355,6 +4401,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_age_curve <- shiny::renderText({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4389,26 +4436,32 @@ mod_player_manager_server <- function(
       
       
       output$bie_impact <- shiny::renderText({
+        subtab_ready("value")
         bie_component_text("impact")
       })
       
       output$bie_offense <- shiny::renderText({
+        subtab_ready("value")
         bie_component_text("offense")
       })
       
       output$bie_defense <- shiny::renderText({
+        subtab_ready("value")
         bie_component_text("defense")
       })
       
       output$bie_efficiency <- shiny::renderText({
+        subtab_ready("value")
         bie_component_text("efficiency")
       })
       
       output$bie_playmaking <- shiny::renderText({
+        subtab_ready("value")
         bie_component_text("playmaking")
       })
       
       output$bie_rebounding <- shiny::renderText({
+        subtab_ready("value")
         bie_component_text("rebounding")
       })
       
@@ -4455,6 +4508,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_strengths <- shiny::renderUI({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4472,6 +4526,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_concerns <- shiny::renderUI({
+        subtab_ready("value")
         
         profile <- bie_player_profile()
         
@@ -4489,6 +4544,7 @@ mod_player_manager_server <- function(
       
       
       output$bie_player_scope <- shiny::renderText({
+        subtab_ready("value")
         
         perf <- tryCatch(
           performance_season(),
@@ -5123,6 +5179,7 @@ mod_player_manager_server <- function(
       })
       
       output$development_areas <- shiny::renderUI({
+        subtab_ready("development")
         p <- selected_player()
         context <- derived_context()
         
@@ -5361,6 +5418,7 @@ mod_player_manager_server <- function(
       
       
       output$projection_1y <- shiny::renderText({
+        subtab_ready("development")
         
         projection_value_text(
           projection_1y_value()
@@ -5369,6 +5427,7 @@ mod_player_manager_server <- function(
       
       
       output$projection_3y <- shiny::renderText({
+        subtab_ready("development")
         
         projection_value_text(
           projection_3y_value()
@@ -5377,6 +5436,7 @@ mod_player_manager_server <- function(
       
       
       output$trajectory <- shiny::renderText({
+        subtab_ready("development")
         
         d <- player_projection()
         
@@ -5484,6 +5544,7 @@ mod_player_manager_server <- function(
       
       
       output$projection_data_status <- shiny::renderText({
+        subtab_ready("development")
         
         d <- player_projection()
         
@@ -5721,6 +5782,7 @@ mod_player_manager_server <- function(
       # ------------------------------------------------------
       
       output$development_focus <- shiny::renderText({
+        subtab_ready("development")
         age <- derived_context()$age
         role <- derived_context()$role
         
@@ -5772,6 +5834,7 @@ mod_player_manager_server <- function(
       })
       
       output$development_meter <- shiny::renderUI({
+        subtab_ready("development")
         shiny::tags$style(
           shiny::HTML(
             paste0(
@@ -5784,6 +5847,7 @@ mod_player_manager_server <- function(
       })
       
       output$development_risk <- shiny::renderText({
+        subtab_ready("development")
         age <- derived_context()$age
         
         if (is.na(age)) {

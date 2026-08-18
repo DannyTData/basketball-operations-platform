@@ -112,6 +112,7 @@ mod_executive_dashboard_ui <- function(id) {
   
   shiny::div(
     class = "executive-dashboard terminal-dashboard tbi-exec-dashboard-v2",
+    `data-tbi-subtab-input` = ns("active_subtab"),
     
     shiny::tags$style(shiny::HTML("\n      .tbi-exec-dashboard-v2 { display:grid; gap:20px; }
       .tbi-exec-dashboard-v2 .exec-cba-link {
@@ -712,6 +713,37 @@ mod_executive_dashboard_server <- function(
     selected_season = NULL,
     transaction_state = NULL) {
   shiny::moduleServer(id, function(input, output, session) {
+    subtab_seen <- shiny::reactiveValues(
+      decision = TRUE,
+      scorecard = FALSE,
+      risks = FALSE,
+      context = FALSE,
+      confidence = FALSE
+    )
+
+    shiny::observeEvent(
+      input$active_subtab,
+      {
+        tab <- as.character(input$active_subtab)
+        valid_tabs <- c(
+          "decision",
+          "scorecard",
+          "risks",
+          "context",
+          "confidence"
+        )
+
+        if (length(tab) == 1L && tab %in% valid_tabs) {
+          subtab_seen[[tab]] <- TRUE
+        }
+      },
+      ignoreInit = FALSE
+    )
+
+    subtab_ready <- function(tab) {
+      shiny::req(isTRUE(subtab_seen[[tab]]))
+      invisible(TRUE)
+    }
     
     safe_value <- function(expr, default = NULL) {
       tryCatch(expr, error = function(e) default)
@@ -1001,9 +1033,19 @@ mod_executive_dashboard_server <- function(
     }
     
     
+    payroll_rankings <- shiny::reactive({
+      safe_value(
+        get_payroll_rankings(),
+        data.frame()
+      )
+    })
+
     safe_payroll_rank <- shiny::reactive({
       shiny::req(selected_team())
-      value <- safe_value(get_team_payroll_rank(selected_team()), NA_real_)
+      value <- phase13_payroll_rank_for_team(
+        payroll_rankings(),
+        selected_team()
+      )
       if (is.null(value) || !length(value)) return(NA_real_)
       suppressWarnings(as.numeric(value[[1]]))
     })
@@ -1016,8 +1058,6 @@ mod_executive_dashboard_server <- function(
     
     # Shared database first; legacy DuckDB only as a guarded fallback.
     standings_table <- shiny::reactive({
-      shiny::req(selected_team())
-      
       standings <- NULL
       
       if (exists("connect_db", mode = "function")) {
@@ -2927,6 +2967,7 @@ mod_executive_dashboard_server <- function(
     })
     
     output$conference_standings <- reactable::renderReactable({
+      subtab_ready("context")
       standings <- conference_data()
       shiny::validate(shiny::need(!is.null(standings) && nrow(standings) > 0, "Conference standings are unavailable."))
       

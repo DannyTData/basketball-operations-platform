@@ -33,6 +33,52 @@ phase13_scalar_number <- function(x, default = NA_real_) {
 }
 
 
+phase13_payroll_rank_for_team <- function(rankings,
+                                          team_name) {
+  if (
+    is.null(rankings) ||
+    !is.data.frame(rankings) ||
+    nrow(rankings) == 0L ||
+    !all(c("team_name", "rank") %in% names(rankings))
+  ) {
+    return(NA_integer_)
+  }
+
+  team_row <- rankings[
+    rankings$team_name == team_name,
+    ,
+    drop = FALSE
+  ]
+
+  if (nrow(team_row) == 0L) {
+    return(NA_integer_)
+  }
+
+  suppressWarnings(
+    as.integer(team_row$rank[[1]])
+  )
+}
+
+
+phase13_team_abbreviation <- function(teams,
+                                      team_name) {
+  row <- teams[
+    teams$team_name == team_name,
+    ,
+    drop = FALSE
+  ]
+
+  if (
+    nrow(row) &&
+    "abbreviation" %in% names(row)
+  ) {
+    as.character(row$abbreviation[[1]])
+  } else {
+    substr(team_name, 1, 3)
+  }
+}
+
+
 phase13_roster_signature <- function(d) {
   if (is.null(d) ||
       !is.data.frame(d) ||

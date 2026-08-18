@@ -63,6 +63,7 @@ mod_team_overview_ui <- function(id) {
   
   shiny::div(
     class = "tbi-module-page tbi-v2-team-page",
+    `data-tbi-subtab-input` = ns("active_subtab"),
     
     shiny::tags$style(
       shiny::HTML(
@@ -904,6 +905,39 @@ mod_team_overview_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
+      subtab_seen <- shiny::reactiveValues(
+        overview = TRUE,
+        decision = FALSE,
+        profile = FALSE,
+        risk = FALSE,
+        personnel = FALSE,
+        recommendation = FALSE
+      )
+
+      shiny::observeEvent(
+        input$active_subtab,
+        {
+          tab <- as.character(input$active_subtab)
+          valid_tabs <- c(
+            "overview",
+            "decision",
+            "profile",
+            "risk",
+            "personnel",
+            "recommendation"
+          )
+
+          if (length(tab) == 1L && tab %in% valid_tabs) {
+            subtab_seen[[tab]] <- TRUE
+          }
+        },
+        ignoreInit = FALSE
+      )
+
+      subtab_ready <- function(tab) {
+        shiny::req(isTRUE(subtab_seen[[tab]]))
+        invisible(TRUE)
+      }
       
       # ------------------------------------------------------
       # Helpers
@@ -1212,10 +1246,6 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       standings_table <- shiny::reactive({
-        shiny::req(
-          selected_team()
-        )
-        
         path <- standings_db_path()
         
         if (
@@ -1590,6 +1620,13 @@ mod_team_overview_server <- function(
         result
       })
       
+      base_roster_contracts <- shiny::bindCache(
+        base_roster_contracts,
+        selected_team(),
+        current_season(),
+        cache = "session"
+      )
+
       roster_contracts <- shiny::reactive({
         
         current <- base_roster_contracts()
@@ -2369,6 +2406,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$team_decision <- shiny::renderUI({
+        subtab_ready("decision")
         metrics <- organization_metrics()
         team <- team_data()
         
@@ -2509,6 +2547,7 @@ mod_team_overview_server <- function(
       })
       
       output$organization_score <- shiny::renderText({
+        subtab_ready("decision")
         sprintf(
           "%.0f",
           organization_metrics()$composite
@@ -2520,6 +2559,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$organization_scorecard <- shiny::renderUI({
+        subtab_ready("decision")
         metrics <- organization_metrics()
         
         shiny::tagList(
@@ -2642,6 +2682,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$team_headlines <- shiny::renderUI({
+        subtab_ready("risk")
         team <- team_data()
         
         point_diff <- if (
@@ -2712,6 +2753,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$team_risks <- shiny::renderUI({
+        subtab_ready("risk")
         metrics <- organization_metrics()
         risks <- character()
         
@@ -2802,6 +2844,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$team_opportunities <- shiny::renderUI({
+        subtab_ready("risk")
         metrics <- organization_metrics()
         opportunities <- character()
         
@@ -2895,6 +2938,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$core_players <- shiny::renderUI({
+        subtab_ready("personnel")
         d <- roster_contracts()
         
         if (!nrow(d)) {
@@ -3011,6 +3055,7 @@ mod_team_overview_server <- function(
       })
       
       output$conference_standings <- reactable::renderReactable({
+        subtab_ready("personnel")
         standings <- conference_data()
         
         shiny::validate(
@@ -3086,6 +3131,7 @@ mod_team_overview_server <- function(
       # ------------------------------------------------------
       
       output$team_recommendation <- shiny::renderUI({
+        subtab_ready("recommendation")
         team <- team_data()
         metrics <- organization_metrics()
         

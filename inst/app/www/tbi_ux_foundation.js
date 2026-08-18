@@ -17,11 +17,24 @@
     window.requestAnimationFrame(runBuilders);
   }
 
+  function notifySubtab(page, tabName) {
+    var inputId = page && page.getAttribute('data-tbi-subtab-input');
+
+    if (
+      !inputId ||
+      !window.Shiny ||
+      typeof window.Shiny.setInputValue !== 'function'
+    ) return;
+
+    window.Shiny.setInputValue(inputId, tabName);
+  }
+
   window.TBIUX = {
     register: function (builder) {
       builders.push(builder);
       schedule();
-    }
+    },
+    notifySubtab: notifySubtab
   };
 
   document.addEventListener('DOMContentLoaded', schedule);
@@ -81,6 +94,8 @@
     } catch (e) {
       // Browser storage is optional.
     }
+
+    window.TBIUX.notifySubtab(page, tabName);
 
     var workspace = document.querySelector('.tbi-product-workspace');
     if (workspace) workspace.scrollTo({ top: 0, behavior: 'smooth' });
@@ -211,6 +226,8 @@
         tab
       );
     } catch(e) {}
+
+    window.TBIUX.notifySubtab(page, tab);
 
   }
 
@@ -1742,6 +1759,8 @@
       sessionStorage.setItem('tbi-command-tab', tabName);
     } catch(e) {}
 
+    window.TBIUX.notifySubtab(page, tabName);
+
   }
 
   function buildNav(page) {
@@ -2006,6 +2025,8 @@
     try {
       sessionStorage.setItem('tbi-team-tab', tabName);
     } catch(e) {}
+
+    window.TBIUX.notifySubtab(page, tabName);
 
   }
 

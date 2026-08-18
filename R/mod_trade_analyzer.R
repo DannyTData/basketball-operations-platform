@@ -2981,51 +2981,17 @@ mod_trade_analyzer_server <- function(
       })
       
       output$team_a_abbr <- shiny::renderText({
-        teams_now <- get_teams()
-        row <- teams_now[
-          teams_now$team_name == selected_team(),
-          ,
-          drop = FALSE
-        ]
-        
-        if (
-          nrow(row) &&
-          "abbreviation" %in% names(row)
-        ) {
-          as.character(
-            row$abbreviation[[1]]
-          )
-        } else {
-          substr(
-            selected_team(),
-            1,
-            3
-          )
-        }
+        phase13_team_abbreviation(
+          teams,
+          selected_team()
+        )
       })
       
       output$team_b_abbr <- shiny::renderText({
-        teams_now <- get_teams()
-        row <- teams_now[
-          teams_now$team_name == input$partner_team,
-          ,
-          drop = FALSE
-        ]
-        
-        if (
-          nrow(row) &&
-          "abbreviation" %in% names(row)
-        ) {
-          as.character(
-            row$abbreviation[[1]]
-          )
-        } else {
-          substr(
-            input$partner_team,
-            1,
-            3
-          )
-        }
+        phase13_team_abbreviation(
+          teams,
+          input$partner_team
+        )
       })
       
       output$team_a_short_name <- shiny::renderText({

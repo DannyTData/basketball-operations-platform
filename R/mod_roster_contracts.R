@@ -69,6 +69,7 @@ mod_roster_contracts_ui <- function(id) {
   
   shiny::div(
     class = "tbi-module-page tbi-v2-roster-page",
+    `data-tbi-subtab-input` = ns("active_subtab"),
     
     shiny::tags$style(
       shiny::HTML(
@@ -566,6 +567,36 @@ mod_roster_contracts_server <- function(
   shiny::moduleServer(
     id,
     function(input, output, session) {
+      subtab_seen <- shiny::reactiveValues(
+        overview = TRUE,
+        decision = FALSE,
+        needs = FALSE,
+        roster = FALSE,
+        `legacy-hidden` = FALSE
+      )
+
+      shiny::observeEvent(
+        input$active_subtab,
+        {
+          tab <- as.character(input$active_subtab)
+          valid_tabs <- c(
+            "overview",
+            "decision",
+            "needs",
+            "roster"
+          )
+
+          if (length(tab) == 1L && tab %in% valid_tabs) {
+            subtab_seen[[tab]] <- TRUE
+          }
+        },
+        ignoreInit = FALSE
+      )
+
+      subtab_ready <- function(tab) {
+        shiny::req(isTRUE(subtab_seen[[tab]]))
+        invisible(TRUE)
+      }
       
       # ------------------------------------------------------
       # Helpers
@@ -902,6 +933,13 @@ mod_roster_contracts_server <- function(
         )
       })
       
+      base_selected_roster <- shiny::bindCache(
+        base_selected_roster,
+        selected_team(),
+        selected_season(),
+        cache = "session"
+      )
+
       
       active_trade_scenario <- shiny::reactive({
         
@@ -1258,6 +1296,7 @@ mod_roster_contracts_server <- function(
       
       
       output$bie_roster_decision_summary <- shiny::renderUI({
+        subtab_ready("legacy-hidden")
         
         result <- bie_roster_decision_result()
         
@@ -1569,6 +1608,7 @@ mod_roster_contracts_server <- function(
       
       
       output$bie_roster_needs_summary <- shiny::renderUI({
+        subtab_ready("legacy-hidden")
         
         result <- bie_roster_needs_result()
         
@@ -1725,6 +1765,7 @@ mod_roster_contracts_server <- function(
       
       
       output$bie_roster_needs_table <- reactable::renderReactable({
+        subtab_ready("legacy-hidden")
         
         result <- bie_roster_needs_result()
         
@@ -1822,6 +1863,7 @@ mod_roster_contracts_server <- function(
       
       
       output$bie_roster_decision_table <- reactable::renderReactable({
+        subtab_ready("legacy-hidden")
         
         result <- bie_roster_decision_result()
         
@@ -2587,6 +2629,7 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_risks <- shiny::renderUI({
+        subtab_ready("needs")
         d <- selected_roster()
         scores <- position_scores()
         
@@ -2703,6 +2746,7 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_opportunities <- shiny::renderUI({
+        subtab_ready("needs")
         d <- selected_roster()
         scores <- position_scores()
         
@@ -2924,6 +2968,7 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_assessment <- shiny::renderUI({
+        subtab_ready("decision")
         d <- selected_roster()
         scores <- position_scores()
         
