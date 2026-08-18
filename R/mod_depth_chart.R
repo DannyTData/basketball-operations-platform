@@ -1927,6 +1927,817 @@ mod_depth_chart_ui <- function(id) {
 
 
 # ============================================================
+# DEPTH CHART PERFORMANCE HELPERS
+# ============================================================
+
+#' Merge one evidence row using the frozen compatibility precedence
+#' @noRd
+depth_chart_merge_bie_evidence <- function(base, extra, prefix) {
+  if (is.null(extra) || !is.data.frame(extra) || !nrow(extra)) {
+    return(base)
+  }
+
+  extra <- extra[1, , drop = FALSE]
+  key_columns <- c(
+    "player_id",
+    "team_id",
+    "season",
+    "source_name",
+    "source_player_id",
+    "source_team",
+    "imported_at",
+    "updated_at",
+    "metric_version"
+  )
+  evidence_columns <- setdiff(names(extra), key_columns)
+
+  for (column in evidence_columns) {
+    value <- extra[[column]][[1]]
+    prefixed_name <- paste0(prefix, column)
+    base[[prefixed_name]] <- value
+
+    if (!column %in% names(base)) {
+      base[[column]] <- value
+    } else {
+      current <- base[[column]]
+      current_missing <-
+        is.null(current) || !length(current) || all(is.na(current))
+      value_usable <-
+        !is.null(value) && length(value) && !all(is.na(value))
+
+      if (current_missing && value_usable) {
+        base[[column]] <- value
+      }
+    }
+  }
+
+  base
+}
+
+
+#' Resolve official positions for a roster with one read-only query
+#' @noRd
+depth_chart_batched_official_positions <- function(roster) {
+  if (is.null(roster) || !is.data.frame(roster) || !nrow(roster)) {
+    return(list())
+  }
+
+  if (!all(c("player_id", "primary_position") %in% names(roster))) {
+    stop(
+      "Roster must contain player_id and primary_position.",
+      call. = FALSE
+    )
+  }
+
+  player_ids <- unique(suppressWarnings(as.integer(roster$player_id)))
+  player_ids <- player_ids[!is.na(player_ids)]
+
+  if (!length(player_ids)) {
+    return(list())
+  }
+
+  con <- connect_db(read_only = TRUE)
+  on.exit(disconnect_db(con), add = TRUE)
+
+  placeholders <- paste(rep("?", length(player_ids)), collapse = ",")
+  explicit <- DBI::dbGetQuery(
+    con,
+    paste0(
+      "SELECT player_id, position ",
+      "FROM player_positions ",
+      "WHERE player_id IN (", placeholders, ") ",
+      "ORDER BY player_id, eligibility_rank, position"
+    ),
+    params = as.list(player_ids)
+  )
+
+  valid_positions <- c("PG", "SG", "SF", "PF", "C")
+  roster_first <- roster[
+    !duplicated(suppressWarnings(as.integer(roster$player_id))),
+    ,
+    drop = FALSE
+  ]
+
+  result <- stats::setNames(
+    vector("list", nrow(roster_first)),
+    as.character(suppressWarnings(as.integer(roster_first$player_id)))
+  )
+
+  for (i in seq_len(nrow(roster_first))) {
+    player_id <- suppressWarnings(as.integer(roster_first$player_id[[i]]))
+    primary_position <- roster_first$primary_position[[i]]
+    explicit_rows <- explicit[
+      suppressWarnings(as.integer(explicit$player_id)) == player_id,
+      ,
+      drop = FALSE
+    ]
+
+    eligible <- unique(vapply(
+      explicit_rows$position,
+      normalize_depth_position,
+      character(1)
+    ))
+    eligible <- eligible[eligible %in% valid_positions]
+
+    if (!length(eligible)) {
+      position <- toupper(trimws(as.character(primary_position %||% "")))
+      tokens <- unlist(strsplit(
+        gsub("[^A-Z/\\-]", "", position),
+        "[/\\-]"
+      ))
+      tokens <- unique(vapply(
+        tokens[nzchar(tokens)],
+        normalize_depth_position,
+        character(1)
+      ))
+      tokens <- tokens[tokens %in% valid_positions]
+
+      if (grepl("G", position, fixed = TRUE) && !length(tokens)) {
+        tokens <- c("PG", "SG")
+      }
+      if (grepl("F", position, fixed = TRUE) && !length(tokens)) {
+        tokens <- c("SF", "PF")
+      }
+      eligible <- tokens
+    }
+
+    if (!length(eligible)) {
+      eligible <- normalize_depth_position(primary_position)
+    }
+    eligible <- eligible[eligible %in% valid_positions]
+    if (!length(eligible)) {
+      eligible <- valid_positions
+    }
+
+    result[[as.character(player_id)]] <- unique(eligible)
+  }
+
+  result
+}
+
+
+#' Batch the read-only evidence used by frozen BIE roster enrichment
+#' @noRd
+depth_chart_batched_bie_enrich_roster <- function(
+    roster,
+    roster_season = NULL) {
+  if (is.null(roster) || !is.data.frame(roster) || !nrow(roster)) {
+    return(roster)
+  }
+
+  if (
+    is.null(roster_season) ||
+      !length(roster_season) ||
+      is.na(roster_season[[1]]) ||
+      !nzchar(trimws(as.character(roster_season[[1]])))
+  ) {
+    season_values <- if ("season" %in% names(roster)) {
+      unique(as.character(roster$season))
+    } else {
+      character()
+    }
+    season_values <- season_values[
+      !is.na(season_values) & nzchar(trimws(season_values))
+    ]
+    roster_season <- if (length(season_values)) {
+      season_values[[1]]
+    } else {
+      "2026-27"
+    }
+  }
+  roster_season <- as.character(roster_season[[1]])
+
+  required_helpers <- c(
+    "player_manager_batched_metadata",
+    "player_manager_batched_performance_seasons",
+    "player_manager_batched_evidence_rows",
+    "player_manager_batched_latest_row"
+  )
+
+  if (!all(vapply(required_helpers, exists, logical(1), mode = "function"))) {
+    stop(
+      "Batched player-evidence helpers are required for Depth Chart enrichment.",
+      call. = FALSE
+    )
+  }
+
+  con <- connect_db(read_only = TRUE)
+  on.exit(disconnect_db(con), add = TRUE)
+
+  evidence_tables <- c(
+    stats = "player_season_stats",
+    advanced = "player_season_advanced",
+    shooting = "player_season_shooting",
+    playmaking = "player_season_playmaking",
+    defense = "player_season_defense_rebounding",
+    roles = "player_season_roles",
+    impact = "player_season_impact"
+  )
+  metadata <- player_manager_batched_metadata(
+    con,
+    unname(evidence_tables)
+  )
+  player_ids <- suppressWarnings(as.integer(roster$player_id))
+  performance_seasons <- player_manager_batched_performance_seasons(
+    con = con,
+    player_ids = player_ids,
+    roster_season = roster_season,
+    metadata = metadata
+  )
+  evidence <- stats::setNames(
+    lapply(
+      evidence_tables,
+      function(table_name) {
+        player_manager_batched_evidence_rows(
+          con = con,
+          table_name = table_name,
+          player_ids = player_ids,
+          performance_seasons = performance_seasons,
+          metadata = metadata
+        )
+      }
+    ),
+    names(evidence_tables)
+  )
+
+  rows <- lapply(
+    seq_len(nrow(roster)),
+    function(index) {
+      row <- roster[index, , drop = FALSE]
+      player_id <- player_ids[[index]]
+      performance_season <- performance_seasons[[index]]
+      selected_rows <- stats::setNames(
+        lapply(
+          names(evidence_tables),
+          function(evidence_name) {
+            table_name <- evidence_tables[[evidence_name]]
+
+            player_manager_batched_latest_row(
+              evidence = evidence[[evidence_name]],
+              fields = metadata$fields[[table_name]],
+              player_id = player_id,
+              performance_season = performance_season
+            )
+          }
+        ),
+        names(evidence_tables)
+      )
+      stats_row <- selected_rows[["stats"]]
+
+      row$tbi_performance_available <- nrow(stats_row) > 0L
+      row$performance_season_used <- if (nrow(stats_row)) {
+        performance_season
+      } else {
+        NA_character_
+      }
+
+      for (evidence_name in names(evidence_tables)) {
+        row <- depth_chart_merge_bie_evidence(
+          base = row,
+          extra = selected_rows[[evidence_name]],
+          prefix = paste0(evidence_name, "_")
+        )
+      }
+
+      row
+    }
+  )
+  all_names <- unique(unlist(lapply(rows, names)))
+  normalized <- lapply(
+    rows,
+    function(row) {
+      missing <- setdiff(all_names, names(row))
+
+      for (column in missing) {
+        row[[column]] <- NA
+      }
+
+      row[, all_names, drop = FALSE]
+    }
+  )
+
+  do.call(rbind, normalized)
+}
+
+
+#' Execute the frozen lineup search with position fits prepared once
+#' @noRd
+depth_chart_prepared_bie_starting_five <- function(
+    players,
+    compact_players,
+    candidate_limit = 8L,
+    player_weight = 0.65,
+    position_weight = 0.25,
+    balance_weight = 0.10,
+    locks = NULL) {
+  candidate_limit <- suppressWarnings(as.integer(candidate_limit))
+
+  if (
+    !length(candidate_limit) ||
+      is.na(candidate_limit) ||
+      candidate_limit < 2L
+  ) {
+    candidate_limit <- 8L
+  }
+
+  lineup_weights <- suppressWarnings(as.numeric(c(
+    player_weight,
+    position_weight,
+    balance_weight
+  )))
+
+  if (
+    length(lineup_weights) != 3L ||
+      any(!is.finite(lineup_weights)) ||
+      any(lineup_weights < 0) ||
+      sum(lineup_weights) <= 0
+  ) {
+    lineup_weights <- c(0.65, 0.25, 0.10)
+  }
+
+  lineup_weights <- lineup_weights / sum(lineup_weights)
+  player_weight <- lineup_weights[[1]]
+  position_weight <- lineup_weights[[2]]
+  balance_weight <- lineup_weights[[3]]
+  candidate_total <- player_weight + position_weight
+  candidate_player_weight <- player_weight / candidate_total
+  candidate_position_weight <- position_weight / candidate_total
+  positions <- c("PG", "SG", "SF", "PF", "C")
+  quality <- suppressWarnings(
+    as.numeric(compact_players$bie_selection_score)
+  )
+
+  resolved_locks <- locks
+
+  if (
+    is.null(resolved_locks) ||
+      !is.data.frame(resolved_locks) ||
+      !nrow(resolved_locks)
+  ) {
+    resolved_locks <- bie_default_starting_five_locks(compact_players)
+  }
+
+  if (
+    is.null(resolved_locks) ||
+      !is.data.frame(resolved_locks) ||
+      !nrow(resolved_locks)
+  ) {
+    resolved_locks <- data.frame(
+      player_id = integer(),
+      player_name = character(),
+      position = character(),
+      stringsAsFactors = FALSE
+    )
+  }
+
+  if (nrow(resolved_locks) && !"position" %in% names(resolved_locks)) {
+    stop("locks must contain a position column.", call. = FALSE)
+  }
+
+  if (nrow(resolved_locks)) {
+    resolved_locks$position <- vapply(
+      resolved_locks$position,
+      bie_normalize_position,
+      character(1)
+    )
+
+    if (any(duplicated(resolved_locks$position))) {
+      stop(
+        "Only one lock may be assigned to each lineup position.",
+        call. = FALSE
+      )
+    }
+
+    resolved_locks$resolved_index <- NA_integer_
+
+    for (index in seq_len(nrow(resolved_locks))) {
+      player_index <- NA_integer_
+
+      if ("player_id" %in% names(resolved_locks)) {
+        lock_id <- suppressWarnings(
+          as.integer(resolved_locks$player_id[[index]])
+        )
+
+        if (length(lock_id) && is.finite(lock_id)) {
+          player_index <- match(
+            lock_id,
+            suppressWarnings(as.integer(compact_players$player_id))
+          )
+        }
+      }
+
+      if (
+        is.na(player_index) &&
+          "player_name" %in% names(resolved_locks)
+      ) {
+        lock_name <- as.character(
+          resolved_locks$player_name[[index]]
+        )
+        hits <- which(
+          tolower(trimws(compact_players$player_name)) ==
+            tolower(trimws(lock_name))
+        )
+
+        if (length(hits) == 1L) {
+          player_index <- hits[[1]]
+        }
+      }
+
+      if (is.na(player_index)) {
+        return(list(
+          status = "LOCKED_PLAYER_NOT_FOUND",
+          lineup = data.frame(),
+          score = NA_real_
+        ))
+      }
+
+      resolved_locks$resolved_index[[index]] <- player_index
+    }
+
+    if (any(duplicated(resolved_locks$resolved_index))) {
+      stop(
+        "The same player cannot be locked into multiple positions.",
+        call. = FALSE
+      )
+    }
+  }
+
+  locked_indices <- if (nrow(resolved_locks)) {
+    as.integer(resolved_locks$resolved_index)
+  } else {
+    integer()
+  }
+  position_fit <- vapply(
+    positions,
+    function(position) {
+      vapply(
+        seq_len(nrow(compact_players)),
+        function(index) {
+          bie_position_fit_score(
+            compact_players[index, , drop = FALSE],
+            position
+          )
+        },
+        numeric(1)
+      )
+    },
+    numeric(nrow(compact_players))
+  )
+  colnames(position_fit) <- positions
+  candidates <- vector("list", length(positions))
+  names(candidates) <- positions
+
+  for (position in positions) {
+    position_lock <- if (nrow(resolved_locks)) {
+      resolved_locks[
+        resolved_locks$position == position,
+        ,
+        drop = FALSE
+      ]
+    } else {
+      data.frame()
+    }
+
+    if (nrow(position_lock) == 1L) {
+      player_index <- as.integer(position_lock$resolved_index[[1]])
+
+      if (!is.finite(position_fit[player_index, position])) {
+        return(list(
+          status = "LOCKED_PLAYER_POSITION_ILLEGAL",
+          lineup = data.frame(),
+          score = NA_real_
+        ))
+      }
+
+      candidates[[position]] <- player_index
+      next
+    }
+
+    fit <- position_fit[, position]
+    eligible <- is.finite(fit)
+
+    if (length(locked_indices)) {
+      eligible[locked_indices] <- FALSE
+    }
+
+    performance_eligible <-
+      eligible &
+      compact_players$bie_score_source == "PERFORMANCE_DATA" &
+      is.finite(quality)
+    pool <- if (any(performance_eligible)) {
+      performance_eligible
+    } else {
+      eligible & is.finite(quality)
+    }
+
+    if (!any(pool)) {
+      candidates[[position]] <- integer()
+      next
+    }
+
+    candidate_score <-
+      candidate_player_weight * quality +
+      candidate_position_weight * fit
+    indices <- which(pool)
+    indices <- indices[order(
+      -candidate_score[indices],
+      compact_players$player_name[indices],
+      na.last = TRUE
+    )]
+    candidates[[position]] <- head(indices, candidate_limit)
+  }
+
+  missing_positions <- positions[
+    !vapply(candidates, length, integer(1))
+  ]
+
+  if (length(missing_positions)) {
+    return(list(
+      status = "INCOMPLETE_POSITION_COVERAGE",
+      lineup = data.frame(),
+      score = NA_real_,
+      missing_positions = missing_positions
+    ))
+  }
+
+  best_score <- -Inf
+  best_assignment <- NULL
+  evaluated_lineups <- 0L
+
+  search_assignment <- function(
+      position_index,
+      chosen_indices,
+      assigned_positions) {
+    if (position_index > length(positions)) {
+      evaluated_lineups <<- evaluated_lineups + 1L
+      lineup <- compact_players[chosen_indices, , drop = FALSE]
+      lineup$bie_lineup_position <- assigned_positions
+      lineup_quality <- suppressWarnings(
+        as.numeric(lineup$bie_selection_score)
+      )
+      player_quality <- mean(lineup_quality, na.rm = TRUE)
+      raw_bie_quality <- mean(
+        suppressWarnings(as.numeric(lineup$bie_player_score)),
+        na.rm = TRUE
+      )
+      fit_columns <- match(assigned_positions, positions)
+      lineup_position_fit <- mean(
+        position_fit[cbind(chosen_indices, fit_columns)],
+        na.rm = TRUE
+      )
+      balance <- bie_lineup_balance(lineup)
+      score <-
+        player_weight * player_quality +
+        position_weight * lineup_position_fit +
+        balance_weight * balance$score
+      score <- pmin(100, pmax(0, score))
+
+      if (score > best_score) {
+        best_score <<- score
+        best_assignment <<- list(
+          indices = chosen_indices,
+          positions = assigned_positions,
+          player_quality = player_quality,
+          raw_bie_quality = raw_bie_quality,
+          position_fit = lineup_position_fit,
+          balance = balance
+        )
+      }
+
+      return(invisible(NULL))
+    }
+
+    position <- positions[[position_index]]
+
+    for (candidate_index in candidates[[position]]) {
+      if (candidate_index %in% chosen_indices) {
+        next
+      }
+
+      search_assignment(
+        position_index = position_index + 1L,
+        chosen_indices = c(chosen_indices, candidate_index),
+        assigned_positions = c(assigned_positions, position)
+      )
+    }
+
+    invisible(NULL)
+  }
+
+  search_assignment(
+    position_index = 1L,
+    chosen_indices = integer(),
+    assigned_positions = character()
+  )
+
+  if (is.null(best_assignment)) {
+    return(list(
+      status = "NO_LEGAL_LINEUP",
+      lineup = data.frame(),
+      score = NA_real_,
+      evaluated_lineups = evaluated_lineups
+    ))
+  }
+
+  lineup <- players[best_assignment$indices, , drop = FALSE]
+  lineup$bie_lineup_position <- best_assignment$positions
+  lineup <- lineup[
+    match(positions, lineup$bie_lineup_position),
+    ,
+    drop = FALSE
+  ]
+  rownames(lineup) <- NULL
+  source_counts <- table(lineup$bie_score_source)
+  performance_players <- if (
+    "PERFORMANCE_DATA" %in% names(source_counts)
+  ) {
+    as.integer(source_counts[["PERFORMANCE_DATA"]])
+  } else {
+    0L
+  }
+  confidence <- if (performance_players == 5L) {
+    "HIGH"
+  } else if (performance_players >= 3L) {
+    "MODERATE"
+  } else {
+    "FOUNDATION"
+  }
+
+  list(
+    status = "OK",
+    lineup = lineup,
+    score = best_score,
+    player_quality = best_assignment$player_quality,
+    raw_bie_quality = best_assignment$raw_bie_quality,
+    position_fit = best_assignment$position_fit,
+    balance = best_assignment$balance,
+    evaluated_lineups = evaluated_lineups,
+    performance_data_players = performance_players,
+    confidence = confidence,
+    explanation = paste0(
+      "BIE vNEXT Starting Five: ",
+      round(100 * player_weight),
+      "% player quality / ",
+      round(100 * position_weight),
+      "% position fit / ",
+      round(100 * balance_weight),
+      "% lineup balance. Performance-backed legal candidates take priority over fallback."
+    ),
+    model_label = "BIE Starting Five vNEXT LOCKED"
+  )
+}
+
+
+#' Run the frozen optimizer on only columns it reads, then rehydrate
+#' @noRd
+depth_chart_optimize_bie_starting_five <- function(
+    players,
+    candidate_limit = 8L,
+    player_weight = 0.65,
+    position_weight = 0.25,
+    balance_weight = 0.10,
+    locks = NULL) {
+  if (is.null(players) || !is.data.frame(players) || !nrow(players)) {
+    return(
+      optimize_bie_starting_five(
+        players = players,
+        candidate_limit = candidate_limit,
+        player_weight = player_weight,
+        position_weight = position_weight,
+        balance_weight = balance_weight,
+        locks = locks
+      )
+    )
+  }
+
+  identity_and_position_columns <- c(
+    "player_id",
+    "player_name",
+    "team_id",
+    "team_name",
+    "current_team_name",
+    "team",
+    "season",
+    "roster_season",
+    "position",
+    "primary_position",
+    "eligible_positions",
+    "official_positions",
+    "positions",
+    "pos"
+  )
+  required_bie_columns <- c(
+    "bie_player_score",
+    "bie_score_source",
+    "bie_metric_components",
+    "bie_selection_score",
+    "bie_model_version",
+    "bie_efficiency_score",
+    "bie_playmaking_score",
+    "bie_defense_score",
+    "bie_rebounding_score"
+  )
+
+  if (
+    !all(required_bie_columns %in% names(players)) ||
+      !all(as.character(players$bie_model_version) == "BIE vNEXT LOCKED")
+  ) {
+    return(
+      optimize_bie_starting_five(
+        players = players,
+        candidate_limit = candidate_limit,
+        player_weight = player_weight,
+        position_weight = position_weight,
+        balance_weight = balance_weight,
+        locks = locks
+      )
+    )
+  }
+
+  optimizer_columns <- unique(c(
+    intersect(identity_and_position_columns, names(players)),
+    required_bie_columns
+  ))
+  compact_players <- players[, optimizer_columns, drop = FALSE]
+  depth_chart_prepared_bie_starting_five(
+    players = players,
+    compact_players = compact_players,
+    candidate_limit = candidate_limit,
+    player_weight = player_weight,
+    position_weight = position_weight,
+    balance_weight = balance_weight,
+    locks = locks
+  )
+}
+
+
+#' Build Phase 11 lineup variants from one immutable candidate pool
+#' @noRd
+depth_chart_build_phase11_lineup_result <- function(
+    rotation_result,
+    pool_size = NULL) {
+  required_helpers <- c(
+    "resolve_lineup_optimization_rules",
+    "get_lineup_candidate_pool",
+    "enumerate_lineup_candidates",
+    "score_lineup",
+    "summarize_lineup"
+  )
+  if (!all(vapply(required_helpers, exists, logical(1), mode = "function"))) {
+    stop(
+      "Phase 9 Lineup Optimization Engine is not loaded.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    is.null(rotation_result) ||
+      !identical(rotation_result$status, "OK")
+  ) {
+    return(NULL)
+  }
+
+  if (is.null(pool_size)) {
+    pool_size <- rotation_result$rotation_size
+  }
+
+  rules <- resolve_lineup_optimization_rules()
+  pool <- get_lineup_candidate_pool(
+    rotation_result$phase8_result,
+    pool_size = pool_size
+  )
+  candidates <- enumerate_lineup_candidates(pool)
+
+  optimize_type <- function(lineup_type) {
+    scores <- vapply(
+      candidates,
+      function(candidate) {
+        score_lineup(candidate, lineup_type = lineup_type)$score
+      },
+      numeric(1)
+    )
+    best_index <- which.max(scores)
+    best_lineup <- candidates[[best_index]]
+    best_score <- score_lineup(
+      best_lineup,
+      lineup_type = lineup_type
+    )
+    summary <- summarize_lineup(best_lineup, best_score)
+    summary$candidate_count <- length(candidates)
+    summary
+  }
+
+  list(
+    balanced = optimize_type("balanced"),
+    offense = optimize_type("offense"),
+    defense = optimize_type("defense"),
+    closing = optimize_type("closing"),
+    model_label = rules$model_label
+  )
+}
+
+
+# ============================================================
 # SERVER
 # ============================================================
 
@@ -2095,18 +2906,36 @@ mod_depth_chart_server <- function(
         )
       }
       
+      official_positions_lookup <- NULL
+      official_positions_session_cache <- new.env(parent = emptyenv())
+
       official_positions <- function(row) {
-        positions <- tryCatch(
-          get_player_eligible_positions(
-            player_id =
-              row$player_id[[1]],
-            primary_position =
-              row$primary_position[[1]]
-          ),
-          error = function(e) {
-            character()
-          }
+        player_id <- suppressWarnings(as.integer(row$player_id[[1]]))
+        batched <- tryCatch(
+          {
+            if (is.function(official_positions_lookup)) {
+              official_positions_lookup()
+            } else {
+              NULL
+            }
+          },
+          error = function(e) NULL
         )
+        positions <- if (
+          !is.null(batched) &&
+            !is.na(player_id) &&
+            !is.null(batched[[as.character(player_id)]])
+        ) {
+          batched[[as.character(player_id)]]
+        } else {
+          tryCatch(
+            get_player_eligible_positions(
+              player_id = row$player_id[[1]],
+              primary_position = row$primary_position[[1]]
+            ),
+            error = function(e) character()
+          )
+        }
         
         positions <- unique(
           positions[
@@ -2697,6 +3526,48 @@ mod_depth_chart_server <- function(
         rownames(preview) <- NULL
         preview
       })
+
+
+      official_positions_lookup <- shiny::reactive({
+        roster <- depth_data()
+
+        if (is.null(roster) || !is.data.frame(roster) || !nrow(roster)) {
+          return(list())
+        }
+
+        ids <- suppressWarnings(as.integer(roster$player_id))
+        primary <- as.character(roster$primary_position)
+        order_index <- order(ids, primary, na.last = TRUE)
+        cache_key <- paste(
+          as.character(selected_team()),
+          as.character(selected_season()),
+          paste(ids[order_index], primary[order_index], sep = ":", collapse = "|"),
+          sep = "||"
+        )
+
+        if (exists(cache_key, envir = official_positions_session_cache, inherits = FALSE)) {
+          return(get(
+            cache_key,
+            envir = official_positions_session_cache,
+            inherits = FALSE
+          ))
+        }
+
+        positions <- tryCatch(
+          depth_chart_batched_official_positions(roster),
+          error = function(e) NULL
+        )
+
+        if (!is.null(positions)) {
+          assign(
+            cache_key,
+            positions,
+            envir = official_positions_session_cache
+          )
+        }
+
+        positions
+      })
       
       
       output$shared_trade_scenario_banner <- shiny::renderUI({
@@ -2929,7 +3800,7 @@ mod_depth_chart_server <- function(
       
       bie_roster <- shiny::reactive({
         
-        d <- tbi_bie_enrich_roster(depth_data())
+        d <- depth_chart_batched_bie_enrich_roster(depth_data())
         
         if (
           !nrow(d) ||
@@ -3055,7 +3926,7 @@ mod_depth_chart_server <- function(
         }
         
         result <- tryCatch(
-          optimize_bie_starting_five(d),
+          depth_chart_optimize_bie_starting_five(d),
           error = function(e) {
             list(
               status = "ERROR",
@@ -3513,7 +4384,7 @@ mod_depth_chart_server <- function(
         }
         
         result <- tryCatch(
-          build_phase11_lineup_result(
+          depth_chart_build_phase11_lineup_result(
             rotation_result =
               rotation_result,
             pool_size =
