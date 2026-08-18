@@ -1,0 +1,1864 @@
+/* >>> TBI_UX_FOUNDATION_TOP_NAV_START >>> */
+
+/* ==========================================================
+   TBI UX FOUNDATION
+   PRIMARY NAVIGATION -> TOP
+   ========================================================== */
+
+.tbi-product-shell.tbi-v2-shell {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+}
+
+
+/* ----------------------------------------------------------
+   Former left rail becomes horizontal top navigation
+   ---------------------------------------------------------- */
+
+.tbi-product-sidebar.tbi-v2-sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1050 !important;
+
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 18px !important;
+
+  padding: 10px 18px !important;
+
+  border-right: 0 !important;
+  border-bottom: 1px solid rgba(148,163,184,.14) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10,15,24,.985),
+      rgba(8,13,21,.985)
+    ) !important;
+
+  box-shadow: 0 8px 28px rgba(0,0,0,.20) !important;
+}
+
+
+/* Compact TBI brand */
+
+.tbi-v2-sidebar .tbi-v2-brand {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: max-content !important;
+}
+
+.tbi-v2-sidebar .tbi-v2-brand-mark {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.tbi-v2-sidebar .tbi-v2-brand-copy strong {
+  font-size: .72rem !important;
+}
+
+.tbi-v2-sidebar .tbi-v2-brand-copy span {
+  font-size: .56rem !important;
+}
+
+
+/* Hide elements that belonged to the vertical rail */
+
+.tbi-v2-sidebar .tbi-v2-workspace-chip,
+.tbi-v2-sidebar .tbi-sidebar-footer,
+.tbi-v2-sidebar .tbi-v2-sidebar-footer,
+.tbi-v2-sidebar .tbi-v2-nav-group-label {
+  display: none !important;
+}
+
+
+/* Top navigation */
+
+.tbi-primary-navigation.tbi-v2-navigation {
+  width: 100% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+
+  gap: 5px !important;
+
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+
+  scrollbar-width: thin !important;
+  -webkit-overflow-scrolling: touch !important;
+
+  padding: 2px 2px 4px !important;
+  margin: 0 !important;
+}
+
+
+/* nav_group returns tagLists, so links themselves are flattened
+   into the horizontal flow */
+
+.tbi-primary-navigation .tbi-nav-link {
+  flex: 0 0 auto !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 7px !important;
+
+  min-height: 38px !important;
+
+  margin: 0 !important;
+  padding: 8px 11px !important;
+
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+
+  color: #91a0b5 !important;
+  background: transparent !important;
+
+  font-size: .71rem !important;
+  font-weight: 760 !important;
+
+  text-decoration: none !important;
+  white-space: nowrap !important;
+
+  transition:
+    background .16s ease,
+    border-color .16s ease,
+    color .16s ease !important;
+}
+
+.tbi-primary-navigation .tbi-nav-link:hover {
+  color: #e6eef8 !important;
+  background: rgba(255,255,255,.035) !important;
+  border-color: rgba(148,163,184,.12) !important;
+}
+
+.tbi-primary-navigation .tbi-nav-link.active {
+  color: #ffffff !important;
+  background: rgba(37,99,235,.17) !important;
+  border-color: rgba(96,165,250,.26) !important;
+}
+
+.tbi-primary-navigation .tbi-v2-nav-icon {
+  display: inline-flex !important;
+}
+
+.tbi-primary-navigation .tbi-v2-nav-icon svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+
+/* ----------------------------------------------------------
+   Main workspace now owns full width
+   ---------------------------------------------------------- */
+
+.tbi-product-main.tbi-v2-main {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+
+/* Slightly shorter executive header */
+
+.tbi-v2-header {
+  min-height: 84px !important;
+}
+
+
+/* ==========================================================
+   PLAYER MANAGEMENT SUB-TABS
+   ========================================================== */
+
+.pi-page .tbi-pm-subnav {
+  position: sticky;
+  top: 59px;
+  z-index: 25;
+
+  display: flex;
+  gap: 7px;
+
+  width: 100%;
+  margin: 2px 0 14px;
+  padding: 8px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  border: 1px solid rgba(148,163,184,.12);
+  border-radius: 11px;
+
+  background: rgba(10,15,24,.96);
+  box-shadow: 0 6px 20px rgba(0,0,0,.14);
+
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pi-page .tbi-pm-subtab {
+  flex: 0 0 auto;
+
+  min-height: 35px;
+  padding: 7px 13px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: #8c9db3;
+  background: transparent;
+
+  font-size: .72rem;
+  font-weight: 800;
+
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pi-page .tbi-pm-subtab:hover {
+  color: #e8f0fa;
+  background: rgba(255,255,255,.035);
+}
+
+.pi-page .tbi-pm-subtab.active {
+  color: #ffffff;
+  border-color: rgba(96,165,250,.28);
+  background: rgba(37,99,235,.17);
+}
+
+
+/* Elements filtered by the tab controller */
+
+.pi-page .tbi-pm-tab-target.tbi-pm-hidden {
+  display: none !important;
+}
+
+
+/* ----------------------------------------------------------
+   Player Management readability pass
+   Feedback: values and labels were too small
+   ---------------------------------------------------------- */
+
+.pi-page .pi-selector-label,
+.pi-page .pi-kicker,
+.pi-page .pi-panel-title,
+.pi-page .pi-stat-label,
+.pi-page .pi-metric-label {
+  font-size: .66rem !important;
+}
+
+.pi-page .pi-player-subtitle {
+  font-size: .88rem !important;
+}
+
+.pi-page .pi-player-detail-line {
+  font-size: .74rem !important;
+}
+
+.pi-page .pi-metric-value {
+  font-size: 1.02rem !important;
+}
+
+.pi-page .pi-stat-value {
+  font-size: 1.02rem !important;
+}
+
+.pi-page .pi-empty-note {
+  font-size: .72rem !important;
+}
+
+.pi-page .pi-role-tier {
+  font-size: .80rem !important;
+}
+
+.pi-page .pi-role-caption {
+  font-size: .69rem !important;
+}
+
+.pi-page .pi-list-title {
+  font-size: .62rem !important;
+}
+
+.pi-page .pi-bullet {
+  font-size: .72rem !important;
+  line-height: 1.5 !important;
+}
+
+.pi-page .pi-signal-row {
+  font-size: .72rem !important;
+}
+
+.pi-page .pi-signal-row strong {
+  font-size: .78rem !important;
+}
+
+.pi-page .pi-projection-card span {
+  font-size: .61rem !important;
+}
+
+.pi-page .pi-projection-card strong {
+  font-size: .94rem !important;
+}
+
+.pi-page .pi-flag-row {
+  font-size: .70rem !important;
+}
+
+.pi-page .pi-risk strong,
+.pi-page .pi-opportunity strong {
+  font-size: .68rem !important;
+}
+
+.pi-page .pi-risk p,
+.pi-page .pi-opportunity p {
+  font-size: .70rem !important;
+}
+
+.pi-page .pi-rec-sub,
+.pi-page .pi-rec-list {
+  font-size: .72rem !important;
+}
+
+.pi-page .pi-data-note {
+  font-size: .68rem !important;
+}
+
+
+/* Value & Fit specifically */
+
+.pi-page .pi-bie-chip {
+  font-size: .58rem !important;
+}
+
+.pi-page .pi-bie-score-card span {
+  font-size: .59rem !important;
+}
+
+.pi-page .pi-bie-confidence,
+.pi-page .pi-bie-rank {
+  font-size: .62rem !important;
+}
+
+.pi-page .pi-bie-profile-item span {
+  font-size: .55rem !important;
+}
+
+.pi-page .pi-bie-profile-item strong {
+  font-size: .72rem !important;
+}
+
+.pi-page .pi-bie-component span {
+  font-size: .54rem !important;
+}
+
+.pi-page .pi-bie-component strong {
+  font-size: .82rem !important;
+}
+
+.pi-page .pi-bie-note-title {
+  font-size: .55rem !important;
+}
+
+.pi-page .pi-bie-note-item,
+.pi-page .pi-bie-scope {
+  font-size: .64rem !important;
+}
+
+
+/* More breathing room between major page elements */
+
+.tbi-v2-page-content,
+.tbi-module-page {
+  row-gap: 18px !important;
+}
+
+.pi-page {
+  gap: 18px !important;
+}
+
+.pi-left-grid,
+.pi-right-rail {
+  gap: 16px !important;
+}
+
+
+/* ==========================================================
+   TABLET
+   ========================================================== */
+
+@media (max-width: 1180px) {
+
+  .tbi-product-sidebar.tbi-v2-sidebar {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .tbi-v2-sidebar .tbi-v2-brand {
+    display: none !important;
+  }
+
+  .tbi-primary-navigation.tbi-v2-navigation {
+    width: 100% !important;
+  }
+
+  .tbi-primary-navigation .tbi-nav-link {
+    font-size: .76rem !important;
+    padding: 9px 12px !important;
+  }
+
+  .tbi-v2-header {
+    padding-top: 14px !important;
+  }
+
+  .pi-page .tbi-pm-subnav {
+    top: 56px;
+  }
+}
+
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width: 700px) {
+
+  .tbi-product-sidebar.tbi-v2-sidebar {
+    padding: 7px 8px !important;
+  }
+
+  .tbi-primary-navigation .tbi-nav-link {
+    min-height: 36px !important;
+    padding: 7px 10px !important;
+  }
+
+  .tbi-primary-navigation .tbi-v2-nav-text {
+    font-size: .70rem !important;
+  }
+
+  .tbi-v2-header {
+    min-height: 0 !important;
+  }
+
+  .pi-page .tbi-pm-subnav {
+    position: relative;
+    top: auto;
+    margin-bottom: 12px;
+  }
+}
+
+/* <<< TBI_UX_FOUNDATION_TOP_NAV_END <<< */
+
+
+/* >>> TBI_TOP_NAV_VISIBILITY_HOTFIX_START >>> */
+
+/* ========================================================
+   FORCE TOP NAVIGATION VISIBLE
+   ======================================================== */
+
+.tbi-product-shell.tbi-v2-shell {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tbi-product-sidebar.tbi-v2-sidebar {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 58px !important;
+
+  margin: 0 !important;
+  padding: 8px 18px !important;
+
+  overflow: visible !important;
+
+  border: 0 !important;
+  border-bottom: 1px solid rgba(148,163,184,.16) !important;
+
+  background: #0b0f17 !important;
+}
+
+.tbi-v2-sidebar .tbi-v2-workspace-chip,
+.tbi-v2-sidebar .tbi-sidebar-footer,
+.tbi-v2-sidebar .tbi-v2-sidebar-footer,
+.tbi-v2-sidebar .tbi-v2-nav-group-label {
+  display: none !important;
+}
+
+.tbi-v2-sidebar .tbi-v2-brand {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  margin: 0 18px 0 0 !important;
+  padding: 0 !important;
+}
+
+.tbi-primary-navigation.tbi-v2-navigation {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+
+  width: auto !important;
+  height: auto !important;
+  min-height: 40px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 5px !important;
+
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.tbi-primary-navigation.tbi-v2-navigation .tbi-nav-link {
+  position: relative !important;
+  transform: none !important;
+
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  width: auto !important;
+  min-width: max-content !important;
+  min-height: 38px !important;
+
+  margin: 0 !important;
+  padding: 8px 11px !important;
+
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+
+  color: #98a7ba !important;
+  background: transparent !important;
+
+  font-size: .72rem !important;
+  font-weight: 750 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+
+.tbi-primary-navigation.tbi-v2-navigation .tbi-nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255,255,255,.05) !important;
+}
+
+.tbi-primary-navigation.tbi-v2-navigation .tbi-nav-link.active {
+  color: #ffffff !important;
+  background: rgba(37,99,235,.20) !important;
+  border-color: rgba(96,165,250,.35) !important;
+}
+
+.tbi-product-main.tbi-v2-main {
+  position: relative !important;
+  left: auto !important;
+  transform: none !important;
+
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  margin: 0 !important;
+  padding-left: 0 !important;
+}
+
+@media (max-width: 1100px) {
+
+  .tbi-product-sidebar.tbi-v2-sidebar {
+    padding: 7px 10px !important;
+  }
+
+  .tbi-v2-sidebar .tbi-v2-brand {
+    display: none !important;
+  }
+
+  .tbi-primary-navigation.tbi-v2-navigation .tbi-nav-link {
+    padding: 8px 10px !important;
+    font-size: .74rem !important;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .tbi-primary-navigation.tbi-v2-navigation .tbi-v2-nav-icon {
+    display: none !important;
+  }
+
+  .tbi-primary-navigation.tbi-v2-navigation .tbi-nav-link {
+    font-size: .70rem !important;
+  }
+}
+
+/* <<< TBI_TOP_NAV_VISIBILITY_HOTFIX_END <<< */
+
+/* >>> TBI_ROSTER_SUBTABS_START >>> */
+
+.tbi-v2-roster-page .tbi-roster-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  margin:4px 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-roster-page .tbi-roster-subtab {
+  flex:0 0 auto;
+  min-height:35px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-roster-page .tbi-roster-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-roster-page .tbi-roster-subtab.active {
+  color:#fff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-roster-page .tbi-roster-tab-target.tbi-roster-hidden {
+  display:none !important;
+}
+
+.tbi-v2-roster-page {
+  gap:18px !important;
+}
+
+@media(max-width:700px) {
+  .tbi-v2-roster-page .tbi-roster-subtab {
+    font-size:.70rem;
+    padding:7px 10px;
+  }
+}
+
+/* <<< TBI_ROSTER_SUBTABS_END <<< */
+
+/* >>> TBI_DEPTH_SUBTABS_START >>> */
+
+/* ========================================================
+   DEPTH CHART SUB-NAVIGATION
+   ======================================================== */
+
+.depth-v21-page .tbi-depth-subnav,
+.depth-v21-shell .tbi-depth-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  margin:0 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-depth-subtab {
+  flex:0 0 auto;
+  min-height:35px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-depth-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-depth-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-depth-tab-target.tbi-depth-hidden {
+  display:none !important;
+}
+
+/* Each selected workspace now gets breathing room */
+
+.depth-v21-board.tbi-depth-tab-target,
+.depth-v23-court-panel.tbi-depth-tab-target,
+.depth-v21-court-panel.tbi-depth-tab-target,
+.depth-v21-rail.tbi-depth-tab-target {
+  margin-top:0 !important;
+}
+
+/* Player Intelligence can use the full page width when
+   separated from the rest of the page */
+
+.depth-v21-rail[data-tbi-depth-tab='player'] {
+  width:100% !important;
+  max-width:none !important;
+}
+
+@media(max-width:900px) {
+
+  .tbi-depth-subtab {
+    font-size:.74rem;
+    padding:8px 12px;
+  }
+
+}
+
+@media(max-width:650px) {
+
+  .tbi-depth-subnav {
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-depth-subtab {
+    font-size:.70rem;
+    padding:7px 10px;
+  }
+
+}
+
+/* <<< TBI_DEPTH_SUBTABS_END <<< */
+
+/* >>> TBI_DEPTH_FULL_WIDTH_FIX_START >>> */
+
+/* ========================================================
+   DEPTH CHART — FULL-WIDTH TAB WORKSPACES
+   ======================================================== */
+
+.depth-v21-shell {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  width:100% !important;
+  max-width:none !important;
+  gap:16px !important;
+}
+
+.depth-v21-shell > .tbi-depth-subnav {
+  grid-column:1 / -1 !important;
+  width:100% !important;
+  max-width:none !important;
+}
+
+.depth-v21-shell > .tbi-depth-tab-target {
+  grid-column:1 / -1 !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+.depth-v21-board.tbi-depth-tab-target {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.depth-v23-court-panel.tbi-depth-tab-target,
+.depth-v21-court-panel.tbi-depth-tab-target {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.depth-v21-rail.tbi-depth-tab-target {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+/* Player Intelligence is no longer a narrow side rail */
+
+.depth-v21-rail[data-tbi-depth-tab='player'] {
+  display:grid;
+  grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr);
+  gap:14px;
+  align-items:start;
+}
+
+.depth-v21-rail[data-tbi-depth-tab='player'] .depth-v21-rail-head {
+  grid-column:1 / -1;
+}
+
+.depth-v21-rail[data-tbi-depth-tab='player'] > * {
+  min-width:0;
+}
+
+/* Keep hidden tabs hidden even though player tab uses grid */
+
+.depth-v21-rail[data-tbi-depth-tab='player'].tbi-depth-hidden {
+  display:none !important;
+}
+
+/* Court/BIE workspace gets the visual room it deserves */
+
+.depth-v23-court-panel .depth-bie-toolbar,
+.depth-v23-court-panel .depth-bie-rotation-shell,
+.depth-v23-court-panel .depth-v23-court-head,
+.depth-v23-court-panel .depth-v21-court-head {
+  width:100% !important;
+  max-width:none !important;
+}
+
+@media(max-width:1000px) {
+
+  .depth-v21-rail[data-tbi-depth-tab='player'] {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .depth-v21-shell {
+    gap:12px !important;
+  }
+
+}
+
+/* <<< TBI_DEPTH_FULL_WIDTH_FIX_END <<< */
+
+/* >>> TBI_DEPTH_TAB_POSITION_FIX_START >>> */
+
+/* Keep navigation permanently above Depth content */
+.depth-v21-shell {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  grid-template-rows:auto auto !important;
+  grid-auto-flow:row !important;
+}
+
+.depth-v21-shell > .tbi-depth-subnav {
+  grid-column:1 / -1 !important;
+  grid-row:1 !important;
+  order:-1000 !important;
+  align-self:start !important;
+  width:100% !important;
+  margin:0 0 16px 0 !important;
+}
+
+.depth-v21-shell > .tbi-depth-tab-target {
+  grid-column:1 / -1 !important;
+  grid-row:2 !important;
+  order:0 !important;
+  width:100% !important;
+}
+
+.depth-v21-shell > .depth-v21-board,
+.depth-v21-shell > .depth-v23-court-panel,
+.depth-v21-shell > .depth-v21-court-panel,
+.depth-v21-shell > .depth-v21-rail {
+  grid-row:2 !important;
+}
+
+/* Hidden tabs remain completely removed from layout */
+.depth-v21-shell > .tbi-depth-tab-target.tbi-depth-hidden {
+  display:none !important;
+}
+
+/* <<< TBI_DEPTH_TAB_POSITION_FIX_END <<< */
+
+/* >>> TBI_CAP_SUBTABS_START >>> */
+
+/* ========================================================
+   CAP INTELLIGENCE SUB-TABS
+   ======================================================== */
+
+.tbi-v2-cap-page .tbi-cap-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  margin:2px 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-cap-page .tbi-cap-subtab {
+  flex:0 0 auto;
+  min-height:35px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-cap-page .tbi-cap-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-cap-page .tbi-cap-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-cap-page .tbi-cap-tab-target.tbi-cap-hidden {
+  display:none !important;
+}
+
+/* --------------------------------------------------------
+   Each selected Cap workspace uses full width
+   -------------------------------------------------------- */
+
+.tbi-v2-cap-page .tbi-cap-tab-target {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+.tbi-v2-cap-page .tbi-v2-cap-main-grid,
+.tbi-v2-cap-page .tbi-v2-cap-alert-grid,
+.tbi-v2-cap-page .tbi-v2-cap-detail-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Contract view gets more horizontal breathing room */
+
+.tbi-v2-cap-page .tbi-v2-cap-detail-grid {
+  grid-template-columns:minmax(0,1.65fr) minmax(280px,.75fr) !important;
+  gap:16px !important;
+}
+
+.tbi-v2-cap-page .tbi-v2-cap-ledger {
+  min-width:0 !important;
+}
+
+.tbi-v2-cap-page .tbi-v2-cap-table-wrap {
+  width:100% !important;
+  overflow-x:auto !important;
+}
+
+/* More vertical space between financial sections */
+
+.tbi-v2-cap-page {
+  gap:18px !important;
+}
+
+@media(max-width:1000px) {
+
+  .tbi-v2-cap-page .tbi-v2-cap-detail-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-cap-page .tbi-v2-cap-main-grid {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-v2-cap-page .tbi-cap-subnav {
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-v2-cap-page .tbi-cap-subtab {
+    font-size:.70rem;
+    padding:7px 10px;
+  }
+
+}
+
+/* <<< TBI_CAP_SUBTABS_END <<< */
+
+/* >>> TBI_TRADE_SUBTABS_START >>> */
+
+/* ========================================================
+   TRADE INTELLIGENCE SUB-NAVIGATION
+   ======================================================== */
+
+.tbi-v2-trade-page .tbi-trade-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  margin:2px 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-trade-page .tbi-trade-subtab {
+  flex:0 0 auto;
+  min-height:35px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-trade-page .tbi-trade-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-trade-page .tbi-trade-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-trade-page .tbi-trade-tab-target.tbi-trade-hidden {
+  display:none !important;
+}
+
+/* Selected Trade workspace always receives full width */
+
+.tbi-v2-trade-page .tbi-trade-tab-target {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+/* --------------------------------------------------------
+   BUILDER
+   Preserve three-part working transaction interface
+   -------------------------------------------------------- */
+
+.tbi-v2-trade-page .tbi-trade-workspace-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.tbi-v2-trade-page .tbi-trade-team-panel,
+.tbi-v2-trade-page .tbi-trade-center-panel {
+  min-width:0 !important;
+}
+
+/* --------------------------------------------------------
+   EVALUATION
+   Decision, CBA scorecard and BIE impact get full canvas
+   -------------------------------------------------------- */
+
+.tbi-v2-trade-page .tbi-v2-exec-main-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.tbi-v2-trade-page .trade-bie-panel {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* --------------------------------------------------------
+   RECOMMENDATION
+   Keep alerts / risks / opportunities side-by-side
+   -------------------------------------------------------- */
+
+.tbi-v2-trade-page .tbi-v2-exec-bottom-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.tbi-v2-trade-page {
+  gap:18px !important;
+}
+
+@media(max-width:1100px) {
+
+  .tbi-v2-trade-page .tbi-trade-workspace-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-trade-page .tbi-v2-exec-main-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-trade-page .tbi-v2-exec-bottom-grid {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-v2-trade-page .tbi-trade-subnav {
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-v2-trade-page .tbi-trade-subtab {
+    padding:7px 10px;
+    font-size:.70rem;
+  }
+
+}
+
+/* <<< TBI_TRADE_SUBTABS_END <<< */
+
+
+/* >>> TBI_DRAFT_SUBTABS_START >>> */
+
+/* ========================================================
+   DRAFT INTELLIGENCE SUB-NAVIGATION
+   ======================================================== */
+
+.tbi-v2-draft-page .tbi-draft-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  margin:2px 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-draft-page .tbi-draft-subtab {
+  flex:0 0 auto;
+  min-height:35px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-draft-page .tbi-draft-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-draft-page .tbi-draft-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-draft-page .tbi-draft-tab-target.tbi-draft-hidden {
+  display:none !important;
+}
+
+.tbi-v2-draft-page .tbi-draft-tab-target {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+/* Portfolio workspace gets the full canvas */
+
+.tbi-v2-draft-page .draft-v2-portfolio-grid {
+  width:100% !important;
+  max-width:none !important;
+  grid-template-columns:minmax(320px,.78fr) minmax(0,1.22fr) !important;
+  gap:16px !important;
+}
+
+/* Risk/opportunity cards breathe more */
+
+.tbi-v2-draft-page .tbi-v2-exec-bottom-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Draft ledger takes full usable width */
+
+.tbi-v2-draft-page .draft-v2-table-wrap {
+  width:100% !important;
+  max-width:none !important;
+  overflow-x:auto !important;
+}
+
+.tbi-v2-draft-page {
+  gap:18px !important;
+}
+
+@media(max-width:1000px) {
+
+  .tbi-v2-draft-page .draft-v2-portfolio-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-draft-page .tbi-v2-exec-main-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-draft-page .tbi-v2-exec-bottom-grid {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-v2-draft-page .tbi-draft-subnav {
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-v2-draft-page .tbi-draft-subtab {
+    padding:7px 10px;
+    font-size:.70rem;
+  }
+
+}
+
+/* <<< TBI_DRAFT_SUBTABS_END <<< */
+
+
+/* >>> TBI_GLOBAL_SUBTAB_ALIGNMENT_START >>> */
+
+/* ========================================================
+   TBI GLOBAL PAGE RHYTHM
+   PAGE INTRO -> SUBNAV -> CONTENT
+   ======================================================== */
+
+/* Normalize page container spacing */
+.tbi-module-page {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* --------------------------------------------------------
+   STANDARD MODULE INTRO
+   Keeps all page identities visually aligned
+   -------------------------------------------------------- */
+
+.tbi-v2-module-intro {
+  width:100% !important;
+  min-height:96px !important;
+  margin:0 !important;
+  padding-top:18px !important;
+  padding-bottom:14px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+}
+
+.tbi-v2-module-intro > div:first-child {
+  min-width:0 !important;
+}
+
+.tbi-v2-module-title {
+  margin-top:0 !important;
+  margin-bottom:4px !important;
+}
+
+.tbi-v2-module-subtitle {
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+/* ========================================================
+   ALL INTERNAL SUB-NAVS
+   ======================================================== */
+
+.pi-page .tbi-pm-subnav,
+.tbi-v2-roster-page .tbi-roster-subnav,
+.depth-v21-shell > .tbi-depth-subnav,
+.tbi-v2-cap-page .tbi-cap-subnav,
+.tbi-v2-trade-page .tbi-trade-subnav,
+.tbi-v2-draft-page .tbi-draft-subnav {
+  position:relative !important;
+  top:auto !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:52px !important;
+  margin:0 0 16px 0 !important;
+  padding:8px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:7px !important;
+  box-sizing:border-box !important;
+}
+
+/* --------------------------------------------------------
+   CONSISTENT TAB BUTTON HEIGHT
+   -------------------------------------------------------- */
+
+.pi-page .tbi-pm-subtab,
+.tbi-v2-roster-page .tbi-roster-subtab,
+.tbi-depth-subtab,
+.tbi-v2-cap-page .tbi-cap-subtab,
+.tbi-v2-trade-page .tbi-trade-subtab,
+.tbi-v2-draft-page .tbi-draft-subtab {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:36px !important;
+  height:36px !important;
+  padding:7px 13px !important;
+  line-height:1 !important;
+  box-sizing:border-box !important;
+}
+
+/* ========================================================
+   PLAYER MANAGEMENT
+   ======================================================== */
+
+.pi-page {
+  width:100% !important;
+}
+
+.pi-page .tbi-pm-subnav {
+  margin-top:0 !important;
+}
+
+/* ========================================================
+   ROSTER INTELLIGENCE
+   ======================================================== */
+
+.tbi-v2-roster-page .tbi-roster-subnav {
+  margin-top:0 !important;
+}
+
+/* ========================================================
+   DEPTH CHART
+   ======================================================== */
+
+.depth-v21-shell {
+  width:100% !important;
+}
+
+.depth-v21-shell > .tbi-depth-subnav {
+  grid-column:1 / -1 !important;
+  grid-row:1 !important;
+  order:-1000 !important;
+}
+
+.depth-v21-shell > .tbi-depth-tab-target {
+  grid-row:2 !important;
+}
+
+/* ========================================================
+   CAP INTELLIGENCE
+   ======================================================== */
+
+.tbi-v2-cap-page .tbi-cap-subnav {
+  margin-top:0 !important;
+}
+
+/* ========================================================
+   TRADE INTELLIGENCE
+   ======================================================== */
+
+.tbi-v2-trade-page .tbi-trade-subnav {
+  margin-top:0 !important;
+}
+
+/* ========================================================
+   DRAFT INTELLIGENCE
+   ======================================================== */
+
+.tbi-v2-draft-page .tbi-draft-subnav {
+  margin-top:0 !important;
+}
+
+/* --------------------------------------------------------
+   CONSISTENT CONTENT START POSITION
+   -------------------------------------------------------- */
+
+.pi-page .tbi-pm-subnav + *,
+.tbi-v2-roster-page .tbi-roster-subnav + *,
+.depth-v21-shell > .tbi-depth-subnav + *,
+.tbi-v2-cap-page .tbi-cap-subnav + *,
+.tbi-v2-trade-page .tbi-trade-subnav + *,
+.tbi-v2-draft-page .tbi-draft-subnav + * {
+  margin-top:0 !important;
+}
+
+/* --------------------------------------------------------
+   TABLET
+   -------------------------------------------------------- */
+
+@media(max-width:1000px) {
+
+  .tbi-v2-module-intro {
+    min-height:88px !important;
+    padding-top:14px !important;
+    padding-bottom:12px !important;
+  }
+
+}
+
+/* --------------------------------------------------------
+   MOBILE
+   -------------------------------------------------------- */
+
+@media(max-width:700px) {
+
+  .tbi-v2-module-intro {
+    min-height:0 !important;
+    padding-top:12px !important;
+    padding-bottom:10px !important;
+    align-items:flex-start !important;
+  }
+
+  .pi-page .tbi-pm-subnav,
+  .tbi-v2-roster-page .tbi-roster-subnav,
+  .depth-v21-shell > .tbi-depth-subnav,
+  .tbi-v2-cap-page .tbi-cap-subnav,
+  .tbi-v2-trade-page .tbi-trade-subnav,
+  .tbi-v2-draft-page .tbi-draft-subnav {
+    min-height:48px !important;
+    margin-bottom:12px !important;
+  }
+
+}
+
+/* <<< TBI_GLOBAL_SUBTAB_ALIGNMENT_END <<< */
+
+
+/* >>> TBI_DEPTH_MODULE_HEADER_START >>> */
+
+/* ========================================================
+   DEPTH CHART MODULE IDENTITY
+   Matches the other intelligence pages
+   ======================================================== */
+
+.depth-v21-page > .tbi-depth-module-intro {
+  width:100% !important;
+  max-width:none !important;
+  min-height:96px !important;
+  margin:0 0 0 0 !important;
+  padding:18px 0 14px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+}
+
+.tbi-depth-module-copy {
+  min-width:0 !important;
+}
+
+.tbi-depth-module-eyebrow {
+  margin:0 0 4px !important;
+  color:#7896bd !important;
+  font-size:.60rem !important;
+  font-weight:850 !important;
+  letter-spacing:.13em !important;
+  text-transform:uppercase !important;
+}
+
+.tbi-depth-module-title {
+  margin:0 !important;
+  color:#f7f9fc !important;
+  font-size:1.72rem !important;
+  font-weight:760 !important;
+  line-height:1.08 !important;
+  letter-spacing:-.035em !important;
+}
+
+.tbi-depth-module-subtitle {
+  margin:5px 0 0 !important;
+  color:#8da1bd !important;
+  font-size:.72rem !important;
+  line-height:1.45 !important;
+}
+
+.tbi-depth-module-model {
+  flex:0 0 auto !important;
+  min-width:112px !important;
+  padding:12px 16px !important;
+  border:1px solid rgba(148,163,184,.14) !important;
+  border-radius:12px !important;
+  background:rgba(255,255,255,.018) !important;
+  text-align:center !important;
+}
+
+.tbi-depth-module-model span {
+  display:block !important;
+  margin-bottom:4px !important;
+  color:#71839c !important;
+  font-size:.55rem !important;
+  font-weight:850 !important;
+  letter-spacing:.12em !important;
+  text-transform:uppercase !important;
+}
+
+.tbi-depth-module-model strong {
+  display:block !important;
+  color:#d9e7fb !important;
+  font-size:.82rem !important;
+  font-weight:850 !important;
+}
+
+/* Existing tab shell stays directly below module identity */
+
+.depth-v21-page > .tbi-depth-module-intro + .depth-v21-shell {
+  margin-top:0 !important;
+}
+
+@media(max-width:700px) {
+
+  .depth-v21-page > .tbi-depth-module-intro {
+    min-height:0 !important;
+    padding:12px 0 10px !important;
+    align-items:flex-start !important;
+  }
+
+  .tbi-depth-module-title {
+    font-size:1.45rem !important;
+  }
+
+  .tbi-depth-module-model {
+    min-width:92px !important;
+    padding:10px 12px !important;
+  }
+
+}
+
+/* <<< TBI_DEPTH_MODULE_HEADER_END <<< */
+
+/* >>> TBI_COMMAND_CENTER_TABS_START >>> */
+
+/* ========================================================
+   COMMAND CENTER SUB-NAVIGATION
+   ======================================================== */
+
+.tbi-exec-dashboard-v2 .tbi-command-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  min-height:52px;
+  margin:0 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-exec-dashboard-v2 .tbi-command-subtab {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  height:36px;
+  min-height:36px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-exec-dashboard-v2 .tbi-command-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-exec-dashboard-v2 .tbi-command-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-exec-dashboard-v2 .tbi-command-tab-target.tbi-command-hidden {
+  display:none !important;
+}
+
+/* Decision content gets full width */
+
+.tbi-exec-dashboard-v2 .tbi-exec-recommendation {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Scorecard full canvas */
+
+.tbi-exec-dashboard-v2 .tbi-exec-scorecard {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Risks / opportunities remain paired */
+
+.tbi-exec-dashboard-v2 .tbi-executive-decision-view__two-column {
+  width:100% !important;
+  max-width:none !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:18px !important;
+}
+
+/* Data confidence gets its own spacious view */
+
+.tbi-exec-dashboard-v2 .tbi-exec-data-quality {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.tbi-exec-dashboard-v2 .tbi-exec-data-quality__grid {
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+}
+
+/* Team context */
+
+.tbi-exec-dashboard-v2 .terminal-kpi-grid,
+.tbi-exec-dashboard-v2 .terminal-main-grid,
+.tbi-exec-dashboard-v2 .standings-panel {
+  width:100% !important;
+  max-width:none !important;
+}
+
+@media(max-width:1000px) {
+
+  .tbi-exec-dashboard-v2 .tbi-executive-decision-view__two-column {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-exec-dashboard-v2 .tbi-exec-data-quality__grid {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-exec-dashboard-v2 .tbi-command-subnav {
+    min-height:48px;
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-exec-dashboard-v2 .tbi-command-subtab {
+    padding:7px 10px;
+    font-size:.70rem;
+  }
+
+  .tbi-exec-dashboard-v2 .tbi-exec-data-quality__grid {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+/* <<< TBI_COMMAND_CENTER_TABS_END <<< */
+
+/* >>> TBI_TEAM_OVERVIEW_TABS_START >>> */
+
+/* ========================================================
+   TEAM OVERVIEW SUB-NAVIGATION
+   ======================================================== */
+
+.tbi-v2-team-page .tbi-team-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  min-height:52px;
+  margin:0 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-team-page .tbi-team-subtab {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  height:36px;
+  min-height:36px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-team-page .tbi-team-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-team-page .tbi-team-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-team-page .tbi-team-tab-target.tbi-team-hidden {
+  display:none !important;
+}
+
+.tbi-v2-team-page .tbi-team-tab-target {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+/* Overview / Personnel use full width */
+
+.tbi-v2-team-page .team-v2-profile-grid {
+  width:100% !important;
+  max-width:none !important;
+  grid-template-columns:minmax(0,1fr) minmax(320px,.95fr) !important;
+  gap:16px !important;
+}
+
+/* Decision scorecard full canvas */
+
+.tbi-v2-team-page .tbi-v2-exec-main-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Risks/opportunities full width */
+
+.tbi-v2-team-page .tbi-v2-exec-bottom-grid {
+  width:100% !important;
+  max-width:none !important;
+}
+
+.tbi-v2-team-page {
+  gap:18px !important;
+}
+
+@media(max-width:1000px) {
+
+  .tbi-v2-team-page .team-v2-profile-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-team-page .tbi-v2-exec-main-grid {
+    grid-template-columns:1fr !important;
+  }
+
+  .tbi-v2-team-page .tbi-v2-exec-bottom-grid {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-v2-team-page .tbi-team-subnav {
+    min-height:48px;
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-v2-team-page .tbi-team-subtab {
+    padding:7px 10px;
+    font-size:.70rem;
+  }
+
+}
+
+/* <<< TBI_TEAM_OVERVIEW_TABS_END <<< */

@@ -113,6 +113,15 @@ app_ui <- function(request) {
       shiny::includeCSS(
         app_sys("app/www/tbi_v2.css")
       ),
+
+      shiny::includeCSS(
+        app_sys("app/www/tbi_ux_foundation.css")
+      ),
+
+      shiny::tags$script(
+        src = "tbi-assets/tbi_ux_foundation.js",
+        defer = NA
+      ),
       
       shiny::includeCSS(
         app_sys("app/www/tbi_phase14.css")
