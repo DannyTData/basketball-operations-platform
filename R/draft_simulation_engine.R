@@ -877,6 +877,271 @@ simulate_draft_asset <- function(asset,
 
 
 # ------------------------------------------------------------
+# Prepared portfolio simulation
+# ------------------------------------------------------------
+
+#' Prepare one invariant portfolio asset before RNG draws begin
+#' @noRd
+prepare_draft_portfolio_asset <- function(
+    asset,
+    conditions = NULL,
+    current_year = NULL,
+    rules = draft_simulation_rule_defaults()) {
+  asset <- validate_draft_simulation_asset(asset)
+  conditions <- normalize_draft_conditions(conditions)
+  current_year <- draft_sim_integer(
+    current_year,
+    rules$current_year
+  )
+
+  if (asset$round == "First") {
+    minimum_slot <- draft_sim_integer(
+      rules$minimum_first_slot,
+      1L
+    )
+    maximum_slot <- draft_sim_integer(
+      rules$maximum_first_slot,
+      30L
+    )
+    expected_slot <- draft_sim_integer(
+      asset$expected_slot,
+      16L
+    )
+    slot_sd <- draft_sim_number(
+      rules$expected_slot_sd[["first"]],
+      5
+    )
+  } else {
+    minimum_slot <- draft_sim_integer(
+      rules$minimum_second_slot,
+      31L
+    )
+    maximum_slot <- draft_sim_integer(
+      rules$maximum_second_slot,
+      60L
+    )
+    expected_slot <- draft_sim_integer(
+      asset$expected_slot,
+      45L
+    )
+    slot_sd <- draft_sim_number(
+      rules$expected_slot_sd[["second"]],
+      6
+    )
+  }
+
+  if (slot_sd < 0) {
+    stop("slot_sd cannot be negative.", call. = FALSE)
+  }
+
+  control_key <- gsub(
+    "[^a-z0-9]+",
+    "_",
+    tolower(asset$control_type)
+  )
+  default_resolution <- list(
+    resolved_year = asset$draft_year,
+    resolved_round = asset$round,
+    terminal = TRUE,
+    resolution_text = "No conditional event required."
+  )
+  states <- list()
+  conveyance_probability <- NA_real_
+  swap_probability <- NA_real_
+
+  if (control_key %in% c("incoming", "outgoing")) {
+    conveyance_probability <- draft_sim_probability(
+      asset$conveyance_probability,
+      rules$default_conveyance_probability
+    )
+    states$conveyed <- list(
+      conveyed = TRUE,
+      resolution = resolve_condition_path(
+        asset = asset,
+        conditions = conditions,
+        conveyed = TRUE
+      ),
+      effective_control_type = asset$control_type
+    )
+    states$not_conveyed <- list(
+      conveyed = FALSE,
+      resolution = resolve_condition_path(
+        asset = asset,
+        conditions = conditions,
+        conveyed = FALSE
+      ),
+      effective_control_type = asset$control_type
+    )
+  } else if (
+    control_key %in% c("swap_right", "swap_obligation")
+  ) {
+    swap_probability <- draft_sim_probability(
+      asset$swap_exercise_probability,
+      rules$default_swap_exercise_probability
+    )
+    states$swap_exercised <- list(
+      conveyed = TRUE,
+      resolution = default_resolution,
+      effective_control_type = asset$control_type
+    )
+    states$swap_not_exercised <- list(
+      conveyed = TRUE,
+      resolution = default_resolution,
+      effective_control_type = "Own"
+    )
+  } else {
+    states$default <- list(
+      conveyed = TRUE,
+      resolution = default_resolution,
+      effective_control_type = asset$control_type
+    )
+  }
+
+  list(
+    asset = asset,
+    current_year = current_year,
+    minimum_slot = minimum_slot,
+    maximum_slot = maximum_slot,
+    expected_slot = expected_slot,
+    slot_sd = slot_sd,
+    control_key = control_key,
+    conveyance_probability = conveyance_probability,
+    swap_probability = swap_probability,
+    states = states,
+    value_cache = new.env(parent = emptyenv())
+  )
+}
+
+
+#' Consume the same slot RNG draw as simulate_draft_slot()
+#' @noRd
+simulate_prepared_draft_slot <- function(prepared) {
+  simulated <- round(
+    stats::rnorm(
+      1,
+      mean = prepared$expected_slot,
+      sd = prepared$slot_sd
+    )
+  )
+
+  as.integer(
+    min(
+      max(simulated, prepared$minimum_slot),
+      prepared$maximum_slot
+    )
+  )
+}
+
+
+#' Consume the same conditional RNG draw and return its branch
+#' @noRd
+simulate_prepared_draft_state <- function(prepared) {
+  if (prepared$control_key %in% c("incoming", "outgoing")) {
+    probability <- prepared$conveyance_probability
+    conveyed <- if (probability <= 0) {
+      FALSE
+    } else if (probability >= 1) {
+      TRUE
+    } else {
+      stats::runif(1) <= probability
+    }
+
+    if (conveyed) "conveyed" else "not_conveyed"
+  } else if (
+    prepared$control_key %in% c(
+      "swap_right",
+      "swap_obligation"
+    )
+  ) {
+    probability <- prepared$swap_probability
+    exercised <- if (probability <= 0) {
+      FALSE
+    } else if (probability >= 1) {
+      TRUE
+    } else {
+      stats::runif(1) <= probability
+    }
+
+    if (exercised) {
+      "swap_exercised"
+    } else {
+      "swap_not_exercised"
+    }
+  } else {
+    "default"
+  }
+}
+
+
+#' Reuse exact existing valuation results by asset branch and slot
+#' @noRd
+prepared_draft_asset_value <- function(
+    prepared,
+    state_name,
+    simulated_slot) {
+  cache_key <- paste(
+    state_name,
+    simulated_slot,
+    sep = "||"
+  )
+
+  if (
+    exists(
+      cache_key,
+      envir = prepared$value_cache,
+      inherits = FALSE
+    )
+  ) {
+    return(
+      get(
+        cache_key,
+        envir = prepared$value_cache,
+        inherits = FALSE
+      )
+    )
+  }
+
+  state <- prepared$states[[state_name]]
+  resolution <- state$resolution
+  asset <- prepared$asset
+
+  value <- if (
+    !state$conveyed &&
+    isTRUE(resolution$terminal) &&
+    resolution$resolved_year == asset$draft_year
+  ) {
+    0
+  } else {
+    simulation_asset <- list(
+      draft_asset_id = asset$draft_asset_id,
+      draft_year = resolution$resolved_year,
+      round = resolution$resolved_round,
+      control_type = state$effective_control_type,
+      protection_type = asset$protection_type,
+      verification_status = asset$verification_status,
+      strategic_value = asset$strategic_value,
+      condition_count = asset$condition_count,
+      expected_slot = simulated_slot,
+      internal_value = NA_real_
+    )
+
+    evaluate_draft_asset_value(
+      asset = simulation_asset,
+      current_year = prepared$current_year
+    )$blended_value_score
+  }
+
+  assign(
+    cache_key,
+    value,
+    envir = prepared$value_cache
+  )
+
+  value
+}
+
+
+# ------------------------------------------------------------
 # Portfolio simulation
 # ------------------------------------------------------------
 
@@ -933,15 +1198,11 @@ simulate_draft_portfolio <- function(assets,
   )
   
   set.seed(random_seed)
-  
-  portfolio_values <- numeric(iterations)
-  
-  for (i in seq_len(iterations)) {
-    iteration_value <- 0
-    
-    for (row_index in seq_len(nrow(assets))) {
+
+  prepared_assets <- lapply(
+    seq_len(nrow(assets)),
+    function(row_index) {
       asset_row <- assets[row_index, , drop = FALSE]
-      
       asset_id <- if (
         "draft_asset_id" %in% names(asset_row)
       ) {
@@ -949,9 +1210,8 @@ simulate_draft_portfolio <- function(assets,
       } else {
         as.character(row_index)
       }
-      
       conditions <- NULL
-      
+
       if (
         !is.null(conditions_lookup) &&
         is.list(conditions_lookup) &&
@@ -959,16 +1219,30 @@ simulate_draft_portfolio <- function(assets,
       ) {
         conditions <- conditions_lookup[[asset_id]]
       }
-      
-      result <- simulate_draft_asset_once(
+
+      prepare_draft_portfolio_asset(
         asset = asset_row,
         conditions = conditions,
         current_year = current_year,
-        rule_overrides = rule_overrides
+        rules = rules
       )
-      
+    }
+  )
+
+  portfolio_values <- numeric(iterations)
+
+  for (i in seq_len(iterations)) {
+    iteration_value <- 0
+
+    for (prepared in prepared_assets) {
+      simulated_slot <- simulate_prepared_draft_slot(prepared)
+      state_name <- simulate_prepared_draft_state(prepared)
       iteration_value <- iteration_value +
-        result$simulated_value
+        prepared_draft_asset_value(
+          prepared = prepared,
+          state_name = state_name,
+          simulated_slot = simulated_slot
+        )
     }
     
     portfolio_values[[i]] <- iteration_value
@@ -1035,41 +1309,83 @@ get_draft_simulation_inputs <- function(team_value,
                                         year_from = NULL,
                                         year_to = NULL,
                                         db_path = NULL) {
-  if (!exists("get_draft_assets", mode = "function")) {
+  if (!exists("get_draft_assets_from_connection", mode = "function")) {
     stop(
-      "get_draft_assets() is required from draft_assets_engine.R.",
+      "get_draft_assets_from_connection() is required from draft_assets_engine.R.",
       call. = FALSE
     )
   }
   
-  if (!exists("get_draft_asset_detail", mode = "function")) {
+  con <- connect_db(
+    db_path = db_path,
+    read_only = TRUE
+  )
+
+  on.exit(
+    disconnect_db(con),
+    add = TRUE
+  )
+
+  required_tables <- c(
+    "teams",
+    "draft_assets",
+    "draft_asset_conditions"
+  )
+  missing_tables <- setdiff(
+    required_tables,
+    DBI::dbListTables(con)
+  )
+
+  if (length(missing_tables)) {
     stop(
-      "get_draft_asset_detail() is required from draft_assets_engine.R.",
+      paste0(
+        "Draft simulation requires existing table(s): ",
+        paste(missing_tables, collapse = ", "),
+        "."
+      ),
       call. = FALSE
     )
   }
-  
-  assets <- get_draft_assets(
+
+  assets <- get_draft_assets_from_connection(
+    con = con,
     team_value = team_value,
     year_from = year_from,
     year_to = year_to,
-    include_inactive = FALSE,
-    db_path = db_path
+    include_inactive = FALSE
   )
-  
   conditions_lookup <- list()
-  
+
   if (nrow(assets)) {
-    for (i in seq_len(nrow(assets))) {
-      asset_id <- assets$draft_asset_id[[i]]
-      
-      detail <- get_draft_asset_detail(
-        draft_asset_id = asset_id,
-        db_path = db_path
-      )
-      
+    asset_ids <- as.integer(assets$draft_asset_id)
+    placeholders <- paste(
+      rep("?", length(asset_ids)),
+      collapse = ", "
+    )
+    conditions <- DBI::dbGetQuery(
+      con,
+      paste0(
+        "
+        SELECT *
+        FROM draft_asset_conditions
+        WHERE draft_asset_id IN (",
+        placeholders,
+        ")
+        ORDER BY draft_asset_id, condition_order;
+        "
+      ),
+      params = as.list(asset_ids)
+    )
+
+    for (asset_id in asset_ids) {
+      asset_conditions <- conditions[
+        conditions$draft_asset_id == asset_id,
+        ,
+        drop = FALSE
+      ]
+      rownames(asset_conditions) <- NULL
       conditions_lookup[[as.character(asset_id)]] <-
-        detail$conditions
+        asset_conditions
     }
   }
   
