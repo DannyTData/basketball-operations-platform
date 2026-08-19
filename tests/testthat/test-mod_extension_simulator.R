@@ -1,4 +1,4 @@
-testServer(
+shiny::testServer(
   mod_extension_simulator_server,
   # Add here your module params
   args = list()
@@ -28,7 +28,7 @@ testServer(
  
 test_that("module ui works", {
   ui <- mod_extension_simulator_ui(id = "test")
-  golem::expect_shinytaglist(ui)
+  golem::expect_shinytag(ui)
   # Check that formals have not been removed
   fmls <- formals(mod_extension_simulator_ui)
   for (i in c("id")){

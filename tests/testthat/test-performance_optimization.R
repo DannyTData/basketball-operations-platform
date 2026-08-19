@@ -342,9 +342,9 @@ testthat::test_that(
     )
     testthat::expect_false(
       grepl(
-        "player_pool <- shiny::bindCache(",
+        "(?m)^\\s*player_pool\\s*<-\\s*shiny::bindCache\\(",
         source,
-        fixed = TRUE
+        perl = TRUE
       )
     )
   }
