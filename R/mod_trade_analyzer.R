@@ -911,7 +911,7 @@ mod_trade_analyzer_ui <- function(id) {
             ),
             shiny::strong(
               shiny::textOutput(
-                ns("snapshot_team_a_status"),
+                ns("center_team_a_status"),
                 inline = TRUE
               )
             )
@@ -924,7 +924,7 @@ mod_trade_analyzer_ui <- function(id) {
             ),
             shiny::strong(
               shiny::textOutput(
-                ns("snapshot_cba_result"),
+                ns("center_cba_result"),
                 inline = TRUE
               )
             )
@@ -953,7 +953,7 @@ mod_trade_analyzer_ui <- function(id) {
             shiny::h3(
               class = "tbi-trade-team-name",
               shiny::textOutput(
-                ns("team_b_short_name"),
+                ns("team_b_panel_short_name"),
                 inline = TRUE
               )
             ),
@@ -1261,6 +1261,22 @@ mod_trade_analyzer_ui <- function(id) {
       )
     )
   )
+}
+
+
+bind_trade_text_output_mirror <- function(
+    output,
+    canonical_id,
+    mirror_id,
+    text_value) {
+  output[[canonical_id]] <- shiny::renderText({
+    text_value()
+  })
+  output[[mirror_id]] <- shiny::renderText({
+    text_value()
+  })
+
+  invisible(NULL)
 }
 
 
@@ -2998,9 +3014,16 @@ mod_trade_analyzer_server <- function(
         selected_team()
       })
       
-      output$team_b_short_name <- shiny::renderText({
+      team_b_short_name_text <- shiny::reactive({
         input$partner_team
       })
+
+      bind_trade_text_output_mirror(
+        output,
+        "team_b_short_name",
+        "team_b_panel_short_name",
+        team_b_short_name_text
+      )
       
       
       output$center_team_a_sends_label <- shiny::renderText({
@@ -3078,7 +3101,7 @@ mod_trade_analyzer_server <- function(
         }
       })
       
-      output$snapshot_team_a_status <- shiny::renderText({
+      snapshot_team_a_status_text <- shiny::reactive({
         result <- trade_screen()
         
         if (
@@ -3098,6 +3121,13 @@ mod_trade_analyzer_server <- function(
         
         result$team_a$post_trade_status
       })
+
+      bind_trade_text_output_mirror(
+        output,
+        "snapshot_team_a_status",
+        "center_team_a_status",
+        snapshot_team_a_status_text
+      )
       
       output$snapshot_team_b_status <- shiny::renderText({
         result <- trade_screen()
@@ -3120,7 +3150,7 @@ mod_trade_analyzer_server <- function(
         result$team_b$post_trade_status
       })
       
-      output$snapshot_cba_result <- shiny::renderText({
+      snapshot_cba_result_text <- shiny::reactive({
         result <- trade_screen()
         
         if (
@@ -3151,6 +3181,13 @@ mod_trade_analyzer_server <- function(
           result$status
         }
       })
+
+      bind_trade_text_output_mirror(
+        output,
+        "snapshot_cba_result",
+        "center_cba_result",
+        snapshot_cba_result_text
+      )
       
       output$scorecard_cba_result <- shiny::renderText({
         result <- trade_screen()
