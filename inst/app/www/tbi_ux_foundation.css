@@ -2097,3 +2097,165 @@
 }
 
 /* <<< TBI_EXTENSION_SIMULATOR_TABS_END <<< */
+
+/* >>> TBI_GLOBAL_SUBTAB_DISTRIBUTION_START >>> */
+
+/* All internal tab rails use the full canvas. */
+
+:is(
+  .tbi-pm-subnav,
+  .tbi-roster-subnav,
+  .tbi-depth-subnav,
+  .tbi-cap-subnav,
+  .tbi-trade-subnav,
+  .tbi-draft-subnav,
+  .tbi-command-subnav,
+  .tbi-team-subnav,
+  .tbi-outlook-subnav,
+  .tbi-extension-subnav
+) {
+  width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* Desktop and tablet distribute the available width evenly. Long labels
+   wrap only when the rail becomes too narrow to keep every tab on one line. */
+
+@media (min-width:701px) {
+
+  :is(
+    .pi-page .tbi-pm-subnav,
+    .tbi-v2-roster-page .tbi-roster-subnav,
+    .depth-v21-shell .tbi-depth-subnav,
+    .tbi-v2-cap-page .tbi-cap-subnav,
+    .tbi-v2-trade-page .tbi-trade-subnav,
+    .tbi-v2-draft-page .tbi-draft-subnav,
+    .tbi-exec-dashboard-v2 .tbi-command-subnav,
+    .tbi-v2-team-page .tbi-team-subnav,
+    .tbi-v2-outlook-page .tbi-outlook-subnav,
+    .tbi-v2-extension-page .tbi-extension-subnav
+  ) {
+    align-items:stretch !important;
+  }
+
+  :is(
+    .pi-page .tbi-pm-subtab,
+    .tbi-v2-roster-page .tbi-roster-subtab,
+    .depth-v21-shell .tbi-depth-subtab,
+    .tbi-v2-cap-page .tbi-cap-subtab,
+    .tbi-v2-trade-page .tbi-trade-subtab,
+    .tbi-v2-draft-page .tbi-draft-subtab,
+    .tbi-exec-dashboard-v2 .tbi-command-subtab,
+    .tbi-v2-team-page .tbi-team-subtab,
+    .tbi-v2-outlook-page .tbi-outlook-subtab,
+    .tbi-v2-extension-page .tbi-extension-subtab
+  ) {
+    flex:1 1 0 !important;
+    min-width:0 !important;
+    height:auto !important;
+    min-height:36px !important;
+    line-height:1.2 !important;
+    text-align:center !important;
+    white-space:normal !important;
+  }
+
+}
+
+/* Mobile preserves the established scroll rail and intrinsic label widths. */
+
+@media (max-width:700px) {
+
+  :is(
+    .tbi-pm-subnav,
+    .tbi-roster-subnav,
+    .tbi-depth-subnav,
+    .tbi-cap-subnav,
+    .tbi-trade-subnav,
+    .tbi-draft-subnav,
+    .tbi-command-subnav,
+    .tbi-team-subnav,
+    .tbi-outlook-subnav,
+    .tbi-extension-subnav
+  ) {
+    justify-content:flex-start !important;
+    overflow-x:auto !important;
+  }
+
+  :is(
+    .tbi-pm-subtab,
+    .tbi-roster-subtab,
+    .tbi-depth-subtab,
+    .tbi-cap-subtab,
+    .tbi-trade-subtab,
+    .tbi-draft-subtab,
+    .tbi-command-subtab,
+    .tbi-team-subtab,
+    .tbi-outlook-subtab,
+    .tbi-extension-subtab
+  ) {
+    flex:0 0 auto !important;
+    width:auto !important;
+    min-width:max-content !important;
+    white-space:nowrap !important;
+  }
+
+}
+
+/* <<< TBI_GLOBAL_SUBTAB_DISTRIBUTION_END <<< */
+
+/* >>> TBI_PM_DEVELOPMENT_GRID_START >>> */
+
+/* Development keeps every existing panel mounted while flattening the
+   legacy overview grids into one balanced, full-width card composition. */
+
+.pi-page:has(.tbi-pm-subtab[data-tab="development"].active) .pi-main-grid {
+  grid-template-columns:minmax(0, 1fr) !important;
+}
+
+.pi-page:has(.tbi-pm-subtab[data-tab="development"].active) .pi-left-grid {
+  width:100% !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  gap:16px !important;
+  align-items:start !important;
+}
+
+.pi-page:has(.tbi-pm-subtab[data-tab="development"].active) .pi-right-rail {
+  display:none !important;
+}
+
+.pi-page:has(.tbi-pm-subtab[data-tab="development"].active) :is(
+  .pi-three-grid,
+  .pi-three-grid-secondary
+) {
+  display:contents !important;
+}
+
+.pi-page:has(.tbi-pm-subtab[data-tab="development"].active)
+  .tbi-pm-tab-target[data-tbi-pm-tab="development"] {
+  min-width:0 !important;
+}
+
+@media (min-width:701px) and (max-width:1250px) {
+
+  .pi-page:has(.tbi-pm-subtab[data-tab="development"].active) .pi-left-grid {
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .pi-page:has(.tbi-pm-subtab[data-tab="development"].active)
+    .pi-three-grid-secondary
+    > .tbi-pm-tab-target[data-tbi-pm-tab="development"]:last-child {
+    grid-column:1 / -1 !important;
+  }
+
+}
+
+@media (max-width:700px) {
+
+  .pi-page:has(.tbi-pm-subtab[data-tab="development"].active) .pi-left-grid {
+    grid-template-columns:minmax(0, 1fr) !important;
+  }
+
+}
+
+/* <<< TBI_PM_DEVELOPMENT_GRID_END <<< */
