@@ -8,11 +8,49 @@
 # DATA
 # ============================================================
 
+#' Create one normalized CBA knowledge entry
+#' @noRd
+tbi_cba_glossary_entry <- function(
+    term,
+    category,
+    short_definition,
+    front_office_impact,
+    module,
+    example,
+    affects,
+    related_terms,
+    aliases = "",
+    source_reference,
+    verification_status = "Supported summary") {
+  data.frame(
+    term = term,
+    category = category,
+    short_definition = short_definition,
+    front_office_impact = front_office_impact,
+    module = module,
+    example = example,
+    affects = affects,
+    related_terms = related_terms,
+    aliases = aliases,
+    source = "2023 NBA-NBPA CBA / NBA CBA 101",
+    source_reference = source_reference,
+    verification_status = verification_status,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Normalize a CBA term or alias for matching
+#' @noRd
+tbi_cba_normalize_term_key <- function(value) {
+  value <- trimws(tolower(as.character(value)))
+  trimws(gsub("[^a-z0-9]+", " ", value))
+}
+
 #' CBA knowledge-base data
 #' @noRd
 tbi_cba_glossary_data <- function() {
-  
-  data.frame(
+  glossary <- data.frame(
     term = c(
       "Salary Cap",
       "Team Salary",
@@ -287,6 +325,470 @@ tbi_cba_glossary_data <- function() {
     
     stringsAsFactors = FALSE
   )
+
+  glossary$aliases <- ""
+  legacy_aliases <- c(
+    "Salary Cap" = "Cap|Cap Line",
+    "Team Salary" = "Payroll for CBA Purposes",
+    "Luxury Tax" = "Tax Line|Luxury Tax Line",
+    "First Apron" = "First Tax Apron",
+    "Second Apron" = "Second Tax Apron",
+    "Hard Cap" = "Hard-Capped|Hard-Cap Ceiling",
+    "Cap Hold" = "Free-Agent Amount",
+    "Bird Exception" = "Bird Rights|Full Bird Rights|Larry Bird Exception",
+    "Early Bird Exception" = "Early Bird Rights",
+    "Non-Bird Exception" = "Non-Bird Rights",
+    "Non-Taxpayer Mid-Level Exception" = "Non-Taxpayer MLE|NTMLE",
+    "Taxpayer Mid-Level Exception" = "Taxpayer MLE|TMLE",
+    "Room Mid-Level Exception" = "Room Exception|Room MLE",
+    "Bi-Annual Exception" = "BAE|Biannual Exception",
+    "Minimum Player Salary Exception" = "Minimum Salary Exception|Minimum Exception",
+    "Traded Player Exception (TPE)" = "TPE|Traded Player Exception",
+    "Salary Aggregation" = "Aggregation|Aggregating Salaries",
+    "Salary Matching" = "Trade Matching",
+    "Sign-and-Trade" = "Sign and Trade|S-and-T",
+    "Base Year Compensation" = "BYC",
+    "Trade Bonus / Trade Kicker" = "Trade Bonus|Trade Kicker",
+    "Rookie Scale Contract" = "Rookie Scale",
+    "Rookie-Scale Extension" = "Rookie Extension|Rookie Scale Extension",
+    "Designated Rookie Extension" = "Designated Rookie|Designated Rookie Scale Extension",
+    "Veteran Extension" = "Veteran Contract Extension",
+    "Designated Veteran Extension" = "Designated Veteran Extension|DVPE",
+    "Qualifying Offer" = "QO",
+    "Restricted Free Agent (RFA)" = "Restricted Free Agency|RFA",
+    "Unrestricted Free Agent (UFA)" = "Unrestricted Free Agency|UFA",
+    "Team Option" = "Club Option",
+    "Player Option" = "PO",
+    "Two-Way Contract" = "Two Way Contract|Two-Way",
+    "Exhibit 10" = "Exhibit 10 Contract",
+    "Waivers" = "Waiver Process",
+    "Stretch Provision" = "Stretch|Stretch Waiver",
+    "Dead Money" = "Dead Salary",
+    "10-Day Contract" = "Ten-Day Contract",
+    "Two-Way Conversion" = "Two Way Conversion"
+  )
+  glossary$aliases[match(names(legacy_aliases), glossary$term)] <-
+    unname(legacy_aliases)
+  glossary$source_reference <- paste0(
+    "2023 CBA: ",
+    glossary$category,
+    " provisions; NBA CBA 101 overview"
+  )
+  glossary$verification_status <- "Supported summary"
+
+  expansion <- do.call(
+    rbind,
+    list(
+      tbi_cba_glossary_entry(
+        "Tax Apron Terminology", "Aprons",
+        "A general or historical shorthand for an apron threshold tied to tax-level team salary. The current agreement distinguishes the First Apron and Second Apron, so the applicable threshold must be identified explicitly.",
+        "Front offices should avoid treating 'the apron' as one interchangeable line because the operative restriction depends on the season, transaction, and specific apron threshold.",
+        "Cap Intelligence",
+        "A planning memo that says only 'tax apron' is routed to the First Apron and Second Apron screens before a transaction decision is made.",
+        "Tax|Aprons|Trades|Exceptions",
+        "Luxury Tax|First Apron|Second Apron|Hard Cap",
+        "Tax Apron|Apron",
+        "2023 CBA: First Apron and Second Apron provisions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Early Termination Option", "Contracts",
+        "A contract provision that may allow a player to end the contract before its stated final season, subject to the option's negotiated terms and applicable CBA rules.",
+        "An ETO creates a player-controlled decision date that can accelerate free agency and change projected team salary.",
+        "Player Management",
+        "A player with an ETO can choose whether to remain under the existing contract or reach free agency at the option window.",
+        "Contracts|Free Agency|Future Payroll",
+        "Player Option|Unrestricted Free Agent (UFA)|Cap Hold",
+        "ETO|Early Termination",
+        "2023 CBA: player contract option provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Mid-Level Exception", "Exceptions",
+        "A family of salary-cap exceptions that can allow an eligible over-cap or room team to sign players without equivalent cap space, with the available form depending on team salary and prior transactions.",
+        "The team must identify the correct mid-level exception before committing salary because amount, term, availability, and apron consequences differ.",
+        "Cap Intelligence",
+        "A team screens its salary position before deciding whether the non-taxpayer, taxpayer, or room form of the mid-level exception is available.",
+        "Free Agency|Aprons|Hard Cap|Exceptions",
+        "Non-Taxpayer Mid-Level Exception|Taxpayer Mid-Level Exception|Room Mid-Level Exception",
+        "MLE|Midlevel Exception",
+        "2023 CBA: mid-level exception provisions; NBA CBA 101 exceptions overview"
+      ),
+      tbi_cba_glossary_entry(
+        "Disabled Player Exception", "Exceptions",
+        "An exception that may be granted after the required determination concerning a player who is substantially more likely than not to be unable to play through the specified period.",
+        "It can provide a limited replacement-player mechanism, but it does not remove the injured player's salary and requires league approval and timing review.",
+        "Cap Intelligence",
+        "A club with a qualifying long-term injury requests league approval before treating the disabled player exception as an available signing or trade tool.",
+        "Injuries|Exceptions|Roster Moves|Team Salary",
+        "Hard Cap|Minimum Player Salary Exception|Traded Player Exception (TPE)",
+        "DPE|Disabled Player",
+        "2023 CBA: disabled player exception provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Poison Pill Provision", "Trades",
+        "A trade-salary treatment that can apply to certain players on rookie-scale extensions before the extension begins, causing the sending and receiving teams to use different salary amounts in matching analysis.",
+        "A transaction may pass ordinary headline-salary math but fail or require restructuring once the applicable poison-pill amounts are used.",
+        "Trade Intelligence",
+        "A recently extended rookie-scale player is evaluated with the applicable sending-team and receiving-team salary treatment rather than one shared cap number.",
+        "Trades|Salary Matching|Extensions",
+        "Rookie-Scale Extension|Salary Matching|Base Year Compensation",
+        "Poison Pill|PPP",
+        "2023 CBA: trade treatment of rookie-scale extensions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Minimum Team Salary / Salary Floor", "Cap Structure",
+        "The minimum team-salary requirement a club must satisfy for the applicable season under the CBA's minimum team salary rules.",
+        "Operating below the floor does not create unlimited flexibility; the front office must plan for the agreement's timing and allocation consequences.",
+        "Cap Intelligence",
+        "A rebuilding team tracks its projected salary against the minimum team salary while sequencing signings and trades.",
+        "Team Salary|Cap Room|Roster Construction",
+        "Salary Cap|Team Salary|Roster Charge",
+        "Salary Floor|Minimum Team Salary|Team Salary Floor",
+        "2023 CBA: minimum team salary provisions; NBA CBA 101 cap overview"
+      ),
+      tbi_cba_glossary_entry(
+        "Guaranteed Salary", "Contracts",
+        "Contract compensation that remains owed and counts as required under the applicable guarantee terms unless reduced or otherwise treated under a permitted CBA mechanism.",
+        "Guarantees determine the real downside of waiving, trading, or retaining a player and are central to cap-risk analysis.",
+        "Player Management",
+        "A fully guaranteed remaining season continues to create a team obligation even if the player is waived.",
+        "Contracts|Waivers|Dead Money|Team Salary",
+        "Non-Guaranteed Salary|Partial Guarantee|Waivers|Dead Money",
+        "Fully Guaranteed|Guarantee",
+        "2023 CBA: player contract guarantee and waiver provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Non-Guaranteed Salary", "Contracts",
+        "Contract compensation that is not guaranteed at the relevant time and may become protected based on contract dates, league rules, or other agreed conditions.",
+        "Non-guaranteed salary can provide flexibility, but decision dates and transaction treatment must be checked before assuming the amount can be removed.",
+        "Player Management",
+        "A team reviews a player's guarantee date before deciding whether to waive him or retain the contract into the season.",
+        "Contracts|Waivers|Roster Decisions|Team Salary",
+        "Guaranteed Salary|Partial Guarantee|Waivers",
+        "Unguaranteed Salary|Non Guaranteed Salary",
+        "2023 CBA: player contract guarantee provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Partial Guarantee", "Contracts",
+        "A guarantee structure under which only a stated portion of compensation is protected at the relevant time.",
+        "The protected amount, future guarantee dates, and transaction treatment must be modeled separately from the contract's full headline salary.",
+        "Player Management",
+        "A contract may carry a partial guarantee now and become fully guaranteed on a later date if the player remains on the roster.",
+        "Contracts|Waivers|Dead Money|Team Salary",
+        "Guaranteed Salary|Non-Guaranteed Salary|Waivers",
+        "Partially Guaranteed|Partial Guarantee Amount",
+        "2023 CBA: player contract guarantee provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Roster Charge", "Cap Structure",
+        "A cap-room accounting charge used in specified circumstances when a team has fewer than the required number of players or roster charges for cap-room calculations.",
+        "Available cap room can be lower than a simple salary total suggests because required roster charges remain in the calculation.",
+        "Cap Intelligence",
+        "A cap-room team with open roster spots includes the applicable roster charges before estimating spending power.",
+        "Cap Room|Team Salary|Roster Construction",
+        "Salary Cap|Minimum Team Salary / Salary Floor|Cap Hold",
+        "Incomplete Roster Charge|Minimum Roster Charge",
+        "2023 CBA: team salary and incomplete-roster charge provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Supermax / Designated Veteran Terminology", "Extensions",
+        "Common shorthand for the designated veteran contract or extension pathway that can permit qualifying players to receive the applicable higher maximum-salary treatment.",
+        "The nickname is not an eligibility test; service, award, team-history, timing, salary, and designated-player requirements must be verified independently.",
+        "Extension Simulator",
+        "A star is not treated as extension-eligible merely because the market calls the opportunity a supermax; the designated-veteran criteria are screened first.",
+        "Extensions|Maximum Salary|Eligibility|Future Payroll",
+        "Designated Veteran Extension|Maximum Salary|Extension Eligibility",
+        "Supermax|Super Max|Designated Veteran Terminology",
+        "2023 CBA: designated veteran contract and extension provisions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Maximum Salary", "Contracts",
+        "The highest starting salary generally permitted for a player under the applicable maximum-salary rules, subject to service, prior salary, exceptions, and specialized eligibility provisions.",
+        "Maximum-salary modeling must use the player's actual eligibility and the correct cap-year inputs rather than a generic percentage assumption.",
+        "Extension Simulator",
+        "Two players in the same free-agent class may have different maximum starting salaries because their service or specialized eligibility differs.",
+        "Contracts|Free Agency|Extensions|Team Salary",
+        "Maximum Extension|Designated Veteran Extension|Salary Cap",
+        "Max Salary|Maximum Contract",
+        "2023 CBA: maximum player salary provisions; NBA CBA 101 maximum salary overview"
+      ),
+      tbi_cba_glossary_entry(
+        "Maximum Extension", "Extensions",
+        "The greatest extension terms available to an eligible player under the applicable extension pathway, salary base, raise, term, and timing rules.",
+        "A maximum current contract and a maximum extension are not interchangeable; the permissible extension depends on the player's existing contract and eligibility route.",
+        "Extension Simulator",
+        "The extension screen calculates the permitted starting salary, raises, and term for the player's specific pathway before comparing proposals.",
+        "Extensions|Future Payroll|Eligibility",
+        "Veteran Extension|Rookie-Scale Extension|Maximum Salary|Extension Eligibility",
+        "Max Extension",
+        "2023 CBA: rookie-scale and veteran extension provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Extension Eligibility", "Extensions",
+        "The set of player, contract, service, timing, team-history, option, and other requirements that must be satisfied before a particular extension pathway is available.",
+        "Eligibility must be established before proposal value is analyzed; an attractive financial structure is irrelevant if the pathway is unavailable.",
+        "Extension Simulator",
+        "The club screens the player's contract timing and pathway requirements before enabling the corresponding proposal range.",
+        "Extensions|Contracts|Timing|Team Control",
+        "Rookie-Scale Extension|Veteran Extension|Designated Veteran Extension|Maximum Extension",
+        "Extension Eligible|Eligibility Window",
+        "2023 CBA: extension eligibility and timing provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Over-38 Rule", "Contracts",
+        "A deferred-compensation rule that can reallocate salary treatment for certain multi-year contracts extending beyond the specified age-related threshold.",
+        "Long-term contracts for older players require a dedicated screen because the cap treatment may not follow the simple annual payment schedule.",
+        "Cap Intelligence",
+        "Before offering a multi-year contract to an older free agent, the club verifies whether the over-38 treatment applies to the proposed term.",
+        "Contracts|Free Agency|Team Salary|Term",
+        "Maximum Salary|Bird Exception|Unrestricted Free Agent (UFA)",
+        "Over 38 Rule|Over-38",
+        "2023 CBA: over-38 deferred compensation provisions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Cash Considerations", "Trades",
+        "Cash that may be included in an NBA trade within the agreement's permitted purposes and annual limits, without itself being player salary for salary-matching purposes.",
+        "Cash can support transaction economics but cannot substitute for required salary matching or cure another legality failure.",
+        "Trade Intelligence",
+        "A team may include permitted cash in a trade while the player and draft-asset routing still must independently pass CBA validation.",
+        "Trades|Transaction Value|League Limits",
+        "Salary Matching|Draft Rights|Second-Round Pick",
+        "Cash in Trade|Trade Cash",
+        "2023 CBA: cash payment provisions for trades",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Draft Rights", "Draft Assets",
+        "A team's CBA-recognized rights to negotiate with or sign a drafted player whose NBA rights remain controlled by that team, subject to the applicable draft and contract rules.",
+        "Draft rights can be routed in transactions as an asset, but they are distinct from a future draft pick and require unique-player and ownership verification.",
+        "Draft Intelligence",
+        "A team trades the NBA rights to a previously drafted player rather than trading a future selection.",
+        "Draft|Trades|Roster Rights",
+        "First-Round Pick|Second-Round Pick|Cash Considerations",
+        "Player Draft Rights|NBA Draft Rights",
+        "2023 CBA: draft rights and trade provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "First-Round Pick", "Draft Assets",
+        "A selection in the first round of the NBA Draft, carrying the applicable rookie-scale contract framework and any ownership, protection, and conveyance terms attached to the asset.",
+        "First-round picks combine player-acquisition value, predictable contract structure, Stepien constraints, and future optionality.",
+        "Draft Intelligence",
+        "A protected future first-round pick is modeled with its ownership year, protection schedule, and possible conveyance outcomes.",
+        "Draft|Trades|Rookie Scale|Future Control",
+        "Rookie Scale Contract|Pick Protection|Stepien Rule|Conveyance",
+        "First Round Pick|FRP|1st-Round Pick",
+        "2023 CBA: NBA Draft and first-round pick provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Second-Round Pick", "Draft Assets",
+        "A selection in the second round of the NBA Draft, subject to the applicable ownership, trade, contract, and conveyance rules.",
+        "Second-round picks provide flexible development and transaction value but must still be tracked as unique assets with verified ownership.",
+        "Draft Intelligence",
+        "A team routes a future second-round selection to a trade partner while retaining its other picks in the same draft.",
+        "Draft|Trades|Development|Future Control",
+        "First-Round Pick|Pick Protection|Conveyance|Cash Considerations",
+        "Second Round Pick|SRP|2nd-Round Pick",
+        "2023 CBA: NBA Draft and second-round pick provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Pick Protection", "Draft Assets",
+        "A condition that determines whether a traded draft pick conveys in a given draft position or remains with the original team under the agreed protection schedule.",
+        "Protection changes the probability, timing, and value of conveyance and must be modeled together with rollover or fallback obligations.",
+        "Draft Intelligence",
+        "A top-10-protected pick remains with the original team when it lands inside the protected range and follows the documented next-step obligation.",
+        "Draft|Trades|Optionality|Conveyance",
+        "First-Round Pick|Pick Obligation|Conveyance|Pick Swap",
+        "Protected Pick|Draft Protection",
+        "2023 CBA: draft-pick trade and protection provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Pick Swap", "Draft Assets",
+        "A contractual draft right allowing one team to exchange specified draft positions with another team when the documented conditions are met.",
+        "A swap is conditional control rather than outright ownership and must be evaluated against both teams' picks and any existing obligations.",
+        "Draft Intelligence",
+        "A team exercises a swap only when the other team's pick is more favorable under the recorded swap terms.",
+        "Draft|Trades|Optionality|Asset Routing",
+        "Pick Protection|Conveyance|Pick Obligation|First-Round Pick",
+        "Swap Rights|Draft Pick Swap",
+        "2023 CBA: draft-pick swap and trade provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Stepien Rule", "Draft Assets",
+        "The restriction commonly described as preventing a team from leaving itself without a future first-round pick in consecutive future drafts, evaluated using the agreement's actual pick-availability rules.",
+        "A proposed pick trade must be screened across the relevant future drafts, protections, swaps, and existing obligations rather than by counting headline picks alone.",
+        "Draft Intelligence",
+        "A team cannot approve a future first-round route until its remaining draft control passes the Stepien screen.",
+        "Draft|Trades|Future Control|Pick Obligations",
+        "First-Round Pick|Seven-Year Rule|Pick Protection|Pick Obligation",
+        "Ted Stepien Rule|Stepien",
+        "2023 CBA: future first-round draft-pick trade restrictions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Seven-Year Rule", "Draft Assets",
+        "The limit commonly used to describe how far into future NBA drafts a team may trade draft-pick rights under the applicable agreement and league calendar.",
+        "Transaction planning must anchor the tradable horizon to the current league year and verified draft calendar before routing a distant pick.",
+        "Draft Intelligence",
+        "A team verifies that a proposed distant future pick falls inside the currently permitted trade horizon.",
+        "Draft|Trades|Future Control|Calendar",
+        "Stepien Rule|First-Round Pick|Pick Obligation",
+        "Seven Year Rule|7-Year Rule",
+        "2023 CBA: future draft-pick trade horizon provisions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Conveyance", "Draft Assets",
+        "The transfer of a draft asset to the receiving team when the recorded ownership, protection, and timing conditions are satisfied.",
+        "Conveyance timing determines when an asset becomes usable and whether rollover or fallback obligations remain outstanding.",
+        "Draft Intelligence",
+        "A protected pick conveys when its draft position falls outside the protected range specified in the obligation.",
+        "Draft|Trades|Pick Ownership|Timing",
+        "Pick Protection|Pick Obligation|First-Round Pick|Second-Round Pick",
+        "Pick Conveyance|Conveys",
+        "2023 CBA: draft-pick trade and conveyance provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Pick Obligation", "Draft Assets",
+        "An outstanding commitment created by a prior draft transaction, including the asset, season, protection, rollover, swap, or fallback terms that still constrain team control.",
+        "Existing obligations must be resolved before a team can safely route the same asset or a conflicting future pick in another transaction.",
+        "Draft Intelligence",
+        "A previously protected first-round commitment blocks a conflicting outgoing pick until its conveyance path is known.",
+        "Draft|Trades|Asset Control|Duplicate Prevention",
+        "Pick Protection|Conveyance|Stepien Rule|Pick Swap",
+        "Draft Obligation|Owed Pick",
+        "2023 CBA: draft-pick trade obligations and protection provisions"
+      ),
+      tbi_cba_glossary_entry(
+        "Reacquisition Restrictions", "Transaction Restrictions",
+        "Restrictions that can prevent a team from reacquiring a player it previously traded or waived until the applicable CBA conditions and waiting periods are satisfied.",
+        "Player routing must include transaction history; salary matching alone cannot make an otherwise prohibited reacquisition legal.",
+        "Trade Intelligence",
+        "A team screens a former player's transaction history before allowing him to return through a trade or waiver claim.",
+        "Trades|Waivers|Transaction History|Player Routing",
+        "Recently Traded Restriction|Waivers|Salary Matching",
+        "Reacquisition Rule|Reacquiring a Player",
+        "2023 CBA: player reacquisition restrictions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Recently Traded Restriction", "Transaction Restrictions",
+        "A transaction-timing restriction that may limit how or when a recently acquired player can be aggregated or traded again under the applicable CBA rules.",
+        "The engine must track acquisition timing and transaction context before permitting a second trade or salary aggregation.",
+        "Trade Intelligence",
+        "A recently acquired player is screened for any waiting period or aggregation restriction before being included in another transaction.",
+        "Trades|Aggregation|Transaction Timing",
+        "Salary Aggregation|Reacquisition Restrictions|Recently Signed Restriction",
+        "Recently Traded Player|Trade Waiting Period",
+        "2023 CBA: recently traded player and aggregation timing provisions",
+        "Requires source verification"
+      ),
+      tbi_cba_glossary_entry(
+        "Recently Signed Restriction", "Transaction Restrictions",
+        "A transaction-timing restriction that may prevent or limit trading a recently signed player until the applicable date and contract conditions are satisfied.",
+        "Signing date, signing method, contract type, and any specialized rule must be recorded before the player is considered trade-eligible.",
+        "Trade Intelligence",
+        "A newly signed player remains unavailable in the trade-routing screen until the applicable eligibility date is verified.",
+        "Trades|Contracts|Transaction Timing|Signings",
+        "Sign-and-Trade|Base Year Compensation|Recently Traded Restriction",
+        "Recently Signed Player|Signing Trade Restriction",
+        "2023 CBA: recently signed player trade restrictions",
+        "Requires source verification"
+      )
+    )
+  )
+
+  glossary <- rbind(glossary, expansion)
+  rownames(glossary) <- NULL
+  glossary
+}
+
+
+#' Build the normalized alias-to-canonical CBA lookup
+#' @noRd
+tbi_cba_glossary_alias_index <- function(glossary = tbi_cba_glossary_data()) {
+  canonical_terms <- as.character(glossary$term)
+  keys <- tbi_cba_normalize_term_key(canonical_terms)
+  values <- canonical_terms
+
+  for (i in seq_len(nrow(glossary))) {
+    aliases <- as.character(glossary$aliases[[i]])
+    if (is.na(aliases) || !nzchar(trimws(aliases))) {
+      next
+    }
+
+    aliases <- trimws(strsplit(aliases, "\\|", perl = TRUE)[[1]])
+    aliases <- aliases[nzchar(aliases)]
+    keys <- c(keys, tbi_cba_normalize_term_key(aliases))
+    values <- c(values, rep(canonical_terms[[i]], length(aliases)))
+  }
+
+  conflicts <- split(values, keys)
+  conflicts <- conflicts[vapply(conflicts, function(x) length(unique(x)) > 1L, logical(1))]
+  if (length(conflicts)) {
+    stop(
+      paste0(
+        "CBA alias maps to multiple canonical terms: ",
+        paste(names(conflicts), collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  keep <- !duplicated(keys)
+  stats::setNames(values[keep], keys[keep])
+}
+
+
+#' Resolve a canonical CBA term or alias
+#' @noRd
+tbi_cba_resolve_term <- function(term, glossary = tbi_cba_glossary_data()) {
+  term <- as.character(term)
+  if (!length(term) || is.na(term[[1]]) || !nzchar(trimws(term[[1]]))) {
+    return(NA_character_)
+  }
+
+  key <- tbi_cba_normalize_term_key(term[[1]])
+  index <- tbi_cba_glossary_alias_index(glossary)
+  if (!key %in% names(index)) {
+    return(NA_character_)
+  }
+
+  unname(index[[key]])
+}
+
+
+#' Filter the CBA glossary using the public search contract
+#' @noRd
+tbi_cba_filter_glossary <- function(
+    glossary,
+    search_value = "",
+    category = "All Categories") {
+  d <- glossary
+  category <- as.character(category)
+  search_value <- trimws(tolower(as.character(search_value)))
+
+  if (length(category) && !identical(category[[1]], "All Categories")) {
+    d <- d[d$category == category[[1]], , drop = FALSE]
+  }
+
+  if (length(search_value) && nzchar(search_value[[1]]) && nrow(d)) {
+    searchable_fields <- intersect(
+      c(
+        "term", "category", "short_definition", "front_office_impact",
+        "example", "affects", "related_terms", "aliases", "module",
+        "source", "source_reference", "verification_status"
+      ),
+      names(d)
+    )
+    haystack <- do.call(paste, c(d[searchable_fields], sep = " "))
+    keep <- grepl(search_value[[1]], tolower(haystack), fixed = TRUE)
+    d <- d[keep, , drop = FALSE]
+  }
+
+  d
 }
 
 
@@ -302,6 +804,7 @@ mod_cba_glossary_ui <- function(id) {
   ns <- shiny::NS(id)
   
   shiny::div(
+    id = ns("root"),
     class = "tbi-module-page cba-kb-page",
     
     shiny::tags$style(
@@ -376,13 +879,12 @@ mod_cba_glossary_ui <- function(id) {
         }
 
         .cba-kb-search-panel {
-          padding:12px 14px;
+          padding:13px 14px 14px;
           display:grid;
-          grid-template-columns:minmax(0,1.4fr) minmax(180px,.55fr);
+          grid-template-columns:1fr;
           gap:10px;
-          border:1px solid rgba(148,163,184,.10);
-          border-radius:12px;
-          background:rgba(15,25,40,.82);
+          border-bottom:1px solid rgba(148,163,184,.09);
+          background:rgba(8,18,31,.42);
         }
 
         .cba-kb-search-panel .form-group {
@@ -409,9 +911,93 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-layout {
           display:grid;
-          grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);
-          gap:12px;
+          grid-template-columns:minmax(280px,320px) minmax(0,1fr);
+          gap:14px;
           align-items:start;
+          transition:grid-template-columns .18s ease-out;
+        }
+
+        .cba-kb-index-panel {
+          min-width:0;
+          position:sticky;
+          top:12px;
+          transition:width .18s ease-out;
+        }
+
+        .cba-kb-workspace-panel {
+          min-width:0;
+        }
+
+        .cba-kb-index-toggle,
+        .cba-kb-mobile-index-toggle,
+        .cba-kb-index-close {
+          min-height:34px;
+          padding:7px 10px;
+          cursor:pointer;
+          border:1px solid rgba(96,165,250,.20);
+          border-radius:8px;
+          color:#9fc5f3;
+          background:rgba(59,130,246,.055);
+          font-size:.51rem;
+          font-weight:850;
+          letter-spacing:.02em;
+        }
+
+        .cba-kb-index-toggle:hover,
+        .cba-kb-mobile-index-toggle:hover,
+        .cba-kb-index-close:hover {
+          border-color:rgba(96,165,250,.40);
+          color:#d8eafe;
+          background:rgba(59,130,246,.10);
+        }
+
+        .cba-kb-index-toggle:focus-visible,
+        .cba-kb-mobile-index-toggle:focus-visible,
+        .cba-kb-index-close:focus-visible {
+          outline:2px solid #69a9ff;
+          outline-offset:2px;
+        }
+
+        .cba-kb-index-toggle {
+          flex:0 0 auto;
+        }
+
+        .cba-kb-index-close {
+          display:none;
+        }
+
+        .cba-kb-mobile-index-toggle {
+          display:none;
+          width:max-content;
+        }
+
+        .cba-kb-page.cba-index-collapsed .cba-kb-layout {
+          grid-template-columns:56px minmax(0,1fr);
+        }
+
+        .cba-kb-page.cba-index-collapsed .cba-kb-index-panel
+          :is(.cba-kb-panel-head strong,.cba-kb-panel-head > span,.cba-kb-search-panel,.cba-kb-list) {
+          display:none !important;
+        }
+
+        .cba-kb-page.cba-index-collapsed .cba-kb-index-panel .cba-kb-panel-head {
+          min-height:56px;
+          padding:0;
+          justify-content:center;
+          border-bottom:0;
+        }
+
+        .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle {
+          width:36px;
+          padding:7px 0;
+        }
+
+        .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle-label {
+          display:none;
+        }
+
+        .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle-icon {
+          transform:rotate(180deg);
         }
 
         .cba-kb-panel {
@@ -446,9 +1032,26 @@ mod_cba_glossary_ui <- function(id) {
         }
 
         .cba-kb-list {
-          max-height:640px;
+          max-height:calc(100vh - 290px);
+          min-height:380px;
           padding:9px;
           overflow:auto;
+          overscroll-behavior:contain;
+        }
+
+        .cba-kb-index-group + .cba-kb-index-group {
+          margin-top:13px;
+          padding-top:11px;
+          border-top:1px solid rgba(148,163,184,.09);
+        }
+
+        .cba-kb-index-group-title {
+          margin:0 2px 7px;
+          color:#6f88a7;
+          font-size:.48rem;
+          font-weight:900;
+          letter-spacing:.08em;
+          text-transform:uppercase;
         }
 
         .cba-kb-term-card {
@@ -519,7 +1122,34 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-detail-body {
           padding:18px;
+          display:grid;
+          grid-template-columns:minmax(0,1.14fr) minmax(280px,.86fr);
+          grid-template-areas:
+            'category category'
+            'title title'
+            'meaning affects'
+            'impact related'
+            'example used'
+            'rule-impact rule-impact'
+            'source source';
+          column-gap:22px;
+          align-items:start;
         }
+
+        .cba-kb-detail-body > [data-cba-detail-block] {
+          min-width:0;
+        }
+
+        .cba-kb-detail-body > [data-cba-detail-block='category'] { grid-area:category; }
+        .cba-kb-detail-body > [data-cba-detail-block='title'] { grid-area:title; }
+        .cba-kb-detail-body > [data-cba-detail-block='meaning'] { grid-area:meaning; }
+        .cba-kb-detail-body > [data-cba-detail-block='impact'] { grid-area:impact; }
+        .cba-kb-detail-body > [data-cba-detail-block='example'] { grid-area:example; }
+        .cba-kb-detail-body > [data-cba-detail-block='affects'] { grid-area:affects; }
+        .cba-kb-detail-body > [data-cba-detail-block='related'] { grid-area:related; }
+        .cba-kb-detail-body > [data-cba-detail-block='used'] { grid-area:used; }
+        .cba-kb-detail-body > [data-cba-detail-block='rule-impact'] { grid-area:rule-impact; }
+        .cba-kb-detail-body > [data-cba-detail-block='source'] { grid-area:source; }
 
         .cba-kb-category {
           color:#69a9ff;
@@ -584,10 +1214,15 @@ mod_cba_glossary_ui <- function(id) {
           text-transform:uppercase;
         }
 
+        .cba-kb-alias-label {
+          margin-top:13px;
+        }
+
         .cba-kb-text {
+          max-width:72ch;
           margin:0;
           color:#c4ceda;
-          font-size:.64rem;
+          font-size:.68rem;
           line-height:1.60;
         }
 
@@ -709,6 +1344,28 @@ mod_cba_glossary_ui <- function(id) {
           color:#9badc2;
         }
 
+        .cba-kb-source-status {
+          display:inline-flex;
+          margin-top:7px;
+          padding:3px 7px;
+          border:1px solid rgba(52,211,153,.18);
+          border-radius:999px;
+          color:#77d9b6;
+          background:rgba(16,185,129,.045);
+          font-size:.44rem;
+          font-weight:850;
+        }
+
+        .cba-kb-source-status.requires-verification {
+          border-color:rgba(245,158,11,.22);
+          color:#e6b45c;
+          background:rgba(245,158,11,.05);
+        }
+
+        .cba-kb-source-note {
+          margin-top:7px;
+        }
+
         .cba-kb-history {
           display:grid;
           grid-template-columns:repeat(2,minmax(0,1fr));
@@ -765,21 +1422,123 @@ mod_cba_glossary_ui <- function(id) {
           color:#d6a555;
         }
 
+        .cba-kb-drawer-scrim {
+          display:none;
+        }
+
+        @media(max-width:1250px) {
+          .cba-kb-detail-body {
+            grid-template-columns:1fr;
+            grid-template-areas:
+              'category'
+              'title'
+              'meaning'
+              'impact'
+              'example'
+              'affects'
+              'related'
+              'used'
+              'rule-impact'
+              'source';
+          }
+        }
+
         @media(max-width:1000px) {
           .cba-kb-layout {
-            grid-template-columns:1fr;
+            display:block;
+          }
+
+          .cba-kb-mobile-index-toggle {
+            display:inline-flex;
+            align-items:center;
+            gap:7px;
+          }
+
+          .cba-kb-index-panel {
+            width:min(360px,calc(100vw - 28px));
+            max-height:calc(100vh - 28px);
+            position:fixed;
+            top:14px;
+            left:14px;
+            z-index:51;
+            transform:translateX(calc(-100% - 28px));
+            transition:transform .2s ease-out;
+            box-shadow:0 6px 8px rgba(0,0,0,.34);
+          }
+
+          .cba-kb-page.cba-index-open .cba-kb-index-panel {
+            transform:translateX(0);
+          }
+
+          .cba-kb-index-panel .cba-kb-panel-head {
+            padding-right:10px;
+          }
+
+          .cba-kb-index-toggle {
+            display:none;
+          }
+
+          .cba-kb-index-close {
+            display:inline-flex;
+            align-items:center;
           }
 
           .cba-kb-list {
-            max-height:420px;
+            max-height:calc(100vh - 210px);
+            min-height:260px;
+          }
+
+          .cba-kb-drawer-scrim {
+            display:block;
+            position:fixed;
+            inset:0;
+            z-index:50;
+            pointer-events:none;
+            opacity:0;
+            background:rgba(3,8,15,.70);
+            transition:opacity .2s ease-out;
+          }
+
+          .cba-kb-page.cba-index-open .cba-kb-drawer-scrim {
+            pointer-events:auto;
+            opacity:1;
           }
         }
 
         @media(max-width:650px) {
           .cba-kb-hero,
-          .cba-kb-search-panel,
           .cba-kb-history {
             grid-template-columns:1fr;
+          }
+
+          .cba-kb-count {
+            width:100%;
+          }
+
+          .cba-kb-detail-body {
+            padding:15px;
+          }
+
+          .cba-kb-impact-grid {
+            grid-template-columns:1fr;
+          }
+
+          .cba-kb-term-title-row {
+            align-items:stretch;
+            flex-direction:column;
+          }
+
+          .cba-kb-favorite-btn {
+            width:max-content;
+          }
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+          .cba-kb-layout,
+          .cba-kb-index-panel,
+          .cba-kb-drawer-scrim,
+          .cba-kb-term-card {
+            transition:none !important;
           }
         }
         "
@@ -790,39 +1549,92 @@ mod_cba_glossary_ui <- function(id) {
       shiny::HTML(
         sprintf(
           "
-          document.addEventListener('click', function(e) {
-
-            var termCard = e.target.closest('[data-cba-term]');
-            if (termCard) {
-              Shiny.setInputValue(
-                '%s',
-                termCard.getAttribute('data-cba-term'),
-                {priority:'event'}
-              );
+          (function() {
+            var page = document.getElementById('%s');
+            if (!page || page.dataset.cbaKnowledgeBound === 'true') {
               return;
             }
+            page.dataset.cbaKnowledgeBound = 'true';
 
-            var related = e.target.closest('[data-cba-related]');
-            if (related) {
-              Shiny.setInputValue(
-                '%s',
-                related.getAttribute('data-cba-related'),
-                {priority:'event'}
-              );
-              return;
+            function compactIndex() {
+              return window.matchMedia('(max-width:1000px)').matches;
             }
 
-            var history = e.target.closest('[data-cba-history]');
-            if (history) {
-              Shiny.setInputValue(
-                '%s',
-                history.getAttribute('data-cba-history'),
-                {priority:'event'}
-              );
-              return;
+            function syncIndexButtons() {
+              var expanded = compactIndex()
+                ? page.classList.contains('cba-index-open')
+                : !page.classList.contains('cba-index-collapsed');
+              page.querySelectorAll('[data-cba-index-toggle]').forEach(function(button) {
+                button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+              });
             }
-          });
+
+            function closeCompactIndex() {
+              page.classList.remove('cba-index-open');
+              syncIndexButtons();
+            }
+
+            page.addEventListener('click', function(e) {
+              var toggle = e.target.closest('[data-cba-index-toggle]');
+              if (toggle) {
+                if (compactIndex()) {
+                  page.classList.toggle('cba-index-open');
+                } else {
+                  page.classList.toggle('cba-index-collapsed');
+                }
+                syncIndexButtons();
+                return;
+              }
+
+              var close = e.target.closest('[data-cba-index-close]');
+              if (close) {
+                closeCompactIndex();
+                return;
+              }
+
+              var termCard = e.target.closest('[data-cba-term]');
+              if (termCard) {
+                Shiny.setInputValue(
+                  '%s',
+                  termCard.getAttribute('data-cba-term'),
+                  {priority:'event'}
+                );
+                if (compactIndex()) {
+                  closeCompactIndex();
+                }
+                return;
+              }
+
+              var related = e.target.closest('[data-cba-related]');
+              if (related) {
+                Shiny.setInputValue(
+                  '%s',
+                  related.getAttribute('data-cba-related'),
+                  {priority:'event'}
+                );
+                return;
+              }
+
+              var history = e.target.closest('[data-cba-history]');
+              if (history) {
+                Shiny.setInputValue(
+                  '%s',
+                  history.getAttribute('data-cba-history'),
+                  {priority:'event'}
+                );
+              }
+            });
+
+            page.addEventListener('keydown', function(e) {
+              if (e.key === 'Escape' && page.classList.contains('cba-index-open')) {
+                closeCompactIndex();
+              }
+            });
+
+            syncIndexButtons();
+          })();
           ",
+          ns("root"),
           ns("selected_term"),
           ns("selected_related"),
           ns("selected_history")
@@ -870,44 +1682,28 @@ mod_cba_glossary_ui <- function(id) {
     ),
     
     # --------------------------------------------------------
-    # Search + category
-    # --------------------------------------------------------
-    
-    shiny::div(
-      class = "cba-kb-search-panel",
-      
-      shiny::textInput(
-        ns("search"),
-        "Search terminology",
-        placeholder = "Second apron, Bird rights, TPE, qualifying offer..."
-      ),
-      
-      shiny::selectInput(
-        ns("category"),
-        "Category",
-        choices = c(
-          "All Categories",
-          "Aprons",
-          "Cap Structure",
-          "Contracts",
-          "Exceptions",
-          "Extensions",
-          "Free Agency",
-          "Trades"
-        ),
-        selected = "All Categories"
-      )
-    ),
-    
-    # --------------------------------------------------------
     # Main knowledge-base workspace
     # --------------------------------------------------------
+
+    shiny::tags$button(
+      type = "button",
+      class = "cba-kb-mobile-index-toggle",
+      `data-cba-index-toggle` = "true",
+      `aria-expanded` = "false",
+      `aria-controls` = ns("index_panel"),
+      shiny::span("Knowledge Index"),
+      shiny::span(
+        `aria-hidden` = "true",
+        "Open"
+      )
+    ),
     
     shiny::div(
       class = "cba-kb-layout",
       
       shiny::div(
-        class = "cba-kb-panel",
+        id = ns("index_panel"),
+        class = "cba-kb-panel cba-kb-index-panel",
         
         shiny::div(
           class = "cba-kb-panel-head",
@@ -917,6 +1713,49 @@ mod_cba_glossary_ui <- function(id) {
               ns("result_count"),
               inline = TRUE
             )
+          ),
+          shiny::tags$button(
+            type = "button",
+            class = "cba-kb-index-toggle",
+            `data-cba-index-toggle` = "true",
+            `aria-expanded` = "true",
+            `aria-controls` = ns("index_panel"),
+            title = "Collapse or expand the CBA Knowledge Index",
+            shiny::span(
+              class = "cba-kb-index-toggle-icon",
+              `aria-hidden` = "true",
+              shiny::HTML("&lsaquo;")
+            ),
+            shiny::span(
+              class = "cba-kb-index-toggle-label",
+              "Collapse"
+            )
+          ),
+          shiny::tags$button(
+            type = "button",
+            class = "cba-kb-index-close",
+            `data-cba-index-close` = "true",
+            "Close"
+          )
+        ),
+
+        shiny::div(
+          class = "cba-kb-search-panel",
+
+          shiny::textInput(
+            ns("search"),
+            "Search terminology",
+            placeholder = "Second apron, Bird rights, TPE, qualifying offer..."
+          ),
+
+          shiny::selectInput(
+            ns("category"),
+            "Category",
+            choices = c(
+              "All Categories",
+              sort(unique(tbi_cba_glossary_data()$category))
+            ),
+            selected = "All Categories"
           )
         ),
         
@@ -926,7 +1765,7 @@ mod_cba_glossary_ui <- function(id) {
       ),
       
       shiny::div(
-        class = "cba-kb-panel",
+        class = "cba-kb-panel cba-kb-workspace-panel",
         
         shiny::div(
           class = "cba-kb-panel-head",
@@ -937,6 +1776,12 @@ mod_cba_glossary_ui <- function(id) {
         shiny::uiOutput(
           ns("term_detail")
         )
+      ),
+
+      shiny::div(
+        class = "cba-kb-drawer-scrim",
+        `data-cba-index-close` = "true",
+        `aria-hidden` = "true"
       )
     ),
     
@@ -1108,6 +1953,18 @@ mod_cba_glossary_server <- function(
             "Trade Intelligence",
             "Five-Year Outlook"
           ),
+          "Draft Assets" = c(
+            "Executive Dashboard",
+            "Trade Intelligence",
+            "Draft Intelligence",
+            "Five-Year Outlook"
+          ),
+          "Transaction Restrictions" = c(
+            "Executive Dashboard",
+            "Cap Intelligence",
+            "Trade Intelligence",
+            "Five-Year Outlook"
+          ),
           c(primary)
         )
         
@@ -1116,22 +1973,18 @@ mod_cba_glossary_server <- function(
       
       
       select_term <- function(term) {
-        
-        term <- as.character(
-          term %||% ""
+        resolved_term <- tbi_cba_resolve_term(
+          term,
+          glossary = glossary
         )
-        
-        if (
-          !length(term) ||
-          !term[[1]] %in%
-          glossary$term
-        ) {
+
+        if (is.na(resolved_term)) {
           return(
             invisible(FALSE)
           )
         }
-        
-        term <- term[[1]]
+
+        term <- resolved_term
         
         selected_term_value(
           term
@@ -1196,61 +2049,14 @@ mod_cba_glossary_server <- function(
       # ------------------------------------------------------
       
       filtered_glossary <- shiny::reactive({
-        
-        d <- glossary
-        
         category <- input$category %||%
           "All Categories"
-        
-        search_value <- trimws(
-          tolower(
-            input$search %||%
-              ""
-          )
+
+        tbi_cba_filter_glossary(
+          glossary,
+          search_value = input$search %||% "",
+          category = category
         )
-        
-        if (
-          !identical(
-            category,
-            "All Categories"
-          )
-        ) {
-          d <- d[
-            d$category == category,
-            ,
-            drop = FALSE
-          ]
-        }
-        
-        if (nzchar(search_value)) {
-          
-          haystack <- tolower(
-            paste(
-              d$term,
-              d$category,
-              d$short_definition,
-              d$front_office_impact,
-              d$example,
-              d$affects,
-              d$related_terms,
-              d$module
-            )
-          )
-          
-          keep <- grepl(
-            search_value,
-            haystack,
-            fixed = TRUE
-          )
-          
-          d <- d[
-            keep,
-            ,
-            drop = FALSE
-          ]
-        }
-        
-        d
       })
       
       # ------------------------------------------------------
@@ -1316,23 +2122,9 @@ mod_cba_glossary_server <- function(
         ignoreInit = TRUE
       )
       
-      shiny::observeEvent(
-        filtered_glossary(),
-        {
-          d <- filtered_glossary()
-          
-          if (
-            nrow(d) &&
-            !selected_term_value() %in%
-            d$term
-          ) {
-            select_term(
-              d$term[[1]]
-            )
-          }
-        },
-        ignoreInit = TRUE
-      )
+      # Filtering changes only the Knowledge Index. The detail selection is
+      # owned by an explicit term click or deep-link request so an active
+      # search cannot replace the requested rule.
       
       # Track initial term.
       shiny::observe({
@@ -1386,50 +2178,54 @@ mod_cba_glossary_server <- function(
           )
         }
         
-        cards <- lapply(
-          seq_len(
-            nrow(d)
-          ),
-          function(i) {
-            
-            row <- d[
-              i,
-              ,
-              drop = FALSE
-            ]
-            
-            selected <- identical(
-              row$term[[1]],
-              selected_term_value()
-            )
-            
-            shiny::div(
-              class = paste(
-                "cba-kb-term-card",
-                if (
-                  selected
-                ) "selected" else ""
+        category_groups <- lapply(
+          unique(d$category),
+          function(category_name) {
+            category_rows <- which(d$category == category_name)
+
+            shiny::tags$section(
+              class = "cba-kb-index-group",
+              `aria-label` = category_name,
+              shiny::h3(
+                class = "cba-kb-index-group-title",
+                category_name
               ),
-              `data-cba-term` =
-                row$term[[1]],
-              
-              shiny::div(
-                class = "cba-kb-term-top",
-                
-                shiny::span(
-                  class = "cba-kb-term-name",
-                  row$term[[1]]
-                ),
-                
-                shiny::span(
-                  class = "cba-kb-term-category",
-                  row$category[[1]]
-                )
-              ),
-              
-              shiny::div(
-                class = "cba-kb-preview",
-                row$short_definition[[1]]
+              lapply(
+                category_rows,
+                function(i) {
+                  row <- d[i, , drop = FALSE]
+                  selected <- identical(
+                    row$term[[1]],
+                    selected_term_value()
+                  )
+
+                  shiny::div(
+                    class = paste(
+                      "cba-kb-term-card",
+                      if (selected) "selected" else ""
+                    ),
+                    `data-cba-term` = row$term[[1]],
+
+                    shiny::div(
+                      class = "cba-kb-term-top",
+
+                      shiny::span(
+                        class = "cba-kb-term-name",
+                        row$term[[1]]
+                      ),
+
+                      shiny::span(
+                        class = "cba-kb-term-category",
+                        row$category[[1]]
+                      )
+                    ),
+
+                    shiny::div(
+                      class = "cba-kb-preview",
+                      row$short_definition[[1]]
+                    )
+                  )
+                }
               )
             )
           }
@@ -1437,7 +2233,7 @@ mod_cba_glossary_server <- function(
         
         shiny::div(
           class = "cba-kb-list",
-          cards
+          category_groups
         )
       })
       
@@ -1476,20 +2272,28 @@ mod_cba_glossary_server <- function(
         affects <- split_pipe(
           row$affects
         )
+
+        aliases <- split_pipe(
+          row$aliases
+        )
         
         favorite <- term %in%
           favorite_values()
+
+        active_modules <- impacted_tbi_modules(row)
         
         shiny::div(
           class = "cba-kb-detail-body",
           
           shiny::div(
             class = "cba-kb-category",
+            `data-cba-detail-block` = "category",
             row$category[[1]]
           ),
           
           shiny::div(
             class = "cba-kb-term-title-row",
+            `data-cba-detail-block` = "title",
             
             shiny::div(
               shiny::div(
@@ -1510,13 +2314,13 @@ mod_cba_glossary_server <- function(
               session$ns(
                 "toggle_favorite"
               ),
-              if (
-                favorite
-              ) {
-                "★ FAVORITE"
-              } else {
-                "☆ FAVORITE"
-              },
+              shiny::HTML(
+                if (favorite) {
+                  "&#9733; FAVORITE"
+                } else {
+                  "&#9734; FAVORITE"
+                }
+              ),
               class = paste(
                 "cba-kb-favorite-btn",
                 if (
@@ -1528,6 +2332,7 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-section",
+            `data-cba-detail-block` = "meaning",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1542,6 +2347,7 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-impact",
+            `data-cba-detail-block` = "impact",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1556,6 +2362,7 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-example",
+            `data-cba-detail-block` = "example",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1570,6 +2377,7 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-section",
+            `data-cba-detail-block` = "affects",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1592,6 +2400,7 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-section",
+            `data-cba-detail-block` = "related",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1620,11 +2429,35 @@ mod_cba_glossary_server <- function(
                 class = "cba-kb-mini-empty",
                 "No related rules are mapped yet."
               )
+            },
+
+            if (length(aliases)) {
+              shiny::tagList(
+                shiny::div(
+                  class = "cba-kb-label cba-kb-alias-label",
+                  "ALIASES + COMMON SHORTHAND"
+                ),
+                shiny::div(
+                  class = "cba-kb-chip-wrap",
+                  lapply(
+                    aliases,
+                    function(value) {
+                      shiny::span(
+                        class = "cba-kb-chip",
+                        value
+                      )
+                    }
+                  )
+                )
+              )
+            } else {
+              NULL
             }
           ),
           
           shiny::div(
             class = "cba-kb-section",
+            `data-cba-detail-block` = "used",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1639,6 +2472,7 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-rule-impact",
+            `data-cba-detail-block` = "rule-impact",
             
             shiny::div(
               class = "cba-kb-label",
@@ -1660,8 +2494,6 @@ mod_cba_glossary_server <- function(
                   "Five-Year Outlook"
                 ),
                 function(module_name) {
-                  
-                  active_modules <- impacted_tbi_modules(row)
                   active <- module_name %in% active_modules
                   
                   shiny::div(
@@ -1673,7 +2505,9 @@ mod_cba_glossary_server <- function(
                     
                     shiny::span(
                       class = "cba-kb-impact-check",
-                      if (active) "✓" else "·"
+                      shiny::HTML(
+                        if (active) "&#10003;" else "&#183;"
+                      )
                     ),
                     
                     shiny::span(
@@ -1687,11 +2521,34 @@ mod_cba_glossary_server <- function(
           
           shiny::div(
             class = "cba-kb-source",
-            shiny::HTML(
-              paste0(
-                "<strong>Source framework:</strong> ",
-                row$source[[1]],
-                ". Content is summarized for basketball-operations decision support."
+            `data-cba-detail-block` = "source",
+            shiny::div(
+              shiny::strong("Source framework: "),
+              row$source[[1]]
+            ),
+            shiny::div(
+              shiny::strong("Rule reference: "),
+              row$source_reference[[1]]
+            ),
+            shiny::div(
+              class = paste(
+                "cba-kb-source-status",
+                if (identical(
+                  row$verification_status[[1]],
+                  "Requires source verification"
+                )) {
+                  "requires-verification"
+                } else {
+                  ""
+                }
+              ),
+              row$verification_status[[1]]
+            ),
+            shiny::div(
+              class = "cba-kb-source-note",
+              paste(
+                "Content is summarized for basketball-operations decision support.",
+                "Confirm the governing agreement and official league guidance before execution."
               )
             )
           )

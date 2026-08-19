@@ -29,6 +29,43 @@
     window.Shiny.setInputValue(inputId, tabName);
   }
 
+  function sendCbaContextEvent(inputId, field, value) {
+    if (
+      !value ||
+      !window.Shiny ||
+      typeof window.Shiny.setInputValue !== 'function'
+    ) return;
+
+    var request = { nonce: Date.now() };
+    request[field] = value;
+    window.Shiny.setInputValue(inputId, request, { priority: 'event' });
+  }
+
+  function handleCbaContextClick(event) {
+    if (!event.target || typeof event.target.closest !== 'function') return;
+
+    var termLink = event.target.closest('[data-cba-term-link]');
+    if (termLink) {
+      event.preventDefault();
+      sendCbaContextEvent(
+        'cba_open_term',
+        'term',
+        termLink.getAttribute('data-cba-term-link')
+      );
+      return;
+    }
+
+    var moduleLink = event.target.closest('[data-cba-module-link]');
+    if (!moduleLink) return;
+
+    event.preventDefault();
+    sendCbaContextEvent(
+      'cba_open_module',
+      'module',
+      moduleLink.getAttribute('data-cba-module-link')
+    );
+  }
+
   window.TBIUX = {
     register: function (builder) {
       builders.push(builder);
@@ -40,6 +77,7 @@
   document.addEventListener('DOMContentLoaded', schedule);
   document.addEventListener('shiny:connected', schedule);
   document.addEventListener('shiny:value', schedule);
+  document.addEventListener('click', handleCbaContextClick);
 
   new MutationObserver(schedule).observe(document.documentElement, {
     childList: true,
