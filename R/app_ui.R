@@ -19,6 +19,24 @@ app_ui <- function(request) {
     prefix = "tbi-assets",
     directoryPath = www_path
   )
+
+  ux_foundation_script_path <- file.path(
+    www_path,
+    "tbi_ux_foundation.js"
+  )
+
+  if (!file.exists(ux_foundation_script_path)) {
+    stop(
+      "UX foundation script is missing: ",
+      ux_foundation_script_path,
+      call. = FALSE
+    )
+  }
+
+  ux_foundation_script_src <- paste0(
+    "tbi-assets/tbi_ux_foundation.js?v=",
+    unname(tools::md5sum(ux_foundation_script_path))
+  )
   
   # ----------------------------------------------------------
   # Team list
@@ -119,7 +137,7 @@ app_ui <- function(request) {
       ),
 
       shiny::tags$script(
-        src = "tbi-assets/tbi_ux_foundation.js",
+        src = ux_foundation_script_src,
         defer = NA
       ),
       

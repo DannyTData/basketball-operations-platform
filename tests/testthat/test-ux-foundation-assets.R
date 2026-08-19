@@ -26,17 +26,40 @@ testthat::test_that("UX foundation uses one shared DOM observer", {
   )
 })
 
-testthat::test_that("UX foundation script is deferred", {
+testthat::test_that("UX foundation script is deferred and content-versioned", {
   root <- ux_foundation_project_root()
-  app_ui_source <- readLines(file.path(root, "R", "app_ui.R"), warn = FALSE)
-  source_text <- paste(app_ui_source, collapse = "\n")
+  ui <- app_ui(NULL)
+  rendered <- htmltools::renderTags(ui)
+  html <- paste(rendered$head, rendered$html, sep = "\n")
+  script_path <- file.path(
+    root,
+    "inst",
+    "app",
+    "www",
+    "tbi_ux_foundation.js"
+  )
+  script_version <- unname(tools::md5sum(script_path))
+  app_ui_source <- paste(
+    readLines(file.path(root, "R", "app_ui.R"), warn = FALSE),
+    collapse = "\n"
+  )
 
-  testthat::expect_match(
-    source_text,
-    'src = "tbi-assets/tbi_ux_foundation[.]js",\\s+defer = NA'
+  testthat::expect_true(
+    grepl(
+      paste0(
+        'src="tbi-assets/tbi_ux_foundation.js?v=',
+        script_version,
+        '"'
+      ),
+      html,
+      fixed = TRUE
+    )
+  )
+  testthat::expect_true(
+    grepl("defer", html, fixed = TRUE)
   )
   testthat::expect_match(
-    source_text,
+    app_ui_source,
     'includeCSS\\(\\s+app_sys\\("app/www/tbi_ux_foundation[.]css"\\)'
   )
 })
