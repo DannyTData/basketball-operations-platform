@@ -37,8 +37,48 @@ testthat::test_that("CBA glossary keeps canonical terms unique and source metada
   testthat::expect_true(all(nzchar(trimws(glossary$source_reference))))
   testthat::expect_setequal(
     unique(glossary$verification_status),
-    c("Supported summary", "Requires source verification")
+    c(
+      "VERIFIED",
+      "VERIFIED CONCEPT",
+      "PARTIAL",
+      "REQUIRES SOURCE VERIFICATION",
+      "NOT A FORMAL CBA TERM"
+    )
   )
+
+  status_counts <- table(glossary$verification_status)
+  testthat::expect_identical(unname(status_counts[["VERIFIED"]]), 20L)
+  testthat::expect_identical(unname(status_counts[["VERIFIED CONCEPT"]]), 25L)
+  testthat::expect_identical(unname(status_counts[["PARTIAL"]]), 2L)
+  testthat::expect_identical(unname(status_counts[["NOT A FORMAL CBA TERM"]]), 17L)
+  testthat::expect_identical(unname(status_counts[["REQUIRES SOURCE VERIFICATION"]]), 2L)
+
+  verified <- glossary$verification_status %in% c("VERIFIED", "VERIFIED CONCEPT")
+  testthat::expect_true(all(grepl("PDF p", glossary$source_reference[verified], fixed = TRUE)))
+  testthat::expect_true(all(grepl(
+    "Article|Exhibit",
+    glossary$source_reference[verified]
+  )))
+  testthat::expect_false(any(grepl("NBA CBA 101", glossary$source_reference, fixed = TRUE)))
+  testthat::expect_false(any(grepl("Supported summary", glossary$verification_status, fixed = TRUE)))
+
+  outside_cba <- grepl(
+    "No controlling provision|No formal definition",
+    glossary$source_reference
+  )
+  testthat::expect_true(all(
+    glossary$verification_status[outside_cba] %in% c(
+      "REQUIRES SOURCE VERIFICATION",
+      "NOT A FORMAL CBA TERM"
+    )
+  ))
+
+  related_terms <- unique(trimws(unlist(strsplit(
+    glossary$related_terms,
+    "\\|"
+  ))))
+  related_terms <- related_terms[nzchar(related_terms)]
+  testthat::expect_true(all(related_terms %in% glossary$term))
 })
 
 
@@ -73,6 +113,35 @@ testthat::test_that("CBA aliases resolve to one canonical term", {
   alias_index <- tbi_cba_glossary_alias_index()
   testthat::expect_false(anyDuplicated(names(alias_index)) > 0L)
   testthat::expect_true(all(unname(alias_index) %in% tbi_cba_glossary_data()$term))
+
+  alias_audit <- tbi_cba_glossary_alias_audit()
+  testthat::expect_identical(nrow(alias_audit), 118L)
+  testthat::expect_false(anyDuplicated(paste(
+    alias_audit$canonical_term,
+    tbi_cba_normalize_term_key(alias_audit$alias),
+    sep = "::"
+  )) > 0L)
+  testthat::expect_identical(length(alias_index) - nrow(tbi_cba_glossary_data()), 108L)
+  testthat::expect_true(all(alias_audit$canonical_term %in% tbi_cba_glossary_data()$term))
+  testthat::expect_true(all(nzchar(trimws(alias_audit$source_reference))))
+  testthat::expect_setequal(
+    unique(alias_audit$verification_status),
+    c(
+      "VERIFIED",
+      "VERIFIED CONCEPT",
+      "REQUIRES SOURCE VERIFICATION",
+      "NOT A FORMAL CBA TERM"
+    )
+  )
+
+  unresolved_canonical <- tbi_cba_glossary_data()$term[
+    tbi_cba_glossary_data()$verification_status == "REQUIRES SOURCE VERIFICATION"
+  ]
+  testthat::expect_true(all(
+    alias_audit$verification_status[
+      alias_audit$canonical_term %in% unresolved_canonical
+    ] == "REQUIRES SOURCE VERIFICATION"
+  ))
 })
 
 
@@ -168,6 +237,22 @@ testthat::test_that("CBA UI preserves IDs and exposes the responsive index works
   testthat::expect_match(rendered, "aria-expanded", fixed = TRUE)
   testthat::expect_match(rendered, "@media(max-width:1000px)", fixed = TRUE)
   testthat::expect_match(rendered, "translateX", fixed = TRUE)
+  testthat::expect_match(rendered, "Search terminology", fixed = TRUE)
+  testthat::expect_match(rendered, "Category", fixed = TRUE)
+  testthat::expect_match(rendered, ".selectize-input > input", fixed = TRUE)
+  testthat::expect_match(rendered, "overflow-x:clip", fixed = TRUE)
+  testthat::expect_match(
+    rendered,
+    ".tbi-v2-page-content:has(> .cba-kb-page)",
+    fixed = TRUE
+  )
+  testthat::expect_match(rendered, "@media(min-width:1001px)", fixed = TRUE)
+  testthat::expect_match(rendered, "font-size:13px !important", fixed = TRUE)
+  testthat::expect_match(rendered, "font-size:15px", fixed = TRUE)
+  testthat::expect_match(rendered, "line-height:1.58", fixed = TRUE)
+  testthat::expect_match(rendered, "verified-concept", fixed = TRUE)
+  testthat::expect_match(rendered, "requires-verification", fixed = TRUE)
+  testthat::expect_match(rendered, "not-formal", fixed = TRUE)
   testthat::expect_false(anyDuplicated(ids) > 0L)
 })
 

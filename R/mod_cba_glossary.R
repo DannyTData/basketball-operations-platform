@@ -21,7 +21,7 @@ tbi_cba_glossary_entry <- function(
     related_terms,
     aliases = "",
     source_reference,
-    verification_status = "Supported summary") {
+    verification_status = "REQUIRES SOURCE VERIFICATION") {
   data.frame(
     term = term,
     category = category,
@@ -32,7 +32,7 @@ tbi_cba_glossary_entry <- function(
     affects = affects,
     related_terms = related_terms,
     aliases = aliases,
-    source = "2023 NBA-NBPA CBA / NBA CBA 101",
+    source = "2023 NBA-NBPA Collective Bargaining Agreement",
     source_reference = source_reference,
     verification_status = verification_status,
     stringsAsFactors = FALSE
@@ -45,6 +45,129 @@ tbi_cba_glossary_entry <- function(
 tbi_cba_normalize_term_key <- function(value) {
   value <- trimws(tolower(as.character(value)))
   trimws(gsub("[^a-z0-9]+", " ", value))
+}
+
+
+#' Authoritative source audit for canonical CBA knowledge entries
+#' @noRd
+tbi_cba_glossary_source_audit <- function() {
+  source_references <- c(
+    "Salary Cap" = "2023 NBA-NBPA CBA, Article I, Section 1(mmm), PDF p. 33 (CBA p. 9).",
+    "Team Salary" = "2023 NBA-NBPA CBA, Article I, Section 1(uuu), PDF p. 35 (CBA p. 11).",
+    "Luxury Tax" = "Common shorthand; the formal CBA analogue is the Tax Level in Article VII, Sections 2(a)(2) and 2(d), PDF pp. 193-210 (CBA pp. 169-186).",
+    "First Apron" = "Formal CBA term: First Apron Level. Article VII, Sections 2(a)(3) and 2(e), PDF pp. 195 and 210-219 (CBA pp. 171 and 186-195).",
+    "Second Apron" = "Formal CBA term: Second Apron Level. Article VII, Sections 2(a)(3) and 2(e), PDF pp. 195 and 210-219 (CBA pp. 171 and 186-195).",
+    "Hard Cap" = "Common shorthand for an apron ceiling imposed by a specified transaction; see Article VII, Section 2(e), PDF pp. 210-219 (CBA pp. 186-195).",
+    "Cap Hold" = "Common umbrella term for Team Salary amounts such as Free Agent Amounts, rookie-scale holds, and incomplete-roster amounts; see Article VII, Sections 4(a)(2) and 4(d)-4(f), PDF pp. 240-245 (CBA pp. 216-221).",
+    "Bird Exception" = "Common shorthand for the Qualifying Veteran Free Agent route under the Veteran Free Agent Exception; Article VII, Section 6(b)(1), PDF p. 255 (CBA p. 231).",
+    "Early Bird Exception" = "Common shorthand for the Early Qualifying Veteran Free Agent route; Article VII, Section 6(b)(3), PDF p. 256 (CBA p. 232).",
+    "Non-Bird Exception" = "Common shorthand for the Non-Qualifying Veteran Free Agent route; Article VII, Section 6(b)(2), PDF p. 255 (CBA p. 231).",
+    "Non-Taxpayer Mid-Level Exception" = "Formal CBA term: Non-Taxpayer Mid-Level Salary Exception. Article VII, Section 6(e), PDF pp. 260-261 (CBA pp. 236-237).",
+    "Taxpayer Mid-Level Exception" = "Formal CBA term: Taxpayer Mid-Level Salary Exception. Article VII, Section 6(f), PDF pp. 261-262 (CBA pp. 237-238).",
+    "Room Mid-Level Exception" = "Formal CBA term: Mid-Level Salary Exception for Room Teams. Article VII, Section 6(g), PDF pp. 262-263 (CBA pp. 238-239).",
+    "Bi-Annual Exception" = "2023 NBA-NBPA CBA, Article VII, Section 6(d), PDF pp. 259-260 (CBA pp. 235-236).",
+    "Minimum Player Salary Exception" = "2023 NBA-NBPA CBA, Article VII, Section 6(i), PDF p. 264 (CBA p. 240).",
+    "Traded Player Exception (TPE)" = "2023 NBA-NBPA CBA, Article VII, Section 6(j), PDF pp. 264-270 (CBA pp. 240-246).",
+    "Salary Aggregation" = "Verified concept under the Aggregated Standard Traded Player Exception and aggregation limits; Article VII, Sections 6(j)(1)(ii) and 6(j)(4), PDF pp. 264 and 266-267 (CBA pp. 240 and 242-243).",
+    "Salary Matching" = "Common description of the incoming-versus-outgoing salary limits in Article VII, Section 6(j)(1), PDF pp. 264-266 (CBA pp. 240-242).",
+    "Sign-and-Trade" = "Verified concept described as signing and subsequent trade in Article VII, Section 8(e)(1), PDF p. 286 (CBA p. 262), and Exhibit A, Exhibit 8, PDF p. 626 (CBA p. A-42).",
+    "Base Year Compensation" = "Legacy/common shorthand for the assignor-Team salary treatment in Article VII, Section 6(j)(5), PDF p. 267 (CBA p. 243); that phrase is not used in the supplied 2023 CBA.",
+    "Trade Bonus / Trade Kicker" = "Trade Bonus is formal CBA wording; Trade Kicker is common shorthand. See Article II, Section 7(f), PDF pp. 66-67 (CBA pp. 42-43).",
+    "Rookie Scale Contract" = "2023 NBA-NBPA CBA, Article I, Section 1(jjj), PDF p. 33 (CBA p. 9), and Article VIII, Section 1, PDF pp. 314-317 (CBA pp. 290-293).",
+    "Rookie-Scale Extension" = "2023 NBA-NBPA CBA, Article VII, Section 7(b), PDF p. 278 (CBA p. 254).",
+    "Designated Rookie Extension" = "Common shorthand; the supplied CBA instead uses Rookie Scale Extension, 5th Year Eligible Player, and Higher Max Criteria. See Article II, Sections 7(a)(i), 7(c)(i), and 7(d), PDF pp. 60 and 62-66 (CBA pp. 36 and 38-42).",
+    "Veteran Extension" = "Formal CBA heading: Veteran Extensions. Article VII, Section 7(a), PDF pp. 273-278 (CBA pp. 249-254).",
+    "Designated Veteran Extension" = "Formal CBA term: Designated Veteran Player Extension. Article I, Section 1(r), PDF p. 27 (CBA p. 3); Article II, Sections 7(c)(ii) and 7(e), PDF pp. 62-66 (CBA pp. 38-42); and Article VII, Section 7(a)(3)(ii), PDF pp. 275-276 (CBA pp. 251-252).",
+    "Qualifying Offer" = "2023 NBA-NBPA CBA, Article I, Section 1(xx), PDF p. 31 (CBA p. 7), and Article XI, Section 4, PDF pp. 342-345 (CBA pp. 318-321).",
+    "Restricted Free Agent (RFA)" = "2023 NBA-NBPA CBA, Article I, Section 1(eee), PDF p. 32 (CBA p. 8), and Article XI, Section 5, PDF pp. 345-359 (CBA pp. 321-335).",
+    "Unrestricted Free Agent (UFA)" = "2023 NBA-NBPA CBA, Article I, Section 1(ffff), PDF p. 37 (CBA p. 13).",
+    "Team Option" = "2023 NBA-NBPA CBA, Article XII, Section 1, PDF p. 360 (CBA p. 336).",
+    "Player Option" = "2023 NBA-NBPA CBA, Article XII, Section 2, PDF pp. 360-362 (CBA pp. 336-338).",
+    "Two-Way Contract" = "2023 NBA-NBPA CBA, Article I, Section 1(yyy), PDF p. 36 (CBA p. 12), and Article II, Section 11, PDF pp. 74-82 (CBA pp. 50-58).",
+    "Exhibit 10" = "2023 NBA-NBPA CBA, Article II, Section 3(s), PDF pp. 45-47 (CBA pp. 21-23); Article II, Section 11(h), PDF pp. 80-82 (CBA pp. 56-58); and Exhibit A, Exhibit 10, PDF pp. 628-630 (CBA pp. A-44-A-46).",
+    "Waivers" = "2023 NBA-NBPA CBA, Exhibit A, Uniform Player Contract Paragraph 16(f), PDF pp. 604-605 (CBA pp. A-20-A-21).",
+    "Stretch Provision" = "Verified concept in Article II, Section 4(k), Article VII, Section 4(a)(1)(i), and Article XXVII, Section 5; PDF pp. 54-57, 235, and 446-448 (CBA pp. 30-33, 211, and 422-424).",
+    "Dead Money" = "Common shorthand for Team Salary attributable to a former player after waiver or other retained obligations; Article VII, Section 4(a)(1)(i), PDF p. 235 (CBA p. 211).",
+    "10-Day Contract" = "2023 NBA-NBPA CBA, Article II, Section 9, PDF pp. 72-74 (CBA pp. 48-50).",
+    "Two-Way Conversion" = "Verified concept under the Standard NBA Contract Conversion Option; Article II, Section 11(f), PDF pp. 78-80 (CBA pp. 54-56).",
+    "Tax Apron Terminology" = "Tax apron is not a formal singular term in the supplied CBA; the agreement separately defines First Apron Level and Second Apron Level in Article VII, Section 2(a)(3), PDF p. 195 (CBA p. 171).",
+    "Early Termination Option" = "2023 NBA-NBPA CBA, Article I, Section 1(u), PDF p. 27 (CBA p. 3), with option-clause rules in Article XII, PDF pp. 360-362 (CBA pp. 336-338).",
+    "Mid-Level Exception" = "Common umbrella label; the supplied CBA defines separate Non-Taxpayer, Taxpayer, and Room Team Mid-Level Salary Exceptions in Article VII, Sections 6(e)-6(g), PDF pp. 260-263 (CBA pp. 236-239).",
+    "Disabled Player Exception" = "2023 NBA-NBPA CBA, Article VII, Section 6(c), PDF pp. 256-259 (CBA pp. 232-235).",
+    "Poison Pill Provision" = "Common shorthand for the rookie-scale-extension trade treatment in Article VII, Section 8(g), PDF pp. 288-289 (CBA pp. 264-265); that phrase is not used in the supplied 2023 CBA.",
+    "Minimum Team Salary / Salary Floor" = "Minimum Team Salary is formal CBA wording; Salary Floor is common shorthand. See Article I, Section 1(ll), PDF p. 29 (CBA p. 5), and Article VII, Sections 2(b)-2(c), PDF pp. 200-203 (CBA pp. 176-179).",
+    "Guaranteed Salary" = "Verified concept expressed as Base Compensation protection. Article II, Section 4, PDF pp. 47-57 (CBA pp. 23-33), and Exhibit A, Exhibit 2, PDF pp. 616-623 (CBA pp. A-32-A-39).",
+    "Non-Guaranteed Salary" = "Verified concept expressed as Base Compensation that is not protected. Article II, Section 4, PDF pp. 47-57 (CBA pp. 23-33), and Exhibit A, Exhibit 2, PDF pp. 616-623 (CBA pp. A-32-A-39).",
+    "Partial Guarantee" = "Verified concept expressed as partially protected Base Compensation. Article II, Section 4, PDF pp. 47-57 (CBA pp. 23-33), and Exhibit A, Exhibit 2, PDF pp. 616-623 (CBA pp. A-32-A-39).",
+    "Roster Charge" = "Verified concept under the incomplete-roster amount included in Team Salary. Article VII, Sections 4(a)(5) and 4(f), PDF pp. 240 and 244-245 (CBA pp. 216 and 220-221).",
+    "Supermax / Designated Veteran Terminology" = "Supermax is not a formal CBA term. The formal routes appear in Article II, Sections 7(a)(ii), 7(c)(ii), and 7(e), PDF pp. 60-66 (CBA pp. 36-42).",
+    "Maximum Salary" = "Formal CBA term: Maximum Annual Salary. Article I, Section 1(gg), PDF p. 28 (CBA p. 4), and Article II, Section 7, PDF pp. 60-68 (CBA pp. 36-44).",
+    "Maximum Extension" = "Verified umbrella concept across the extension pathways in Article II, Sections 7(c)-7(e), PDF pp. 62-66 (CBA pp. 38-42), and Article VII, Section 7, PDF pp. 273-280 (CBA pp. 249-256).",
+    "Extension Eligibility" = "Verified umbrella concept across Article VII, Sections 7(a)-7(b), PDF pp. 273-279 (CBA pp. 249-255), with maximum-salary rules in Article II, Section 7, PDF pp. 60-68 (CBA pp. 36-44).",
+    "Over-38 Rule" = "2023 NBA-NBPA CBA, Article VII, Section 3(a)(2), PDF pp. 222-224 (CBA pp. 198-200).",
+    "Cash Considerations" = "Verified concept under the trade cash-payment rule in Article VII, Section 8(a), PDF p. 284 (CBA p. 260).",
+    "Draft Rights" = "Verified concept in Article VII, Section 4(e), PDF pp. 243-244 (CBA pp. 219-220), and Article X, Sections 4 and 7, PDF pp. 322-329 (CBA pp. 298-305).",
+    "First-Round Pick" = "Formal CBA term: First Round Pick. Article I, Section 1(aa), PDF p. 28 (CBA p. 4), and Article VIII, Section 1, PDF pp. 314-317 (CBA pp. 290-293).",
+    "Second-Round Pick" = "Formal CBA term: Second Round Pick. Article I, Section 1(ppp), PDF p. 34 (CBA p. 10), and Article VII, Section 6(k), PDF pp. 270-271 (CBA pp. 246-247).",
+    "Pick Protection" = "No controlling provision for this operational label was located in the supplied 2023 NBA-NBPA CBA; verify against official transaction documents and league records.",
+    "Pick Swap" = "No controlling provision for this operational label was located in the supplied 2023 NBA-NBPA CBA; verify against official transaction documents and league records.",
+    "Stepien Rule" = "No controlling provision was located in the supplied 2023 NBA-NBPA CBA; verify against the current NBA Constitution/By-Laws and official league guidance.",
+    "Seven-Year Rule" = "No controlling provision was located in the supplied 2023 NBA-NBPA CBA; verify against the current NBA Constitution/By-Laws, league calendar, and official league guidance.",
+    "Conveyance" = "No formal definition for this operational draft-asset label was located in the supplied 2023 NBA-NBPA CBA; verify against official transaction documents and league records.",
+    "Pick Obligation" = "No formal definition for this operational draft-asset label was located in the supplied 2023 NBA-NBPA CBA; verify against official transaction documents and league records.",
+    "Reacquisition Restrictions" = "Verified concept under Article VII, Section 8(h), PDF p. 289 (CBA p. 265).",
+    "Recently Traded Restriction" = "Verified concept under the aggregation waiting rule in Article VII, Section 6(j)(4), PDF pp. 266-267 (CBA pp. 242-243).",
+    "Recently Signed Restriction" = "Verified concept under Article VII, Section 8(d), PDF pp. 285-286 (CBA pp. 261-262)."
+  )
+
+  verification_status <- stats::setNames(
+    rep(NA_character_, length(source_references)),
+    names(source_references)
+  )
+  verification_status[c(
+    "Salary Cap", "Team Salary", "Bi-Annual Exception",
+    "Minimum Player Salary Exception", "Traded Player Exception (TPE)",
+    "Rookie Scale Contract", "Rookie-Scale Extension", "Qualifying Offer",
+    "Restricted Free Agent (RFA)", "Unrestricted Free Agent (UFA)",
+    "Team Option", "Player Option", "Two-Way Contract", "Exhibit 10",
+    "10-Day Contract", "Early Termination Option", "Disabled Player Exception",
+    "Over-38 Rule", "First-Round Pick", "Second-Round Pick"
+  )] <- "VERIFIED"
+  verification_status[c(
+    "First Apron", "Second Apron", "Non-Taxpayer Mid-Level Exception",
+    "Taxpayer Mid-Level Exception", "Room Mid-Level Exception",
+    "Salary Aggregation", "Salary Matching", "Sign-and-Trade",
+    "Veteran Extension", "Designated Veteran Extension", "Waivers",
+    "Stretch Provision", "Two-Way Conversion", "Guaranteed Salary",
+    "Non-Guaranteed Salary", "Partial Guarantee", "Roster Charge",
+    "Maximum Salary", "Maximum Extension", "Extension Eligibility",
+    "Cash Considerations", "Draft Rights", "Reacquisition Restrictions",
+    "Recently Traded Restriction", "Recently Signed Restriction"
+  )] <- "VERIFIED CONCEPT"
+  verification_status[c(
+    "Trade Bonus / Trade Kicker", "Minimum Team Salary / Salary Floor"
+  )] <- "PARTIAL"
+  verification_status[c(
+    "Luxury Tax", "Hard Cap", "Cap Hold", "Bird Exception",
+    "Early Bird Exception", "Non-Bird Exception", "Base Year Compensation",
+    "Designated Rookie Extension", "Dead Money", "Tax Apron Terminology",
+    "Mid-Level Exception", "Poison Pill Provision",
+    "Supermax / Designated Veteran Terminology", "Pick Protection",
+    "Pick Swap", "Conveyance", "Pick Obligation"
+  )] <- "NOT A FORMAL CBA TERM"
+  verification_status[c("Stepien Rule", "Seven-Year Rule")] <-
+    "REQUIRES SOURCE VERIFICATION"
+
+  if (anyNA(verification_status)) {
+    stop("Every canonical CBA entry must have an explicit verification status.", call. = FALSE)
+  }
+
+  data.frame(
+    term = names(source_references),
+    source_reference = unname(source_references),
+    verification_status = unname(verification_status),
+    stringsAsFactors = FALSE
+  )
 }
 
 #' CBA knowledge-base data
@@ -319,7 +442,7 @@ tbi_cba_glossary_data <- function() {
     ),
     
     source = rep(
-      "2023 NBA-NBPA CBA / NBA CBA 101",
+      "2023 NBA-NBPA Collective Bargaining Agreement",
       38
     ),
     
@@ -369,12 +492,8 @@ tbi_cba_glossary_data <- function() {
   )
   glossary$aliases[match(names(legacy_aliases), glossary$term)] <-
     unname(legacy_aliases)
-  glossary$source_reference <- paste0(
-    "2023 CBA: ",
-    glossary$category,
-    " provisions; NBA CBA 101 overview"
-  )
-  glossary$verification_status <- "Supported summary"
+  glossary$source_reference <- ""
+  glossary$verification_status <- "REQUIRES SOURCE VERIFICATION"
 
   expansion <- do.call(
     rbind,
@@ -702,7 +821,95 @@ tbi_cba_glossary_data <- function() {
 
   glossary <- rbind(glossary, expansion)
   rownames(glossary) <- NULL
+
+  definition_corrections <- c(
+    "Luxury Tax" = "Common shorthand for the CBA's Tax Level, a payroll threshold above the Salary Cap used to determine team tax payments and related roster-building consequences.",
+    "Hard Cap" = "Common shorthand for an apron ceiling that applies after a team uses specified transactions. The CBA imposes these ceilings through transaction-specific apron restrictions rather than a universal hard-cap designation.",
+    "Bird Exception" = "Common shorthand for the Qualifying Veteran Free Agent route under the CBA's Veteran Free Agent Exception, which can allow a prior team to exceed the Salary Cap to re-sign an eligible player.",
+    "Early Bird Exception" = "Common shorthand for the Early Qualifying Veteran Free Agent route under the CBA's Veteran Free Agent Exception.",
+    "Non-Bird Exception" = "Common shorthand for the Non-Qualifying Veteran Free Agent route under the CBA's Veteran Free Agent Exception.",
+    "Trade Bonus / Trade Kicker" = "A Trade Bonus is contract compensation earned when a player is traded, subject to CBA limits and allocation rules; Trade Kicker is common shorthand for the same concept.",
+    "Designated Rookie Extension" = "Common shorthand for a Rookie Scale Extension using the higher maximum-salary provisions available to an eligible fifth-year player who satisfies the Higher Max Criteria. The supplied CBA does not use the term Designated Rookie Extension.",
+    "Team Option" = "An option in favor of a team to extend a Player Contract beyond its stated term for an Option Year under Article XII.",
+    "Player Option" = "An option in favor of a player to extend a Player Contract beyond its stated term for an Option Year under Article XII.",
+    "Two-Way Contract" = "A contract under which a player provides services to both an NBA team and an NBAGL team under the CBA's two-way rules.",
+    "Two-Way Conversion" = "The exercise of a Standard NBA Contract Conversion Option that converts a Two-Way Contract to a Standard NBA Contract for the remainder of its original term.",
+    "First-Round Pick" = "A player selected by a team in the first round of the NBA Draft. The CBA applies the Rookie Salary Scale and related draft-rights rules to First Round Picks.",
+    "Second-Round Pick" = "A player selected by a team in the second round of the NBA Draft. The CBA includes a separate Second Round Pick Exception for qualifying contracts."
+  )
+  corrected_rows <- match(names(definition_corrections), glossary$term)
+  glossary$short_definition[corrected_rows] <- unname(definition_corrections)
+
+  source_audit <- tbi_cba_glossary_source_audit()
+  if (!setequal(glossary$term, source_audit$term)) {
+    stop("The canonical CBA glossary and source audit are out of sync.", call. = FALSE)
+  }
+  source_rows <- match(glossary$term, source_audit$term)
+  glossary$source <- "2023 NBA-NBPA Collective Bargaining Agreement"
+  glossary$source_reference <- source_audit$source_reference[source_rows]
+  glossary$verification_status <- source_audit$verification_status[source_rows]
   glossary
+}
+
+
+#' Audit every search alias without presenting shorthand as formal CBA wording
+#' @noRd
+tbi_cba_glossary_alias_audit <- function(glossary = tbi_cba_glossary_data()) {
+  rows <- lapply(
+    seq_len(nrow(glossary)),
+    function(i) {
+      aliases <- trimws(strsplit(glossary$aliases[[i]], "\\|", perl = TRUE)[[1]])
+      aliases <- aliases[nzchar(aliases)]
+      if (!length(aliases)) {
+        return(NULL)
+      }
+
+      canonical_status <- glossary$verification_status[[i]]
+      alias_status <- if (canonical_status %in% c(
+        "VERIFIED", "VERIFIED CONCEPT", "PARTIAL"
+      )) {
+        "VERIFIED CONCEPT"
+      } else {
+        canonical_status
+      }
+
+      data.frame(
+        alias = aliases,
+        canonical_term = rep(glossary$term[[i]], length(aliases)),
+        source_reference = rep(glossary$source_reference[[i]], length(aliases)),
+        verification_status = rep(alias_status, length(aliases)),
+        stringsAsFactors = FALSE
+      )
+    }
+  )
+
+  audit <- do.call(rbind, rows)
+  rownames(audit) <- NULL
+
+  formal_aliases <- c(
+    "Traded Player Exception",
+    "Trade Bonus",
+    "Rookie Scale Extension",
+    "Minimum Team Salary",
+    "First Round Pick",
+    "Second Round Pick"
+  )
+  audit$verification_status[audit$alias %in% formal_aliases] <- "VERIFIED"
+  audit
+}
+
+
+#' Map a glossary verification status to a stable CSS class
+#' @noRd
+tbi_cba_verification_class <- function(status) {
+  classes <- c(
+    "VERIFIED" = "verified",
+    "VERIFIED CONCEPT" = "verified-concept",
+    "PARTIAL" = "partial",
+    "REQUIRES SOURCE VERIFICATION" = "requires-verification",
+    "NOT A FORMAL CBA TERM" = "not-formal"
+  )
+  unname(classes[[as.character(status)]])
 }
 
 
@@ -811,8 +1018,16 @@ mod_cba_glossary_ui <- function(id) {
       shiny::HTML(
         "
         .cba-kb-page {
+          width:100%;
+          min-width:0;
           display:grid;
           gap:12px;
+          overflow-x:clip;
+        }
+
+        .cba-kb-page,
+        .cba-kb-page * {
+          box-sizing:border-box;
         }
 
         .cba-kb-hero {
@@ -831,7 +1046,7 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-eyebrow {
           margin-bottom:5px;
           color:#6f8fb8;
-          font-size:.54rem;
+          font-size:12px;
           font-weight:900;
           letter-spacing:.11em;
           text-transform:uppercase;
@@ -840,7 +1055,7 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-title {
           margin:0 !important;
           color:#f6f8fb !important;
-          font-size:1.72rem !important;
+          font-size:27px !important;
           font-weight:800 !important;
           letter-spacing:-.035em !important;
         }
@@ -849,8 +1064,8 @@ mod_cba_glossary_ui <- function(id) {
           max-width:820px;
           margin:6px 0 0;
           color:#8da0b7;
-          font-size:.67rem;
-          line-height:1.5;
+          font-size:13px;
+          line-height:1.55;
         }
 
         .cba-kb-count {
@@ -865,14 +1080,14 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-count strong {
           display:block;
           color:#67a9ff;
-          font-size:1.18rem;
+          font-size:18px;
         }
 
         .cba-kb-count span {
           display:block;
           margin-top:3px;
           color:#73869e;
-          font-size:.46rem;
+          font-size:12px;
           font-weight:850;
           letter-spacing:.08em;
           text-transform:uppercase;
@@ -892,21 +1107,92 @@ mod_cba_glossary_ui <- function(id) {
         }
 
         .cba-kb-search-panel label {
+          display:block;
+          margin-bottom:6px;
           color:#74869d !important;
-          font-size:.49rem !important;
+          font-size:12px !important;
           font-weight:900 !important;
-          letter-spacing:.08em !important;
+          letter-spacing:.06em !important;
           text-transform:uppercase;
         }
 
         .cba-kb-search-panel .form-control,
         .cba-kb-search-panel .selectize-input {
-          min-height:39px !important;
+          width:100% !important;
+          min-width:0 !important;
+          min-height:40px !important;
           border-color:rgba(148,163,184,.16) !important;
           border-radius:8px !important;
           background:#101b2b !important;
           color:#edf3f9 !important;
-          font-size:.62rem !important;
+          font-size:13px !important;
+          line-height:1.35 !important;
+          box-shadow:none !important;
+        }
+
+        .cba-kb-search-panel .form-control {
+          height:40px !important;
+          padding:9px 12px !important;
+        }
+
+        .cba-kb-search-panel .selectize-control {
+          width:100%;
+          min-width:0;
+          margin-bottom:0;
+        }
+
+        .cba-kb-search-panel .selectize-input {
+          padding:10px 38px 9px 12px !important;
+        }
+
+        .cba-kb-search-panel .selectize-input > input {
+          min-width:0 !important;
+          color:#edf3f9 !important;
+          font-size:13px !important;
+          line-height:1.35 !important;
+        }
+
+        .cba-kb-search-panel .form-control::placeholder,
+        .cba-kb-search-panel .selectize-input > input::placeholder {
+          color:#74869d !important;
+          opacity:1;
+        }
+
+        .cba-kb-search-panel .form-control:focus,
+        .cba-kb-search-panel .selectize-input.focus {
+          border-color:#579cff !important;
+          box-shadow:0 0 0 3px rgba(87,156,255,.14) !important;
+          outline:none !important;
+        }
+
+        .cba-kb-search-panel .selectize-control.single .selectize-input::after {
+          right:14px !important;
+          margin-top:-2px !important;
+          border-width:5px 4px 0 !important;
+          border-color:#8fa6c1 transparent transparent !important;
+        }
+
+        .cba-kb-search-panel .selectize-control.single .selectize-input.dropdown-active::after {
+          margin-top:-3px !important;
+          border-width:0 4px 5px !important;
+          border-color:transparent transparent #8fa6c1 !important;
+        }
+
+        .cba-kb-search-panel .selectize-dropdown {
+          border-color:rgba(148,163,184,.18) !important;
+          background:#101b2b !important;
+          color:#dce6f1 !important;
+          font-size:13px !important;
+        }
+
+        .cba-kb-search-panel .selectize-dropdown .option {
+          padding:9px 12px !important;
+          line-height:1.4 !important;
+        }
+
+        .cba-kb-search-panel .selectize-dropdown .active {
+          color:#f5f8fc !important;
+          background:rgba(59,130,246,.16) !important;
         }
 
         .cba-kb-layout {
@@ -938,7 +1224,7 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:8px;
           color:#9fc5f3;
           background:rgba(59,130,246,.055);
-          font-size:.51rem;
+          font-size:12px;
           font-weight:850;
           letter-spacing:.02em;
         }
@@ -1020,12 +1306,12 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-panel-head strong {
           color:#eaf0f7;
-          font-size:.75rem;
+          font-size:14px;
         }
 
         .cba-kb-panel-head span {
           color:#71859e;
-          font-size:.47rem;
+          font-size:12px;
           font-weight:800;
           letter-spacing:.07em;
           text-transform:uppercase;
@@ -1048,7 +1334,7 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-index-group-title {
           margin:0 2px 7px;
           color:#6f88a7;
-          font-size:.48rem;
+          font-size:12px;
           font-weight:900;
           letter-spacing:.08em;
           text-transform:uppercase;
@@ -1089,7 +1375,7 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-term-name {
           color:#eef4fa;
-          font-size:.66rem;
+          font-size:13px;
           font-weight:830;
         }
 
@@ -1100,7 +1386,7 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:999px;
           color:#78a6df;
           background:rgba(59,130,246,.045);
-          font-size:.41rem;
+          font-size:11px;
           font-weight:850;
           letter-spacing:.05em;
           text-transform:uppercase;
@@ -1109,14 +1395,14 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-preview {
           margin-top:5px;
           color:#7f91a8;
-          font-size:.53rem;
-          line-height:1.42;
+          font-size:12px;
+          line-height:1.5;
         }
 
         .cba-kb-empty {
           padding:30px 18px;
           color:#71849d;
-          font-size:.61rem;
+          font-size:13px;
           text-align:center;
         }
 
@@ -1153,7 +1439,7 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-category {
           color:#69a9ff;
-          font-size:.49rem;
+          font-size:12px;
           font-weight:900;
           letter-spacing:.10em;
           text-transform:uppercase;
@@ -1169,14 +1455,14 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-term-title {
           margin:5px 0 2px;
           color:#f5f8fc;
-          font-size:1.42rem;
+          font-size:22px;
           font-weight:820;
           letter-spacing:-.03em;
         }
 
         .cba-kb-module {
           color:#7890ad;
-          font-size:.54rem;
+          font-size:12px;
           font-weight:750;
         }
 
@@ -1189,7 +1475,7 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:8px;
           color:#788da8;
           background:rgba(255,255,255,.015);
-          font-size:.48rem;
+          font-size:12px;
           font-weight:850;
         }
 
@@ -1208,7 +1494,7 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-label {
           margin-bottom:6px;
           color:#71859e;
-          font-size:.48rem;
+          font-size:12px;
           font-weight:900;
           letter-spacing:.09em;
           text-transform:uppercase;
@@ -1222,8 +1508,8 @@ mod_cba_glossary_ui <- function(id) {
           max-width:72ch;
           margin:0;
           color:#c4ceda;
-          font-size:.68rem;
-          line-height:1.60;
+          font-size:15px;
+          line-height:1.58;
         }
 
         .cba-kb-impact {
@@ -1262,8 +1548,15 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:999px;
           color:#8eb2dd;
           background:rgba(59,130,246,.04);
-          font-size:.45rem;
+          font-size:12px;
           font-weight:800;
+        }
+
+        .cba-kb-alias-provenance {
+          margin-top:7px;
+          color:#71839a;
+          font-size:12px;
+          line-height:1.5;
         }
 
         .cba-kb-related {
@@ -1299,9 +1592,9 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:8px;
           color:#657b94;
           background:rgba(255,255,255,.010);
-          font-size:.49rem;
+          font-size:12px;
           font-weight:800;
-          line-height:1.25;
+          line-height:1.45;
         }
 
         .cba-kb-impact-module.active {
@@ -1319,7 +1612,7 @@ mod_cba_glossary_ui <- function(id) {
           border:1px solid rgba(148,163,184,.12);
           border-radius:50%;
           color:#526982;
-          font-size:.43rem;
+          font-size:11px;
           font-weight:900;
         }
 
@@ -1336,8 +1629,8 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:8px;
           background:rgba(255,255,255,.012);
           color:#71839a;
-          font-size:.50rem;
-          line-height:1.45;
+          font-size:12px;
+          line-height:1.55;
         }
 
         .cba-kb-source strong {
@@ -1352,14 +1645,32 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:999px;
           color:#77d9b6;
           background:rgba(16,185,129,.045);
-          font-size:.44rem;
+          font-size:12px;
           font-weight:850;
         }
 
+        .cba-kb-source-status.verified-concept {
+          border-color:rgba(96,165,250,.24);
+          color:#9fc5f3;
+          background:rgba(59,130,246,.07);
+        }
+
+        .cba-kb-source-status.partial {
+          border-color:rgba(245,158,11,.25);
+          color:#efc16f;
+          background:rgba(245,158,11,.07);
+        }
+
         .cba-kb-source-status.requires-verification {
-          border-color:rgba(245,158,11,.22);
-          color:#e6b45c;
-          background:rgba(245,158,11,.05);
+          border-color:rgba(248,113,113,.28);
+          color:#f3a1a1;
+          background:rgba(239,68,68,.07);
+        }
+
+        .cba-kb-source-status.not-formal {
+          border-color:rgba(167,139,250,.25);
+          color:#c4b5fd;
+          background:rgba(139,92,246,.07);
         }
 
         .cba-kb-source-note {
@@ -1379,7 +1690,7 @@ mod_cba_glossary_ui <- function(id) {
         .cba-kb-mini-title {
           margin-bottom:8px;
           color:#758ba7;
-          font-size:.48rem;
+          font-size:12px;
           font-weight:900;
           letter-spacing:.09em;
           text-transform:uppercase;
@@ -1387,7 +1698,7 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-mini-empty {
           color:#667b95;
-          font-size:.52rem;
+          font-size:12px;
         }
 
         .cba-kb-mini-link {
@@ -1399,7 +1710,7 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:7px;
           color:#9fb8d5;
           background:rgba(255,255,255,.012);
-          font-size:.51rem;
+          font-size:12px;
           font-weight:750;
         }
 
@@ -1414,8 +1725,8 @@ mod_cba_glossary_ui <- function(id) {
           border-radius:10px;
           color:#8c9aae;
           background:rgba(245,158,11,.025);
-          font-size:.52rem;
-          line-height:1.5;
+          font-size:12px;
+          line-height:1.55;
         }
 
         .cba-kb-note strong {
@@ -1424,6 +1735,12 @@ mod_cba_glossary_ui <- function(id) {
 
         .cba-kb-drawer-scrim {
           display:none;
+        }
+
+        @media(min-width:1001px) {
+          .tbi-v2-page-content:has(> .cba-kb-page) {
+            max-width:none !important;
+          }
         }
 
         @media(max-width:1250px) {
@@ -1847,6 +2164,7 @@ mod_cba_glossary_server <- function(
     function(input, output, session) {
       
       glossary <- tbi_cba_glossary_data()
+      alias_audit <- tbi_cba_glossary_alias_audit(glossary)
       
       selected_term_value <- shiny::reactiveVal(
         glossary$term[[1]]
@@ -2276,6 +2594,22 @@ mod_cba_glossary_server <- function(
         aliases <- split_pipe(
           row$aliases
         )
+        alias_rows <- alias_audit[
+          alias_audit$canonical_term == term,
+          ,
+          drop = FALSE
+        ]
+
+        verification_status <- row$verification_status[[1]]
+        source_note <- switch(
+          verification_status,
+          "VERIFIED" = "The canonical term and summary were checked against the cited provision. Alias badges are search aids and carry their own hover classification.",
+          "VERIFIED CONCEPT" = "The concept is supported by the cited provision, but the canonical label may simplify the agreement's exact wording. Alias badges are search aids.",
+          "PARTIAL" = "Only the formal portion of this combined label is verified by the cited provision; the remaining wording is common shorthand.",
+          "REQUIRES SOURCE VERIFICATION" = "The supplied CBA does not establish this rule. Confirm the current NBA Constitution/By-Laws, official league guidance, and transaction records before relying on it.",
+          "NOT A FORMAL CBA TERM" = "This is useful basketball-operations shorthand, not formal wording in the supplied CBA. Use the cited formal analogue where one is identified.",
+          "Confirm the governing agreement and official league guidance before execution."
+        )
         
         favorite <- term %in%
           favorite_values()
@@ -2440,14 +2774,27 @@ mod_cba_glossary_server <- function(
                 shiny::div(
                   class = "cba-kb-chip-wrap",
                   lapply(
-                    aliases,
-                    function(value) {
+                    seq_along(aliases),
+                    function(i) {
+                      value <- aliases[[i]]
+                      alias_status <- alias_rows$verification_status[
+                        match(value, alias_rows$alias)
+                      ]
                       shiny::span(
-                        class = "cba-kb-chip",
+                        class = paste(
+                          "cba-kb-chip cba-kb-alias-chip",
+                          tbi_cba_verification_class(alias_status)
+                        ),
+                        `data-cba-alias-status` = alias_status,
+                        title = paste0(value, ": ", alias_status),
                         value
                       )
                     }
                   )
+                ),
+                shiny::div(
+                  class = "cba-kb-alias-provenance",
+                  "Aliases support search and deep links; hover an alias to see its source classification."
                 )
               )
             } else {
@@ -2533,23 +2880,14 @@ mod_cba_glossary_server <- function(
             shiny::div(
               class = paste(
                 "cba-kb-source-status",
-                if (identical(
-                  row$verification_status[[1]],
-                  "Requires source verification"
-                )) {
-                  "requires-verification"
-                } else {
-                  ""
-                }
+                tbi_cba_verification_class(verification_status)
               ),
-              row$verification_status[[1]]
+              `aria-label` = paste("Verification status:", verification_status),
+              verification_status
             ),
             shiny::div(
               class = "cba-kb-source-note",
-              paste(
-                "Content is summarized for basketball-operations decision support.",
-                "Confirm the governing agreement and official league guidance before execution."
-              )
+              source_note
             )
           )
         )
