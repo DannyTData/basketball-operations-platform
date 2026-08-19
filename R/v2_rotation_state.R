@@ -112,9 +112,17 @@ v2_rotation_state_findings <- function(requested_rotation_size,
       is_blocking = TRUE
     )
   } else {
+    is_valid_role_contract <- function(contract) {
+      is.list(contract) &&
+        identical(contract$contract_type, "tbi-v2-role-eligibility") &&
+        identical(contract$contract_version, "1.0.0") &&
+        length(contract$player_id) == 1L && !is.na(contract$player_id) &&
+        length(contract$role) == 1L && contract$role %in% policy$role_types &&
+        length(contract$eligibility) == 1L &&
+        contract$eligibility %in% c("ELIGIBLE", "NOT_ELIGIBLE", "UNKNOWN")
+    }
     for (contract in role_eligibility) {
-      if (!is.list(contract) ||
-          !identical(contract$contract_type, "tbi-v2-role-eligibility")) {
+      if (!is_valid_role_contract(contract)) {
         add(
           code = "ROLE_ELIGIBILITY_CONTRACT_INVALID",
           status = "FAIL",
@@ -125,10 +133,11 @@ v2_rotation_state_findings <- function(requested_rotation_size,
     }
 
     valid_contracts <- Filter(
-      function(x) is.list(x) && identical(x$contract_type, "tbi-v2-role-eligibility"),
+      is_valid_role_contract,
       role_eligibility
     )
     member_ids <- suppressWarnings(as.integer(members$player_id))
+    bench_ids <- member_ids[!starters]
     outside_contracts <- Filter(
       function(x) !x$player_id %in% member_ids,
       valid_contracts
@@ -142,7 +151,7 @@ v2_rotation_state_findings <- function(requested_rotation_size,
       )
     }
     valid_contracts <- Filter(
-      function(x) x$player_id %in% member_ids,
+      function(x) x$player_id %in% bench_ids,
       valid_contracts
     )
     for (role in policy$role_types) {
@@ -192,6 +201,7 @@ new_v2_rotation_state <- function(team_id,
                                   excluded_players = data.frame(),
                                   override_ledger = list(),
                                   explanation_log = list(),
+                                  additional_findings = list(),
                                   created_at = NA_character_,
                                   policy = v2_rotation_policy()) {
   if (!is.data.frame(members)) {
@@ -205,6 +215,10 @@ new_v2_rotation_state <- function(team_id,
     role_eligibility = role_eligibility,
     policy = policy
   )
+  if (!is.list(additional_findings)) {
+    stop("additional_findings must be a list.", call. = FALSE)
+  }
+  findings <- c(additional_findings, findings)
   validation <- aggregate_v2_validation(findings)
   identity_input <- list(
     contract_version = "1.0.0",

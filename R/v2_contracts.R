@@ -119,6 +119,7 @@ v2_rotation_policy <- function() {
     rotation_sizes = c(10L, 11L),
     starter_positions = c("PG", "SG", "SF", "PF", "C"),
     role_types = c("BACKUP_PG", "BACKUP_C"),
+    preseason_rookie_gate_active = TRUE,
     unknown_role_coverage_requires_review = TRUE,
     approved_lock_conflicts_are_blocking = TRUE,
     infer_roles_from_generic_position = FALSE,
@@ -131,6 +132,7 @@ v2_rotation_policy <- function() {
 validate_v2_rotation_policy <- function(policy) {
   required <- c(
     "canonical_statuses", "rotation_sizes", "starter_positions", "role_types",
+    "preseason_rookie_gate_active",
     "unknown_role_coverage_requires_review",
     "approved_lock_conflicts_are_blocking"
   )
@@ -144,7 +146,10 @@ validate_v2_rotation_policy <- function(policy) {
     stop("policy changes a fixed Phase 1 contract vocabulary.", call. = FALSE)
   }
   if (!isTRUE(policy$unknown_role_coverage_requires_review) ||
-      !isTRUE(policy$approved_lock_conflicts_are_blocking)) {
+      !isTRUE(policy$approved_lock_conflicts_are_blocking) ||
+      !is.logical(policy$preseason_rookie_gate_active) ||
+      length(policy$preseason_rookie_gate_active) != 1L ||
+      is.na(policy$preseason_rookie_gate_active)) {
     stop("policy weakens required V2 safety behavior.", call. = FALSE)
   }
   policy
