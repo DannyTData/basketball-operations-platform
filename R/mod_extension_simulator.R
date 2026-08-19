@@ -399,10 +399,12 @@ mod_extension_simulator_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "ext-builder-grid",
+      class = "ext-builder-grid tbi-extension-tab-layout",
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
+        `data-tbi-extension-section` = "player-eligibility",
+        `data-tbi-extension-tab` = "proposal",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -519,6 +521,8 @@ mod_extension_simulator_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
+        `data-tbi-extension-section` = "proposal-builder",
+        `data-tbi-extension-tab` = "proposal",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -667,10 +671,12 @@ mod_extension_simulator_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-main-grid",
+      class = "tbi-v2-exec-main-grid tbi-extension-tab-layout",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card",
+        `data-tbi-extension-section` = "extension-decision",
+        `data-tbi-extension-tab` = "cba-screen",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -694,6 +700,8 @@ mod_extension_simulator_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-scorecard-panel",
+        `data-tbi-extension-section` = "cba-extension-scorecard",
+        `data-tbi-extension-tab` = "cba-screen",
         
         shiny::div(
           class = "tbi-v2-scorecard-header",
@@ -734,10 +742,12 @@ mod_extension_simulator_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-cap-detail-grid",
+      class = "tbi-v2-cap-detail-grid tbi-extension-tab-layout",
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
+        `data-tbi-extension-section` = "proposed-extension-schedule",
+        `data-tbi-extension-tab` = "financial-impact",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -768,6 +778,8 @@ mod_extension_simulator_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
+        `data-tbi-extension-section` = "front-office-readout",
+        `data-tbi-extension-tab` = "financial-impact",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -802,10 +814,12 @@ mod_extension_simulator_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-bottom-grid",
+      class = "tbi-v2-exec-bottom-grid tbi-extension-tab-layout",
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
+        `data-tbi-extension-section` = "cba-review-items",
+        `data-tbi-extension-tab` = "cba-screen",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -827,6 +841,8 @@ mod_extension_simulator_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-risks-panel",
+        `data-tbi-extension-section` = "contract-risks",
+        `data-tbi-extension-tab` = "recommendation",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -848,6 +864,8 @@ mod_extension_simulator_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-opportunities-panel",
+        `data-tbi-extension-section` = "negotiation-opportunities",
+        `data-tbi-extension-tab` = "recommendation",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -874,6 +892,8 @@ mod_extension_simulator_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-context-panel",
+      `data-tbi-extension-section` = "bie-extension-value-timeline",
+      `data-tbi-extension-tab` = "recommendation",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -908,6 +928,8 @@ mod_extension_simulator_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-context-panel",
+      `data-tbi-extension-section` = "recommended-contract-action",
+      `data-tbi-extension-tab` = "recommendation",
       
       shiny::div(
         class = "tbi-v2-context-header",

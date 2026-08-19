@@ -2340,3 +2340,198 @@
 })();
 
 // <<< TBI_FIVE_YEAR_OUTLOOK_TABS_END <<<
+
+// >>> TBI_EXTENSION_SIMULATOR_TABS_START >>>
+
+(function () {
+
+  'use strict';
+
+  var VERSION = '1.0.0';
+
+  var TABS = [
+    ['proposal', 'Proposal'],
+    ['cba-screen', 'CBA Screen'],
+    ['financial-impact', 'Financial Impact'],
+    ['recommendation', 'Recommendation']
+  ];
+
+  var resizeQueued = false;
+
+  function syncLayouts(page, tabName) {
+
+    page
+      .querySelectorAll('.tbi-extension-tab-layout')
+      .forEach(function (layout) {
+
+        var hasVisibleSection = Array.prototype.some.call(
+          layout.children,
+          function (child) {
+            return child.getAttribute('data-tbi-extension-tab') === tabName;
+          }
+        );
+
+        layout.classList.toggle(
+          'tbi-extension-layout-hidden',
+          !hasVisibleSection
+        );
+
+        layout.setAttribute(
+          'data-tbi-extension-active-tab',
+          tabName
+        );
+
+      });
+
+  }
+
+  function resizeVisibleWidgets() {
+
+    if (resizeQueued) return;
+
+    resizeQueued = true;
+
+    requestAnimationFrame(function () {
+      resizeQueued = false;
+      window.dispatchEvent(new Event('resize'));
+    });
+
+  }
+
+  function activate(page, tabName) {
+
+    page
+      .querySelectorAll('.tbi-extension-subtab')
+      .forEach(function (button) {
+
+        var isActive = button.getAttribute('data-tab') === tabName;
+
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+      });
+
+    page
+      .querySelectorAll('[data-tbi-extension-tab]')
+      .forEach(function (target) {
+
+        var isActive =
+          target.getAttribute('data-tbi-extension-tab') === tabName;
+
+        target.classList.toggle('tbi-extension-hidden', !isActive);
+        target.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+
+      });
+
+    syncLayouts(page, tabName);
+
+    try {
+      sessionStorage.setItem('tbi-extension-simulator-tab', tabName);
+    } catch(e) {}
+
+    window.TBIUX.notifySubtab(page, tabName);
+    resizeVisibleWidgets();
+
+  }
+
+  function build() {
+
+    var page =
+      document.querySelector('.tbi-v2-extension-page');
+
+    if (!page) return;
+
+    if (
+      page.getAttribute('data-tbi-extension-tabs-ready') === VERSION
+    ) {
+      return;
+    }
+
+    var intro =
+      page.querySelector('.tbi-v2-module-intro');
+
+    var targets =
+      page.querySelectorAll('[data-tbi-extension-tab]');
+
+    if (!intro || targets.length !== 11) return;
+
+    targets.forEach(function (target) {
+      target.classList.add('tbi-extension-tab-target');
+    });
+
+    var nav = document.createElement('div');
+
+    nav.className = 'tbi-extension-subnav';
+    nav.setAttribute('role', 'tablist');
+    nav.setAttribute('aria-label', 'Extension Simulator sections');
+
+    TABS.forEach(function (item) {
+
+      var button = document.createElement('button');
+
+      button.type = 'button';
+      button.className = 'tbi-extension-subtab';
+      button.textContent = item[1];
+
+      button.setAttribute('data-tab', item[0]);
+      button.setAttribute('role', 'tab');
+
+      button.addEventListener('click', function () {
+        activate(page, item[0]);
+      });
+
+      nav.appendChild(button);
+
+    });
+
+    intro.parentNode.insertBefore(
+      nav,
+      intro.nextSibling
+    );
+
+    var selected = 'proposal';
+
+    try {
+
+      var stored =
+        sessionStorage.getItem('tbi-extension-simulator-tab');
+
+      var storedIsValid = TABS.some(function (item) {
+        return item[0] === stored;
+      });
+
+      if (storedIsValid) {
+        selected = stored;
+      }
+
+    } catch(e) {}
+
+    page.setAttribute(
+      'data-tbi-extension-tabs-ready',
+      VERSION
+    );
+
+    activate(page, selected);
+
+  }
+
+  var queued = false;
+
+  function schedule() {
+
+    if (queued) return;
+
+    queued = true;
+
+    requestAnimationFrame(function () {
+      queued = false;
+      build();
+    });
+
+  }
+
+  window.TBIUX.register(schedule);
+
+})();
+
+// <<< TBI_EXTENSION_SIMULATOR_TABS_END <<<

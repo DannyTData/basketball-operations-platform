@@ -1978,3 +1978,122 @@
 }
 
 /* <<< TBI_FIVE_YEAR_OUTLOOK_TABS_END <<< */
+
+/* >>> TBI_EXTENSION_SIMULATOR_TABS_START >>> */
+
+/* ========================================================
+   EXTENSION SIMULATOR SUB-NAVIGATION
+   ======================================================== */
+
+.tbi-v2-extension-page .tbi-extension-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  min-width:0;
+  min-height:52px;
+  margin:0 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-extension-page .tbi-extension-subtab {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  height:36px;
+  min-height:36px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-extension-page .tbi-extension-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-extension-page .tbi-extension-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-extension-page
+  .tbi-extension-tab-target.tbi-extension-hidden,
+.tbi-v2-extension-page
+  .tbi-extension-tab-layout.tbi-extension-layout-hidden {
+  display:none !important;
+}
+
+.tbi-v2-extension-page .tbi-extension-tab-target,
+.tbi-v2-extension-page .tbi-extension-tab-layout {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+.tbi-v2-extension-page {
+  min-width:0;
+  gap:18px !important;
+}
+
+.tbi-v2-extension-page
+  .tbi-v2-exec-bottom-grid[data-tbi-extension-active-tab="cba-screen"] {
+  grid-template-columns:1fr !important;
+}
+
+.tbi-v2-extension-page
+  .tbi-v2-exec-bottom-grid[data-tbi-extension-active-tab="recommendation"] {
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+}
+
+@media(max-width:1260px) {
+
+  .tbi-v2-extension-page .tbi-v2-exec-main-grid {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:1000px) {
+
+  .tbi-v2-extension-page
+    .tbi-v2-exec-bottom-grid[data-tbi-extension-active-tab="recommendation"] {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-v2-extension-page .tbi-extension-subnav {
+    min-height:48px;
+    margin-bottom:12px;
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-v2-extension-page .tbi-extension-subtab {
+    padding:7px 10px;
+    font-size:.70rem;
+  }
+
+}
+
+/* <<< TBI_EXTENSION_SIMULATOR_TABS_END <<< */
