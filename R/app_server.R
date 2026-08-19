@@ -37,6 +37,8 @@ app_server <- function(input, output, session) {
   # ----------------------------------------------------------
   
   transaction_state <- tbi_transaction_state()
+  rotation_route <- tbi_rotation_route()
+  session$userData$rotation_model_route <- rotation_route
   
   
   
@@ -98,12 +100,14 @@ app_server <- function(input, output, session) {
     transaction_state = transaction_state
   )
   
-  mod_depth_chart_server(
+  depth_chart_state <- mod_depth_chart_server(
     "depth_chart",
     selected_team = selected_team,
     selected_season = selected_season,
-    transaction_state = transaction_state
+    transaction_state = transaction_state,
+    rotation_route = rotation_route
   )
+  session$userData$v2_rotation_shadow <- depth_chart_state$v2_rotation_shadow
   
   mod_roster_contracts_server(
     "roster_contracts",

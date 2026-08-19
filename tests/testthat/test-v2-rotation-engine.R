@@ -171,6 +171,39 @@ testthat::test_that("blocked starter state cannot produce a sixth man or PASS", 
 })
 
 
+testthat::test_that("non-blocking starter review remains REVIEW in rotation", {
+  roster <- v2_engine_test_roster()
+  starters <- v2_engine_test_starters(roster, c("UNKNOWN", rep("AVAILABLE", 4)))
+  result <- v2_engine_build(roster, starters = starters)
+
+  testthat::expect_identical(starters$status, "REVIEW")
+  testthat::expect_identical(result$status, "REVIEW")
+  testthat::expect_false(result$is_blocked)
+  testthat::expect_true(any(vapply(
+    result$validation$findings,
+    function(x) identical(x$code, "STARTER_AVAILABILITY_UNKNOWN"), logical(1)
+  )))
+})
+
+
+testthat::test_that("unlocked unavailable starter is explicit and blocking", {
+  roster <- v2_engine_test_roster()
+  starters <- v2_engine_test_starters(roster)
+  starters$slots$lock_status[[1]] <- "UNLOCKED"
+  starters$slots$availability_status[[1]] <- "OUT"
+  roster$availability_status[[1]] <- "OUT"
+  result <- v2_engine_build(roster, starters = starters)
+
+  testthat::expect_true(1L %in% result$members$player_id)
+  testthat::expect_identical(result$status, "FAIL")
+  testthat::expect_true(result$is_blocked)
+  testthat::expect_true(any(vapply(
+    result$validation$findings,
+    function(x) identical(x$code, "STARTER_UNAVAILABLE"), logical(1)
+  )))
+})
+
+
 testthat::test_that("designated rookie starter remains selected without performance", {
   roster <- v2_engine_test_roster()
   roster$is_preseason_rookie[[1]] <- TRUE

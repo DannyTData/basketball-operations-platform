@@ -2751,7 +2751,8 @@ mod_depth_chart_server <- function(
     id,
     selected_team,
     selected_season,
-    transaction_state = NULL) {
+    transaction_state = NULL,
+    rotation_route = tbi_rotation_route()) {
   
   shiny::moduleServer(
     id,
@@ -3872,6 +3873,45 @@ mod_depth_chart_server <- function(
         
         evaluated
       })
+
+      # V2 Phase 1C remains comparison-only. The observer is constructed only
+      # for the explicit server-side shadow route, so V1 never executes V2.
+      v2_shadow_diagnostic <- shiny::reactiveVal(list(
+        execution_status = "DISABLED",
+        route = rotation_route
+      ))
+
+      if (identical(rotation_route$model, "v2_shadow")) {
+        shiny::observeEvent(
+          list(
+            selected_team(),
+            selected_season(),
+            depth_data(),
+            active_lineup(),
+            active_trade_scenario(),
+            bie_roster()
+          ),
+          {
+            roster <- bie_roster()
+            if (is.null(roster) || !nrow(roster)) roster <- depth_data()
+            v1_reference <- list(
+              baseline_lineup = baseline_lineup(),
+              active_lineup = active_lineup(),
+              roster_signature = v2_input_signature(depth_data())
+            )
+            v2_shadow_diagnostic(run_v2_rotation_shadow(
+              rotation_model = "v2_shadow",
+              team = selected_team(),
+              season = selected_season(),
+              roster = roster,
+              approved_lineup = active_lineup(),
+              scenario = active_trade_scenario(),
+              v1_reference = v1_reference
+            ))
+          },
+          ignoreInit = FALSE
+        )
+      }
       
       bie_starting_five_cache <- shiny::reactiveVal(
         list(
@@ -7254,6 +7294,8 @@ mod_depth_chart_server <- function(
           )
         )
       })
+
+      list(v2_rotation_shadow = v2_shadow_diagnostic)
     }
   )
 }

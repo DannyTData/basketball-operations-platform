@@ -179,9 +179,11 @@ build_v2_rotation <- function(roster,
   if (!is.list(role_eligibility)) {
     stop("role_eligibility must be a list of V2 role contracts.", call. = FALSE)
   }
-  if (!identical(starter_state$status, "PASS") || isTRUE(starter_state$is_blocked)) {
+  if (identical(starter_state$status, "FAIL") || isTRUE(starter_state$is_blocked)) {
     add_finding("STARTER_STATE_INVALID", "FAIL",
       "The approved starter state is not valid for rotation construction.", TRUE)
+  } else if (identical(starter_state$status, "REVIEW")) {
+    findings <- c(findings, starter_state$validation$findings)
   }
   excluded <- data.frame()
   invalid_id_rows <- which(is.na(prepared$player_id) | duplicated(prepared$player_id))
@@ -213,12 +215,24 @@ build_v2_rotation <- function(roster,
     player <- prepared[starter_match[[i]], , drop = FALSE]
     members <- rbind(members, v2_rotation_member_row(player, TRUE, starter_positions[[i]]))
     if (player$availability_status[[1]] == "OUT") {
-      add_finding("LOCKED_STARTER_UNAVAILABLE", "FAIL",
-        "An approved locked starter is unavailable and remains authoritative.", TRUE)
+      locked <- identical(toupper(as.character(starter_slots$lock_status[[i]])), "LOCKED")
+      add_finding(
+        if (locked) "LOCKED_STARTER_UNAVAILABLE" else "STARTER_UNAVAILABLE",
+        "FAIL",
+        if (locked) {
+          "An approved locked starter is unavailable and remains authoritative."
+        } else {
+          "A starter-state player is unavailable and requires a replacement decision."
+        },
+        TRUE
+      )
     } else if (player$availability_status[[1]] == "UNKNOWN") {
-      add_finding("STARTER_AVAILABILITY_UNKNOWN", "REVIEW",
-        "An approved starter has unknown availability.", FALSE,
-        missing_fields = "availability_status")
+      existing_codes <- vapply(findings, `[[`, character(1), "code")
+      if (!"STARTER_AVAILABILITY_UNKNOWN" %in% existing_codes) {
+        add_finding("STARTER_AVAILABILITY_UNKNOWN", "REVIEW",
+          "An approved starter has unknown availability.", FALSE,
+          missing_fields = "availability_status")
+      }
     }
   }
 
@@ -325,6 +339,15 @@ build_v2_rotation <- function(roster,
     add_finding("SELECTED_RANKING_EVIDENCE_INCOMPLETE", "REVIEW",
       "One or more selected bench players have incomplete ranking evidence.", FALSE,
       missing_fields = "ranking_evidence")
+  }
+  selected_rookie_unknown <- which(
+    !members$is_starter &
+      is.na(as.logical(prepared$is_preseason_rookie[match(members$player_id, prepared$player_id)]))
+  )
+  if (length(selected_rookie_unknown)) {
+    add_finding("SELECTED_ROOKIE_ELIGIBILITY_UNKNOWN", "REVIEW",
+      "One or more selected bench players have unknown preseason rookie eligibility.", FALSE,
+      missing_fields = "is_preseason_rookie")
   }
 
   role_by_type <- lapply(policy$role_types, function(role) {
