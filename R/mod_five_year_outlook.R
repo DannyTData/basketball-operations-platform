@@ -355,6 +355,8 @@ mod_five_year_outlook_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-exec-snapshot",
+      `data-tbi-outlook-section` = "long-range-snapshot",
+      `data-tbi-outlook-tab` = "overview",
       
       shiny::div(
         class = "tbi-v2-section-title-row",
@@ -432,6 +434,8 @@ mod_five_year_outlook_ui <- function(id) {
     
     shiny::div(
       class = "tbi-v2-exec-main-grid",
+      `data-tbi-outlook-section` = "decision-and-scorecard",
+      `data-tbi-outlook-tab` = "flexibility",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card",
@@ -492,6 +496,8 @@ mod_five_year_outlook_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-context-panel",
+      `data-tbi-outlook-section` = "organizational-timeline",
+      `data-tbi-outlook-tab` = "timeline",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -520,10 +526,16 @@ mod_five_year_outlook_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-bottom-grid",
+      class = paste(
+        "tbi-v2-exec-bottom-grid",
+        "tbi-outlook-tab-layout",
+        "tbi-outlook-signals-layout"
+      ),
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
+        `data-tbi-outlook-section` = "outlook-headlines",
+        `data-tbi-outlook-tab` = "overview",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -541,6 +553,8 @@ mod_five_year_outlook_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-risks-panel",
+        `data-tbi-outlook-section` = "long-range-risks",
+        `data-tbi-outlook-tab` = "draft-optionality",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -558,6 +572,8 @@ mod_five_year_outlook_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-opportunities-panel",
+        `data-tbi-outlook-section` = "flexibility-opportunities",
+        `data-tbi-outlook-tab` = "draft-optionality",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -579,10 +595,16 @@ mod_five_year_outlook_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "outlook-v2-planning-grid",
+      class = paste(
+        "outlook-v2-planning-grid",
+        "tbi-outlook-tab-layout",
+        "tbi-outlook-planning-layout"
+      ),
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
+        `data-tbi-outlook-section` = "contract-runway",
+        `data-tbi-outlook-tab` = "contracts-free-agency",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -611,6 +633,8 @@ mod_five_year_outlook_ui <- function(id) {
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
+        `data-tbi-outlook-section` = "front-office-readout",
+        `data-tbi-outlook-tab` = "recommendation",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -644,6 +668,8 @@ mod_five_year_outlook_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-context-panel",
+      `data-tbi-outlook-section` = "executive-recommendation",
+      `data-tbi-outlook-tab` = "recommendation",
       
       shiny::div(
         class = "tbi-v2-context-header",

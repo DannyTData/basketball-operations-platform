@@ -2154,3 +2154,189 @@
 })();
 
 // <<< TBI_TEAM_OVERVIEW_TABS_END <<<
+
+// >>> TBI_FIVE_YEAR_OUTLOOK_TABS_START >>>
+
+(function () {
+
+  'use strict';
+
+  var VERSION = '1.0.0';
+
+  var VALID = [
+    'overview',
+    'flexibility',
+    'timeline',
+    'contracts-free-agency',
+    'draft-optionality',
+    'recommendation'
+  ];
+
+  function syncLayouts(page, tabName) {
+
+    page
+      .querySelectorAll('.tbi-outlook-tab-layout')
+      .forEach(function (layout) {
+
+        var hasVisibleSection = Array.prototype.some.call(
+          layout.children,
+          function (child) {
+            return child.getAttribute('data-tbi-outlook-tab') === tabName;
+          }
+        );
+
+        layout.classList.toggle(
+          'tbi-outlook-layout-hidden',
+          !hasVisibleSection
+        );
+
+        layout.setAttribute(
+          'data-tbi-outlook-active-tab',
+          tabName
+        );
+
+      });
+
+  }
+
+  function activate(page, tabName) {
+
+    page
+      .querySelectorAll('.tbi-outlook-subtab')
+      .forEach(function (button) {
+
+        var isActive = button.getAttribute('data-tab') === tabName;
+
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+      });
+
+    page
+      .querySelectorAll('[data-tbi-outlook-tab]')
+      .forEach(function (target) {
+
+        var isActive =
+          target.getAttribute('data-tbi-outlook-tab') === tabName;
+
+        target.classList.toggle('tbi-outlook-hidden', !isActive);
+        target.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+
+      });
+
+    syncLayouts(page, tabName);
+
+    try {
+      sessionStorage.setItem('tbi-five-year-outlook-tab', tabName);
+    } catch(e) {}
+
+    window.TBIUX.notifySubtab(page, tabName);
+
+  }
+
+  function build() {
+
+    var page =
+      document.querySelector('.tbi-v2-outlook-page');
+
+    if (!page) return;
+
+    if (
+      page.getAttribute('data-tbi-outlook-tabs-ready') === VERSION
+    ) {
+      return;
+    }
+
+    var intro =
+      page.querySelector('.tbi-v2-module-intro');
+
+    var targets =
+      page.querySelectorAll('[data-tbi-outlook-tab]');
+
+    if (!intro || targets.length !== 9) return;
+
+    targets.forEach(function (target) {
+      target.classList.add('tbi-outlook-tab-target');
+    });
+
+    var nav = document.createElement('div');
+
+    nav.className = 'tbi-outlook-subnav';
+    nav.setAttribute('role', 'tablist');
+    nav.setAttribute('aria-label', 'Five-Year Outlook sections');
+
+    var tabs = [
+      ['overview', 'Overview'],
+      ['flexibility', 'Flexibility'],
+      ['timeline', 'Timeline'],
+      ['contracts-free-agency', 'Contracts & Free Agency'],
+      ['draft-optionality', 'Draft & Optionality'],
+      ['recommendation', 'Recommendation']
+    ];
+
+    tabs.forEach(function (item) {
+
+      var button = document.createElement('button');
+
+      button.type = 'button';
+      button.className = 'tbi-outlook-subtab';
+      button.textContent = item[1];
+
+      button.setAttribute('data-tab', item[0]);
+      button.setAttribute('role', 'tab');
+
+      button.addEventListener('click', function () {
+        activate(page, item[0]);
+      });
+
+      nav.appendChild(button);
+
+    });
+
+    intro.parentNode.insertBefore(
+      nav,
+      intro.nextSibling
+    );
+
+    var selected = 'overview';
+
+    try {
+
+      var stored =
+        sessionStorage.getItem('tbi-five-year-outlook-tab');
+
+      if (VALID.indexOf(stored) >= 0) {
+        selected = stored;
+      }
+
+    } catch(e) {}
+
+    page.setAttribute(
+      'data-tbi-outlook-tabs-ready',
+      VERSION
+    );
+
+    activate(page, selected);
+
+  }
+
+  var queued = false;
+
+  function schedule() {
+
+    if (queued) return;
+
+    queued = true;
+
+    requestAnimationFrame(function () {
+      queued = false;
+      build();
+    });
+
+  }
+
+  window.TBIUX.register(schedule);
+
+})();
+
+// <<< TBI_FIVE_YEAR_OUTLOOK_TABS_END <<<

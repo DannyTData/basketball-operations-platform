@@ -1862,3 +1862,119 @@
 }
 
 /* <<< TBI_TEAM_OVERVIEW_TABS_END <<< */
+
+/* >>> TBI_FIVE_YEAR_OUTLOOK_TABS_START >>> */
+
+/* ========================================================
+   FIVE-YEAR OUTLOOK SUB-NAVIGATION
+   ======================================================== */
+
+.tbi-v2-outlook-page .tbi-outlook-subnav {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:100%;
+  min-width:0;
+  min-height:52px;
+  margin:0 0 16px;
+  padding:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:11px;
+  background:rgba(10,15,24,.96);
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tbi-v2-outlook-page .tbi-outlook-subtab {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  height:36px;
+  min-height:36px;
+  padding:7px 13px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#8c9db3;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.tbi-v2-outlook-page .tbi-outlook-subtab:hover {
+  color:#e8f0fa;
+  background:rgba(255,255,255,.035);
+}
+
+.tbi-v2-outlook-page .tbi-outlook-subtab.active {
+  color:#ffffff;
+  background:rgba(37,99,235,.17);
+  border-color:rgba(96,165,250,.28);
+}
+
+.tbi-v2-outlook-page .tbi-outlook-tab-target.tbi-outlook-hidden,
+.tbi-v2-outlook-page .tbi-outlook-tab-layout.tbi-outlook-layout-hidden {
+  display:none !important;
+}
+
+.tbi-v2-outlook-page .tbi-outlook-tab-target,
+.tbi-v2-outlook-page .tbi-outlook-tab-layout {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+.tbi-v2-outlook-page {
+  gap:18px !important;
+}
+
+/* Headlines fill Overview; risks and opportunities remain paired. */
+
+.tbi-v2-outlook-page
+  .tbi-outlook-signals-layout[data-tbi-outlook-active-tab="overview"] {
+  grid-template-columns:1fr !important;
+}
+
+.tbi-v2-outlook-page
+  .tbi-outlook-signals-layout[data-tbi-outlook-active-tab="draft-optionality"] {
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+}
+
+/* Contract Runway and Front-office Readout each use the full tab canvas. */
+
+.tbi-v2-outlook-page .tbi-outlook-planning-layout {
+  grid-template-columns:1fr !important;
+}
+
+@media(max-width:1000px) {
+
+  .tbi-v2-outlook-page .tbi-v2-exec-main-grid,
+  .tbi-v2-outlook-page .tbi-outlook-signals-layout {
+    grid-template-columns:1fr !important;
+  }
+
+}
+
+@media(max-width:700px) {
+
+  .tbi-v2-outlook-page .tbi-outlook-subnav {
+    min-height:48px;
+    margin-bottom:12px;
+    padding:7px;
+    gap:5px;
+  }
+
+  .tbi-v2-outlook-page .tbi-outlook-subtab {
+    padding:7px 10px;
+    font-size:.70rem;
+  }
+
+}
+
+/* <<< TBI_FIVE_YEAR_OUTLOOK_TABS_END <<< */
