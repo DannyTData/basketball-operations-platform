@@ -37,12 +37,34 @@ v2_role_manual <- function(player_id, role, eligibility = "ELIGIBLE",
 }
 
 
+v2_role_manual_availability <- function(player_ids) {
+  data.frame(
+    player_id = player_ids,
+    team_id = "TEST",
+    season = "2026-27",
+    availability_status = "AVAILABLE",
+    evidence_class = "AUTHORITATIVE_FACT",
+    source = "MANUAL_VERIFIED",
+    source_version = "test-source-1",
+    verification_status = "VERIFIED",
+    verified_by = "Test Basketball Operations",
+    reason = "Explicit availability fixture",
+    effective_date = "2026-10-20",
+    expiration_date = "2026-10-21",
+    minute_restriction = NA_real_,
+    evidence_version = "1.0.0",
+    stringsAsFactors = FALSE
+  )
+}
+
+
 testthat::test_that("role policy documents authoritative precedence", {
   policy <- v2_role_policy()
   testthat::expect_identical(policy$contract_version, "1.0.0")
   testthat::expect_identical(
     policy$supported_roles,
     c("POSITION_PG", "POSITION_SG", "POSITION_SF", "POSITION_PF", "POSITION_C",
+      "PRIMARY_CREATOR", "SECONDARY_CREATOR", "BALL_HANDLER", "RIM_PROTECTOR",
       "BACKUP_PG", "BACKUP_C")
   )
   testthat::expect_identical(
@@ -72,7 +94,7 @@ testthat::test_that("ledger is deterministic and generic positions stay narrow",
   testthat::expect_identical(first$contract_type, "tbi-v2-role-eligibility-ledger")
   testthat::expect_identical(first$input_signature, second$input_signature)
   testthat::expect_identical(first$records, second$records)
-  testthat::expect_length(first$records, nrow(roster) * 7L)
+  testthat::expect_length(first$records, nrow(roster) * 11L)
 
   pg <- v2_role_record(first, 1L, "POSITION_PG")
   sg <- v2_role_record(first, 1L, "POSITION_SG")
@@ -225,7 +247,9 @@ testthat::test_that("shadow consumes the ledger without changing selection rules
   )
   result <- run_v2_rotation_shadow(
     "v2_shadow", "TEST", "2026-27", roster, lineup,
-    manual_role_evidence = manual
+    manual_role_evidence = manual,
+    manual_availability_evidence = v2_role_manual_availability(roster$player_id),
+    availability_as_of_date = "2026-10-20"
   )
 
   testthat::expect_identical(result$execution_status, "COMPLETED")
@@ -240,7 +264,11 @@ testthat::test_that("shadow consumes the ledger without changing selection rules
 testthat::test_that("starter-only position facts do not satisfy bench roles", {
   roster <- v2_role_test_roster()
   lineup <- stats::setNames(1:5, c("PG", "SG", "SF", "PF", "C"))
-  result <- run_v2_rotation_shadow("v2_shadow", "TEST", "2026-27", roster, lineup)
+  result <- run_v2_rotation_shadow(
+    "v2_shadow", "TEST", "2026-27", roster, lineup,
+    manual_availability_evidence = v2_role_manual_availability(roster$player_id),
+    availability_as_of_date = "2026-10-20"
+  )
 
   testthat::expect_identical(result$starter_state$status, "PASS")
   testthat::expect_identical(result$rotation_10$status, "REVIEW")

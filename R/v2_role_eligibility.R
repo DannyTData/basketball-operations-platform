@@ -8,6 +8,7 @@ v2_role_policy <- function() {
     contract_version = "1.0.0",
     supported_roles = c(
       "POSITION_PG", "POSITION_SG", "POSITION_SF", "POSITION_PF", "POSITION_C",
+      "PRIMARY_CREATOR", "SECONDARY_CREATOR", "BALL_HANDLER", "RIM_PROTECTOR",
       "BACKUP_PG", "BACKUP_C"
     ),
     eligibility = c("ELIGIBLE", "NOT_ELIGIBLE", "UNKNOWN"),
@@ -33,10 +34,12 @@ v2_role_evidence_sources <- function() {
       "MANUAL_VERIFIED", "APPROVED_POSITION_OVERRIDE", "DEPTH_CHART_POSITION",
       "OFFICIAL_PRIMARY_POSITION", "VERIFIED_MULTI_POSITION_INPUT",
       "PLAYER_POSITIONS_TABLE", "MODEL_OR_BIE_EVIDENCE", "GENERIC_POSITION_STRING",
-      "BACKUP_ROLE_SOURCE"
+      "BACKUP_ROLE_SOURCE", "PLAYMAKING_MODEL_EVIDENCE",
+      "DEFENSE_REBOUNDING_MODEL_EVIDENCE"
     ),
     evidence_class = c(
-      rep("AUTHORITATIVE_FACT", 5L), "UNKNOWN", "MODEL_EVIDENCE", "UNKNOWN", "UNKNOWN"
+      rep("AUTHORITATIVE_FACT", 5L), "UNKNOWN", "MODEL_EVIDENCE", "UNKNOWN", "UNKNOWN",
+      "MODEL_EVIDENCE", "MODEL_EVIDENCE"
     ),
     derivation_rule = c(
       "Use the explicit player/team/season/role/eligibility record after provenance validation.",
@@ -47,10 +50,12 @@ v2_role_evidence_sources <- function() {
       "Current schema lacks approved provenance and verification metadata; rows remain unknown.",
       "May support explanation or ranking but cannot establish role eligibility.",
       "Never expand G, F, height, name, or arbitrary compound text into verified eligibility.",
-      "No current authoritative BACKUP_PG or BACKUP_C source exists; use manual verified evidence."
+      "No current authoritative BACKUP_PG or BACKUP_C source exists; use manual verified evidence.",
+      "Creation roles and scores remain review evidence and do not establish creator or handler eligibility.",
+      "Defensive roles and interior scores remain review evidence and do not establish rim-protector eligibility."
     ),
-    can_establish_eligible = c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    can_establish_not_eligible = c(TRUE, rep(FALSE, 8L)),
+    can_establish_eligible = c(TRUE, TRUE, TRUE, TRUE, TRUE, rep(FALSE, 6L)),
+    can_establish_not_eligible = c(TRUE, rep(FALSE, 10L)),
     stringsAsFactors = FALSE
   )
 }
@@ -115,6 +120,37 @@ v2_role_manual_records <- function(manual_evidence, roster_ids, team_id, season,
   normalized$author_source_note <- trimws(as.character(normalized$author_source_note))
   normalized$reason <- trimws(as.character(normalized$reason))
 
+  phase1e_roles <- c(
+    "PRIMARY_CREATOR", "SECONDARY_CREATOR", "BALL_HANDLER", "RIM_PROTECTOR"
+  )
+  phase1e_rows <- normalized$role %in% phase1e_roles
+  phase1e_required <- c(
+    "source_version", "verification_status", "verified_by", "effective_date",
+    "evidence_version"
+  )
+  if (any(phase1e_rows)) {
+    phase1e_missing <- setdiff(phase1e_required, names(normalized))
+    if (length(phase1e_missing)) {
+      stop("Phase 1E manual role evidence is missing: ",
+        paste(phase1e_missing, collapse = ", "), call. = FALSE)
+    }
+    for (field in phase1e_required) {
+      values <- trimws(as.character(normalized[[field]][phase1e_rows]))
+      if (any(is.na(values) | !nzchar(values))) {
+        stop("Phase 1E manual role evidence requires ", field, ".", call. = FALSE)
+      }
+    }
+    statuses <- toupper(trimws(as.character(
+      normalized$verification_status[phase1e_rows]
+    )))
+    if (any(statuses != "VERIFIED")) {
+      stop("Phase 1E manual role evidence must be VERIFIED.", call. = FALSE)
+    }
+    invisible(lapply(normalized$effective_date[phase1e_rows], function(value) {
+      v2_availability_date(value, "effective_date", required = TRUE)
+    }))
+  }
+
   if (any(is.na(normalized$player_id))) stop("manual player_id is malformed.", call. = FALSE)
   if (any(!normalized$player_id %in% roster_ids)) {
     stop("manual role evidence references a player outside roster.", call. = FALSE)
@@ -165,12 +201,25 @@ v2_role_manual_records <- function(manual_evidence, roster_ids, team_id, season,
       evidence_source = "MANUAL_VERIFIED",
       evidence_class = if (row$eligibility[[1]] == "UNKNOWN") "UNKNOWN" else "AUTHORITATIVE_FACT",
       source_field = "manual_evidence.eligibility",
-      source_version = policy$contract_version,
+      source_version = if ("source_version" %in% names(row) &&
+        nzchar(trimws(as.character(row$source_version[[1]])))) {
+        as.character(row$source_version[[1]])
+      } else {
+        policy$contract_version
+      },
       verification_status = if (row$eligibility[[1]] == "UNKNOWN") "UNVERIFIED" else "VERIFIED",
       evidence_fields = c("eligibility", "author_source_note", "reason"),
       missing_fields = if (row$eligibility[[1]] == "UNKNOWN") "verified_role_eligibility" else character(),
       reason_codes = c("MANUAL_VERIFIED_ROLE_EVIDENCE", paste0(row$role[[1]], "_", row$eligibility[[1]])),
-      explanation = paste(row$reason[[1]], "Source:", row$author_source_note[[1]])
+      explanation = paste(row$reason[[1]], "Source:", row$author_source_note[[1]]),
+      verified_by = if ("verified_by" %in% names(row)) row$verified_by[[1]] else NULL,
+      effective_date = if ("effective_date" %in% names(row)) row$effective_date[[1]] else NULL,
+      expiration_date = if ("expiration_date" %in% names(row)) row$expiration_date[[1]] else NULL,
+      evidence_version = if ("evidence_version" %in% names(row)) {
+        row$evidence_version[[1]]
+      } else {
+        policy$contract_version
+      }
     )
   })
 }
@@ -343,6 +392,8 @@ build_v2_role_eligibility_ledger <- function(roster,
         manual[[manual_index]]
       } else if (grepl("^POSITION_", role)) {
         v2_role_position_record(normalized, i, role, team_id, season, policy)
+      } else if (length(v2_role_model_fields(role)) > 0L) {
+        v2_role_model_record(normalized, i, role, team_id, season)
       } else {
         v2_role_unknown_record(normalized$player_id[[i]], team_id, season, role)
       }
@@ -371,7 +422,9 @@ build_v2_role_eligibility_ledger <- function(roster,
     } else {
       "PASS"
     },
-    is_blocked = FALSE
+    is_blocked = FALSE,
+    conflicting_count = 0L,
+    malformed_count = 0L
   )
 }
 
@@ -401,12 +454,20 @@ summarize_v2_role_completeness <- function(ledger, roster = NULL) {
   position <- Filter(function(x) grepl("^POSITION_", x$role), records)
   backup_pg <- Filter(function(x) identical(x$role, "BACKUP_PG"), records)
   backup_c <- Filter(function(x) identical(x$role, "BACKUP_C"), records)
+  primary_creator <- Filter(function(x) identical(x$role, "PRIMARY_CREATOR"), records)
+  secondary_creator <- Filter(function(x) identical(x$role, "SECONDARY_CREATOR"), records)
+  ball_handler <- Filter(function(x) identical(x$role, "BALL_HANDLER"), records)
+  rim_protector <- Filter(function(x) identical(x$role, "RIM_PROTECTOR"), records)
   eligible_count <- function(values) sum(vapply(
     values, function(x) identical(x$eligibility, "ELIGIBLE") &&
       x$verification_status %in% c("VERIFIED", "DERIVED_VERIFIED"), logical(1)
   ))
   verified_pg <- eligible_count(backup_pg)
   verified_c <- eligible_count(backup_c)
+  verified_primary_creator <- eligible_count(primary_creator)
+  verified_secondary_creator <- eligible_count(secondary_creator)
+  verified_ball_handler <- eligible_count(ball_handler)
+  verified_rim_protector <- eligible_count(rim_protector)
   position_by_player <- split(position, vapply(position, `[[`, integer(1), "player_id"))
   player_has_verified_position <- vapply(position_by_player, function(values) {
     eligible_count(values) > 0L
@@ -416,7 +477,10 @@ summarize_v2_role_completeness <- function(ledger, roster = NULL) {
   unknown_position_records <- sum(vapply(
     position, function(x) x$eligibility == "UNKNOWN", logical(1)
   ))
-  unknown_roles <- sum(vapply(c(backup_pg, backup_c), function(x) x$eligibility == "UNKNOWN", logical(1)))
+  all_roles <- c(
+    backup_pg, backup_c, primary_creator, secondary_creator, ball_handler, rim_protector
+  )
+  unknown_roles <- sum(vapply(all_roles, function(x) x$eligibility == "UNKNOWN", logical(1)))
   coverage <- if (verified_pg > 0L && verified_c > 0L) "PASS" else "REVIEW"
   list(
     team_id = ledger$team_id,
@@ -427,9 +491,15 @@ summarize_v2_role_completeness <- function(ledger, roster = NULL) {
     unknown_position_records = as.integer(unknown_position_records),
     verified_backup_pg_candidates = as.integer(verified_pg),
     verified_backup_c_candidates = as.integer(verified_c),
+    verified_primary_creator_candidates = as.integer(verified_primary_creator),
+    verified_secondary_creator_candidates = as.integer(verified_secondary_creator),
+    verified_ball_handler_candidates = as.integer(verified_ball_handler),
+    verified_rim_protector_candidates = as.integer(verified_rim_protector),
     missing_backup_pg_evidence = verified_pg == 0L,
     missing_backup_c_evidence = verified_c == 0L,
     unknown_role_records = as.integer(unknown_roles),
+    conflicting_count = as.integer(ledger$conflicting_count %||% 0L),
+    malformed_count = as.integer(ledger$malformed_count %||% 0L),
     team_role_coverage_status = coverage,
     reason_codes = c(
       if (verified_pg == 0L) "BACKUP_PG_EVIDENCE_MISSING",
@@ -548,15 +618,25 @@ summarize_v2_role_league <- function(team_results) {
     metric = c(
       "teams", paste0("starter_", tolower(statuses)),
       paste0("rotation_10_", tolower(statuses)), paste0("rotation_11_", tolower(statuses)),
-      "verified_backup_pg_candidates", "verified_backup_c_candidates", "unknown_role_records"
+      "verified_availability", "unknown_availability",
+      "verified_backup_pg_candidates", "verified_backup_c_candidates",
+      "verified_primary_creator_candidates", "verified_secondary_creator_candidates",
+      "verified_ball_handler_candidates", "verified_rim_protector_candidates",
+      "unknown_role_records"
     ),
     value = c(
       nrow(team_results),
       vapply(statuses, function(x) count_status("starter_status", x), integer(1)),
       vapply(statuses, function(x) count_status("rotation_10_status", x), integer(1)),
       vapply(statuses, function(x) count_status("rotation_11_status", x), integer(1)),
+      sum(team_results$verified_availability_count, na.rm = TRUE),
+      sum(team_results$unknown_availability_count, na.rm = TRUE),
       sum(team_results$verified_backup_pg_count, na.rm = TRUE),
       sum(team_results$verified_backup_c_count, na.rm = TRUE),
+      sum(team_results$verified_primary_creator_count, na.rm = TRUE),
+      sum(team_results$verified_secondary_creator_count, na.rm = TRUE),
+      sum(team_results$verified_ball_handler_count, na.rm = TRUE),
+      sum(team_results$verified_rim_protector_count, na.rm = TRUE),
       sum(team_results$unknown_role_count, na.rm = TRUE)
     ),
     stringsAsFactors = FALSE

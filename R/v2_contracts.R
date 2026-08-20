@@ -236,6 +236,20 @@ v2_state_id <- function(prefix, input) {
 }
 
 
+v2_iso_date <- function(value, field, required = FALSE) {
+  text <- trimws(as.character(value %||% ""))
+  if (length(text) != 1L || is.na(text) || !nzchar(text)) {
+    if (required) stop(field, " must be an ISO date.", call. = FALSE)
+    return(NULL)
+  }
+  parsed <- suppressWarnings(as.Date(text, format = "%Y-%m-%d"))
+  if (is.na(parsed) || format(parsed, "%Y-%m-%d") != text) {
+    stop(field, " must be an ISO date.", call. = FALSE)
+  }
+  text
+}
+
+
 new_v2_role_eligibility <- function(player_id,
                                     role,
                                     eligibility = "UNKNOWN",
@@ -250,7 +264,11 @@ new_v2_role_eligibility <- function(player_id,
                                     source_version = NULL,
                                     verification_status = NULL,
                                     reason_codes = character(),
-                                    explanation = NULL) {
+                                    explanation = NULL,
+                                    verified_by = NULL,
+                                    effective_date = NULL,
+                                    expiration_date = NULL,
+                                    evidence_version = "1.0.0") {
   role <- toupper(trimws(as.character(role %||% "")))
   eligibility <- toupper(trimws(as.character(eligibility %||% "UNKNOWN")))
   evidence_status <- toupper(trimws(as.character(evidence_status %||% "UNKNOWN")))
@@ -314,6 +332,23 @@ new_v2_role_eligibility <- function(player_id,
     stop("Model or unknown evidence cannot establish role eligibility.", call. = FALSE)
   }
 
+  phase1e_role <- role %in% c(
+    "PRIMARY_CREATOR", "SECONDARY_CREATOR", "BALL_HANDLER", "RIM_PROTECTOR"
+  )
+  evidence_version <- v2_role_scalar_text(evidence_version, "evidence_version")
+  effective_date <- v2_iso_date(
+    effective_date, "effective_date", required = phase1e_role && eligibility != "UNKNOWN"
+  )
+  expiration_date <- v2_iso_date(expiration_date, "expiration_date")
+  if (!is.null(effective_date) && !is.null(expiration_date) &&
+      expiration_date < effective_date) {
+    stop("role evidence effective window is invalid.", call. = FALSE)
+  }
+  if (phase1e_role && eligibility != "UNKNOWN") {
+    v2_role_scalar_text(source_version, "source_version")
+    v2_role_scalar_text(verified_by, "verified_by")
+  }
+
   validation <- if (eligibility == "UNKNOWN") {
     aggregate_v2_validation(list(new_v2_validation_finding(
       code = "ROLE_ELIGIBILITY_UNKNOWN",
@@ -337,6 +372,10 @@ new_v2_role_eligibility <- function(player_id,
     source = if (is.null(evidence_source)) NULL else as.character(evidence_source)[[1]],
     source_field = if (is.null(source_field)) NULL else as.character(source_field)[[1]],
     source_version = if (is.null(source_version)) NULL else as.character(source_version)[[1]],
+    evidence_version = evidence_version,
+    verified_by = if (is.null(verified_by)) NULL else as.character(verified_by)[[1]],
+    effective_date = effective_date,
+    expiration_date = expiration_date,
     verification_status = verification_status,
     evidence_status = evidence_status,
     evidence_source = if (is.null(evidence_source)) NULL else as.character(evidence_source)[[1]],

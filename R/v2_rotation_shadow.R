@@ -168,8 +168,17 @@ v2_shadow_validate_30_teams <- function(season = NULL) {
       unknown_position_eligibility = result$role_diagnostics$unknown_position_eligibility %||% NA_integer_,
       verified_backup_pg_count = result$role_diagnostics$verified_backup_pg_candidates %||% NA_integer_,
       verified_backup_c_count = result$role_diagnostics$verified_backup_c_candidates %||% NA_integer_,
+      verified_primary_creator_count = result$role_diagnostics$verified_primary_creator_candidates %||% NA_integer_,
+      verified_secondary_creator_count = result$role_diagnostics$verified_secondary_creator_candidates %||% NA_integer_,
+      verified_ball_handler_count = result$role_diagnostics$verified_ball_handler_candidates %||% NA_integer_,
+      verified_rim_protector_count = result$role_diagnostics$verified_rim_protector_candidates %||% NA_integer_,
+      verified_availability_count = result$availability_diagnostics$verified_count %||% NA_integer_,
+      unknown_availability_count = result$availability_diagnostics$unknown_count %||% NA_integer_,
       unknown_role_count = result$role_diagnostics$unknown_role_records %||% NA_integer_,
       role_coverage_status = result$role_diagnostics$team_role_coverage_status %||% NA_character_,
+      availability_coverage_status = result$availability_diagnostics$coverage_status %||% NA_character_,
+      evidence_ledger_seconds = result$execution_timing$evidence_ledger_seconds %||% NA_real_,
+      shadow_seconds = result$execution_timing$total_seconds %||% NA_real_,
       review_reasons = paste(unique(vapply(
         Filter(function(x) identical(x$status, "REVIEW"), result$validation_findings),
         `[[`, character(1), "code"
@@ -179,6 +188,8 @@ v2_shadow_validate_30_teams <- function(season = NULL) {
         `[[`, character(1), "code"
       )), collapse = ";"),
       deterministic = identical(result$starter_state, rerun$starter_state) &&
+        identical(result$availability_ledger, rerun$availability_ledger) &&
+        identical(result$role_ledger, rerun$role_ledger) &&
         identical(result$rotation_10, rerun$rotation_10) &&
         identical(result$rotation_11, rerun$rotation_11),
       input_signature = result$input_signature %||% NA_character_,
@@ -200,6 +211,8 @@ run_v2_rotation_shadow <- function(rotation_model,
                                    v1_reference = NULL,
                                    role_eligibility = NULL,
                                    manual_role_evidence = NULL,
+                                   manual_availability_evidence = NULL,
+                                   availability_as_of_date = NULL,
                                    rotation_builder = build_v2_rotation) {
   route <- tbi_rotation_route(rotation_model)
   base <- list(
@@ -209,13 +222,19 @@ run_v2_rotation_shadow <- function(rotation_model,
     scenario_signature = v2_input_signature(scenario),
     v1_reference = v1_reference,
     starter_state = NULL,
+    availability_ledger = NULL,
+    availability_diagnostics = NULL,
     role_ledger = NULL,
     role_diagnostics = NULL,
+    evidence_diagnostics = NULL,
     rotation_10 = NULL,
     rotation_11 = NULL,
     validation_findings = list(),
     execution_status = "DISABLED",
-    execution_timing = list(total_seconds = 0, size_10_seconds = 0, size_11_seconds = 0),
+    execution_timing = list(
+      total_seconds = 0, evidence_ledger_seconds = 0,
+      size_10_seconds = 0, size_11_seconds = 0
+    ),
     error = NULL
   )
   if (!identical(route$model, "v2_shadow")) return(base)
@@ -266,11 +285,28 @@ run_v2_rotation_shadow <- function(rotation_model,
     if (!identical(as.character(roster_season), as.character(season))) {
       stop("roster season does not match the requested shadow season.", call. = FALSE)
     }
+    evidence_started <- proc.time()[["elapsed"]]
+    base$availability_ledger <- build_v2_availability_evidence_ledger(
+      prepared, roster_team, roster_season,
+      manual_evidence = manual_availability_evidence,
+      as_of_date = availability_as_of_date
+    )
+    base$availability_diagnostics <- summarize_v2_availability_completeness(
+      base$availability_ledger
+    )
+    prepared <- v2_rotation_roster(
+      prepared, v2_availability_for_rotation(base$availability_ledger)
+    )
     base$role_ledger <- build_v2_role_eligibility_ledger(
       prepared, roster_team, roster_season,
       manual_evidence = manual_role_evidence
     )
     base$role_diagnostics <- summarize_v2_role_completeness(base$role_ledger, prepared)
+    base$evidence_diagnostics <- summarize_v2_evidence_completeness(
+      base$role_ledger, base$availability_ledger
+    )
+    base$execution_timing$evidence_ledger_seconds <-
+      proc.time()[["elapsed"]] - evidence_started
     base$starter_state <- v2_shadow_starter_state(
       team, season, prepared, approved_lineup,
       scenario_id = base$scenario_signature,
@@ -281,6 +317,7 @@ run_v2_rotation_shadow <- function(rotation_model,
       roster = prepared,
       approved_lineup = approved_lineup,
       scenario = scenario,
+      availability_evidence_signature = base$availability_ledger$input_signature,
       role_evidence_signature = if (is.null(role_eligibility)) {
         base$role_ledger$input_signature
       } else {
