@@ -132,6 +132,30 @@ v2_shadow_lineup_from_roster <- function(roster) {
 }
 
 
+v2_shadow_frozen_player_evidence <- function(roster, player_ids) {
+  ids <- suppressWarnings(as.integer(player_ids))
+  roster_ids <- suppressWarnings(as.integer(roster$player_id))
+  matched <- match(ids, roster_ids)
+  metric <- function(candidates) {
+    source <- candidates[candidates %in% names(roster)]
+    if (!length(source)) return(rep(NA_real_, length(ids)))
+    suppressWarnings(as.numeric(roster[[source[[1]]]][matched]))
+  }
+  data.frame(
+    player_id = ids,
+    bie_rating = metric(c("bie_rating")),
+    offensive_impact = metric(c(
+      "bie_offense_score", "offensive_impact_score", "impact_offensive_impact_score"
+    )),
+    defensive_impact = metric(c(
+      "bie_defense_score", "defensive_impact_score", "impact_defensive_impact_score"
+    )),
+    evidence_source = "FROZEN_BIE",
+    stringsAsFactors = FALSE
+  )
+}
+
+
 v2_shadow_validate_30_teams <- function(season = NULL) {
   season <- season %||% phase15_latest_depth_season()
   teams <- phase15_active_teams()
@@ -178,6 +202,20 @@ v2_shadow_validate_30_teams <- function(season = NULL) {
       role_coverage_status = result$role_diagnostics$team_role_coverage_status %||% NA_character_,
       availability_coverage_status = result$availability_diagnostics$coverage_status %||% NA_character_,
       evidence_ledger_seconds = result$execution_timing$evidence_ledger_seconds %||% NA_real_,
+      phase2_status = result$phase2_diagnostics$status %||% NA_character_,
+      phase2_blocked = isTRUE(result$phase2_diagnostics$is_blocked),
+      phase2_exact_240 = identical(result$minute_ledger$total_assigned_minutes, 240L),
+      phase2_segments_reconcile = identical(result$stagger_plan$total_player_minutes, 240L),
+      phase2_lineups_legal = if (is.data.frame(result$lineup_portfolio$lineups)) {
+        all(result$lineup_portfolio$lineups$legality_status == "PASS")
+      } else FALSE,
+      phase2_closing_legal = if (is.data.frame(result$lineup_portfolio$lineups)) {
+        any(result$lineup_portfolio$lineups$lineup_type == "CLOSING" &
+          result$lineup_portfolio$lineups$legality_status == "PASS")
+      } else FALSE,
+      phase2_minutes_seconds = result$execution_timing$phase2_minutes_seconds %||% NA_real_,
+      phase2_stagger_seconds = result$execution_timing$phase2_stagger_seconds %||% NA_real_,
+      phase2_lineups_seconds = result$execution_timing$phase2_lineups_seconds %||% NA_real_,
       shadow_seconds = result$execution_timing$total_seconds %||% NA_real_,
       review_reasons = paste(unique(vapply(
         Filter(function(x) identical(x$status, "REVIEW"), result$validation_findings),
@@ -191,7 +229,10 @@ v2_shadow_validate_30_teams <- function(season = NULL) {
         identical(result$availability_ledger, rerun$availability_ledger) &&
         identical(result$role_ledger, rerun$role_ledger) &&
         identical(result$rotation_10, rerun$rotation_10) &&
-        identical(result$rotation_11, rerun$rotation_11),
+        identical(result$rotation_11, rerun$rotation_11) &&
+        identical(result$minute_ledger, rerun$minute_ledger) &&
+        identical(result$stagger_plan, rerun$stagger_plan) &&
+        identical(result$lineup_portfolio, rerun$lineup_portfolio),
       input_signature = result$input_signature %||% NA_character_,
       elapsed_seconds = proc.time()[["elapsed"]] - started,
       error = result$error$message %||% "",
@@ -213,7 +254,10 @@ run_v2_rotation_shadow <- function(rotation_model,
                                    manual_role_evidence = NULL,
                                    manual_availability_evidence = NULL,
                                    availability_as_of_date = NULL,
-                                   rotation_builder = build_v2_rotation) {
+                                   rotation_builder = build_v2_rotation,
+                                   minute_builder = allocate_v2_minutes,
+                                   stagger_builder = build_v2_stagger_plan,
+                                   lineup_portfolio_builder = build_v2_lineup_portfolio) {
   route <- tbi_rotation_route(rotation_model)
   base <- list(
     route = route,
@@ -229,11 +273,20 @@ run_v2_rotation_shadow <- function(rotation_model,
     evidence_diagnostics = NULL,
     rotation_10 = NULL,
     rotation_11 = NULL,
+    phase2_rotation_size = 10L,
+    minute_ledger = NULL,
+    stagger_plan = NULL,
+    lineup_portfolio = NULL,
+    phase2_diagnostics = list(
+      status = "NOT_RUN", is_blocked = FALSE, findings = list(), error = NULL
+    ),
     validation_findings = list(),
     execution_status = "DISABLED",
     execution_timing = list(
       total_seconds = 0, evidence_ledger_seconds = 0,
-      size_10_seconds = 0, size_11_seconds = 0
+      size_10_seconds = 0, size_11_seconds = 0,
+      phase2_minutes_seconds = 0, phase2_stagger_seconds = 0,
+      phase2_lineups_seconds = 0
     ),
     error = NULL
   )
@@ -336,10 +389,58 @@ run_v2_rotation_shadow <- function(rotation_model,
       availability = NULL
     )
     base$execution_timing$size_11_seconds <- proc.time()[["elapsed"]] - size_11_started
+    phase2_error <- tryCatch({
+      minutes_started <- proc.time()[["elapsed"]]
+      base$minute_ledger <- minute_builder(
+        base$rotation_10, base$availability_ledger
+      )
+      base$execution_timing$phase2_minutes_seconds <-
+        proc.time()[["elapsed"]] - minutes_started
+
+      stagger_started <- proc.time()[["elapsed"]]
+      base$stagger_plan <- stagger_builder(base$minute_ledger, base$role_ledger)
+      base$execution_timing$phase2_stagger_seconds <-
+        proc.time()[["elapsed"]] - stagger_started
+
+      lineups_started <- proc.time()[["elapsed"]]
+      player_evidence <- v2_shadow_frozen_player_evidence(
+        prepared, base$rotation_10$members$player_id
+      )
+      base$lineup_portfolio <- lineup_portfolio_builder(
+        base$rotation_10, base$minute_ledger, base$stagger_plan,
+        base$role_ledger, player_evidence = player_evidence
+      )
+      base$execution_timing$phase2_lineups_seconds <-
+        proc.time()[["elapsed"]] - lineups_started
+      NULL
+    }, error = function(error) error)
+    if (inherits(phase2_error, "error")) {
+      base$phase2_diagnostics <- list(
+        status = "ERROR", is_blocked = TRUE, findings = list(),
+        error = list(
+          class = class(phase2_error), message = conditionMessage(phase2_error),
+          call = if (is.null(conditionCall(phase2_error))) NULL else deparse(conditionCall(phase2_error))
+        )
+      )
+    } else {
+      phase2_findings <- c(
+        base$minute_ledger$validation$findings,
+        base$stagger_plan$validation$findings,
+        base$lineup_portfolio$validation$findings
+      )
+      phase2_validation <- aggregate_v2_validation(phase2_findings)
+      base$phase2_diagnostics <- list(
+        status = phase2_validation$status,
+        is_blocked = phase2_validation$is_blocked,
+        findings = phase2_findings,
+        error = NULL
+      )
+    }
     base$validation_findings <- c(
       base$starter_state$validation$findings,
       base$rotation_10$validation$findings,
-      base$rotation_11$validation$findings
+      base$rotation_11$validation$findings,
+      base$phase2_diagnostics$findings
     )
     base$execution_status <- "COMPLETED"
     base
