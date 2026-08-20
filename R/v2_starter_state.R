@@ -144,6 +144,7 @@ new_v2_starter_state <- function(team_id,
                                  scenario_id = NULL,
                                  replacement_proposals = list(),
                                  explanation_log = list(),
+                                 additional_findings = list(),
                                  created_at = NA_character_,
                                  policy = v2_rotation_policy()) {
   if (!is.data.frame(slots)) {
@@ -152,6 +153,10 @@ new_v2_starter_state <- function(team_id,
 
   metadata <- v2_rotation_metadata()
   findings <- v2_starter_findings(slots, policy)
+  if (!is.list(additional_findings)) {
+    stop("additional_findings must be a list.", call. = FALSE)
+  }
+  findings <- c(additional_findings, findings)
   validation <- aggregate_v2_validation(findings)
   identity_input <- list(
     contract_version = "1.0.0",

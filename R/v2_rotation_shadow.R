@@ -48,7 +48,8 @@ v2_shadow_roster <- function(roster) {
 
 
 v2_shadow_starter_state <- function(team, season, roster, approved_lineup,
-                                    scenario_id = NULL) {
+                                    scenario_id = NULL,
+                                    role_ledger = NULL) {
   roster <- v2_shadow_roster(roster)
   positions <- c("PG", "SG", "SF", "PF", "C")
   ids <- suppressWarnings(as.integer(approved_lineup[positions]))
@@ -60,6 +61,29 @@ v2_shadow_starter_state <- function(team, season, roster, approved_lineup,
   availability[found] <- vapply(
     roster$availability_status[matched[found]], v2_rotation_availability, character(1)
   )
+  position_eligibility <- rep("REVIEW", 5L)
+  if (!is.null(role_ledger)) {
+    position_eligibility <- vapply(seq_along(positions), function(i) {
+      if (is.na(ids[[i]])) return("FAIL")
+      contract <- v2_role_record(
+        role_ledger, ids[[i]], paste0("POSITION_", positions[[i]])
+      )
+      if (identical(contract$eligibility, "ELIGIBLE")) return("PASS")
+      if (identical(contract$eligibility, "NOT_ELIGIBLE")) return("FAIL")
+      "REVIEW"
+    }, character(1))
+  }
+  lock_findings <- list()
+  if ("approved_lock_conflict" %in% names(roster) &&
+      any(as.logical(roster$approved_lock_conflict), na.rm = TRUE)) {
+    lock_findings <- list(new_v2_validation_finding(
+      code = "APPROVED_STARTER_LOCK_CONFLICT",
+      status = "FAIL",
+      message = "Multiple approved starter locks compete for one position; no lock was silently discarded.",
+      is_blocking = TRUE,
+      evidence_fields = c("is_starter", "has_override", "position")
+    ))
+  }
   slots <- data.frame(
     position = positions,
     player_id = ids,
@@ -67,7 +91,7 @@ v2_shadow_starter_state <- function(team, season, roster, approved_lineup,
     lock_status = "LOCKED",
     lock_source = "APPROVED",
     availability_status = availability,
-    position_eligibility = "REVIEW",
+    position_eligibility = position_eligibility,
     stringsAsFactors = FALSE
   )
   new_v2_starter_state(
@@ -75,7 +99,8 @@ v2_shadow_starter_state <- function(team, season, roster, approved_lineup,
     season = season,
     slots = slots,
     roster_signature = v2_input_signature(roster),
-    scenario_id = scenario_id
+    scenario_id = scenario_id,
+    additional_findings = lock_findings
   )
 }
 
@@ -113,20 +138,21 @@ v2_shadow_validate_30_teams <- function(season = NULL) {
   if (nrow(teams) != 30L) stop("Expected exactly 30 active NBA teams.", call. = FALSE)
   rows <- lapply(seq_len(nrow(teams)), function(i) {
     started <- proc.time()[["elapsed"]]
-    roster <- get_depth_chart_records(teams$team_name[[i]], season)
+    roster <- v2_role_authoritative_roster_snapshot(teams$team_name[[i]], season)
     enriched <- depth_chart_batched_bie_enrich_roster(roster, roster_season = season)
     evaluated <- evaluate_bie_players(enriched)
+    approved_lineup <- v2_shadow_lineup_from_roster(roster)
     result <- run_v2_rotation_shadow(
       "v2_shadow", teams$abbreviation[[i]], season, evaluated,
-      v2_shadow_lineup_from_roster(roster),
+      approved_lineup,
       v1_reference = list(
         roster_signature = v2_input_signature(roster),
-        approved_lineup = v2_shadow_lineup_from_roster(roster)
+        approved_lineup = approved_lineup
       )
     )
     rerun <- run_v2_rotation_shadow(
       "v2_shadow", teams$abbreviation[[i]], season, evaluated,
-      v2_shadow_lineup_from_roster(roster),
+      approved_lineup,
       v1_reference = result$v1_reference
     )
     data.frame(
@@ -138,6 +164,20 @@ v2_shadow_validate_30_teams <- function(season = NULL) {
       rotation_11_status = result$rotation_11$status %||% NA_character_,
       rotation_10_size = result$rotation_10$actual_rotation_size %||% NA_integer_,
       rotation_11_size = result$rotation_11$actual_rotation_size %||% NA_integer_,
+      verified_position_eligibility = result$role_diagnostics$verified_position_eligibility %||% NA_integer_,
+      unknown_position_eligibility = result$role_diagnostics$unknown_position_eligibility %||% NA_integer_,
+      verified_backup_pg_count = result$role_diagnostics$verified_backup_pg_candidates %||% NA_integer_,
+      verified_backup_c_count = result$role_diagnostics$verified_backup_c_candidates %||% NA_integer_,
+      unknown_role_count = result$role_diagnostics$unknown_role_records %||% NA_integer_,
+      role_coverage_status = result$role_diagnostics$team_role_coverage_status %||% NA_character_,
+      review_reasons = paste(unique(vapply(
+        Filter(function(x) identical(x$status, "REVIEW"), result$validation_findings),
+        `[[`, character(1), "code"
+      )), collapse = ";"),
+      fail_reasons = paste(unique(vapply(
+        Filter(function(x) identical(x$status, "FAIL"), result$validation_findings),
+        `[[`, character(1), "code"
+      )), collapse = ";"),
       deterministic = identical(result$starter_state, rerun$starter_state) &&
         identical(result$rotation_10, rerun$rotation_10) &&
         identical(result$rotation_11, rerun$rotation_11),
@@ -159,6 +199,7 @@ run_v2_rotation_shadow <- function(rotation_model,
                                    scenario = NULL,
                                    v1_reference = NULL,
                                    role_eligibility = NULL,
+                                   manual_role_evidence = NULL,
                                    rotation_builder = build_v2_rotation) {
   route <- tbi_rotation_route(rotation_model)
   base <- list(
@@ -168,6 +209,8 @@ run_v2_rotation_shadow <- function(rotation_model,
     scenario_signature = v2_input_signature(scenario),
     v1_reference = v1_reference,
     starter_state = NULL,
+    role_ledger = NULL,
+    role_diagnostics = NULL,
     rotation_10 = NULL,
     rotation_11 = NULL,
     validation_findings = list(),
@@ -180,16 +223,69 @@ run_v2_rotation_shadow <- function(rotation_model,
   started <- proc.time()[["elapsed"]]
   tryCatch({
     prepared <- v2_shadow_roster(roster)
+    if (!is.null(role_eligibility) && !is.null(manual_role_evidence)) {
+      stop("role_eligibility and manual_role_evidence cannot be supplied together.", call. = FALSE)
+    }
+    if (!is.null(role_eligibility) && any(vapply(role_eligibility, function(contract) {
+      is.list(contract) && !is.null(contract$eligibility) &&
+        identical(contract$contract_version, "1.0.0") &&
+        contract$eligibility %in% c("ELIGIBLE", "NOT_ELIGIBLE")
+    }, logical(1)))) {
+      stop(
+        "Known shadow role evidence must use manual_role_evidence so precedence and provenance are validated.",
+        call. = FALSE
+      )
+    }
+    roster_team <- if ("team_id" %in% names(prepared)) {
+      values <- unique(as.character(prepared$team_id))
+      values <- values[!is.na(values) & nzchar(trimws(values))]
+      if (length(values) != 1L) stop("roster must contain exactly one team context.", call. = FALSE)
+      values[[1]]
+    } else {
+      as.character(team)
+    }
+    roster_season <- if ("season" %in% names(prepared)) {
+      values <- unique(as.character(prepared$season))
+      values <- values[!is.na(values) & nzchar(trimws(values))]
+      if (length(values) != 1L) stop("roster must contain exactly one season context.", call. = FALSE)
+      values[[1]]
+    } else {
+      as.character(season)
+    }
+    roster_team_label <- if ("team_abbreviation" %in% names(prepared)) {
+      labels <- unique(as.character(prepared$team_abbreviation))
+      labels <- labels[!is.na(labels) & nzchar(trimws(labels))]
+      if (length(labels) != 1L) stop("roster must contain exactly one team label.", call. = FALSE)
+      labels[[1]]
+    } else {
+      roster_team
+    }
+    if (!identical(as.character(roster_team_label), as.character(team))) {
+      stop("roster team does not match the requested shadow team.", call. = FALSE)
+    }
+    if (!identical(as.character(roster_season), as.character(season))) {
+      stop("roster season does not match the requested shadow season.", call. = FALSE)
+    }
+    base$role_ledger <- build_v2_role_eligibility_ledger(
+      prepared, roster_team, roster_season,
+      manual_evidence = manual_role_evidence
+    )
+    base$role_diagnostics <- summarize_v2_role_completeness(base$role_ledger, prepared)
     base$starter_state <- v2_shadow_starter_state(
       team, season, prepared, approved_lineup,
-      scenario_id = base$scenario_signature
+      scenario_id = base$scenario_signature,
+      role_ledger = base$role_ledger
     )
-    roles <- role_eligibility %||% v2_shadow_unknown_role_eligibility(prepared)
+    roles <- role_eligibility %||% v2_rotation_role_records(base$role_ledger)
     base$input_signature <- v2_input_signature(list(
       roster = prepared,
       approved_lineup = approved_lineup,
       scenario = scenario,
-      role_eligibility = roles
+      role_evidence_signature = if (is.null(role_eligibility)) {
+        base$role_ledger$input_signature
+      } else {
+        v2_input_signature(roles)
+      }
     ))
     size_10_started <- proc.time()[["elapsed"]]
     base$rotation_10 <- rotation_builder(

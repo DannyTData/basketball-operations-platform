@@ -242,20 +242,29 @@ new_v2_role_eligibility <- function(player_id,
                                     evidence_status = "UNKNOWN",
                                     evidence_source = NULL,
                                     evidence_fields = character(),
-                                    missing_fields = character()) {
+                                    missing_fields = character(),
+                                    team_id = NULL,
+                                    season = NULL,
+                                    evidence_class = NULL,
+                                    source_field = NULL,
+                                    source_version = NULL,
+                                    verification_status = NULL,
+                                    reason_codes = character(),
+                                    explanation = NULL) {
   role <- toupper(trimws(as.character(role %||% "")))
   eligibility <- toupper(trimws(as.character(eligibility %||% "UNKNOWN")))
   evidence_status <- toupper(trimws(as.character(evidence_status %||% "UNKNOWN")))
   normalized_player_id <- suppressWarnings(as.integer(player_id))
+  role_policy <- v2_role_policy()
 
   if (length(normalized_player_id) != 1L || is.na(normalized_player_id)) {
     stop("player_id must be one known integer ID.", call. = FALSE)
   }
 
-  if (!role %in% v2_rotation_policy()$role_types) {
-    stop("role must be BACKUP_PG or BACKUP_C.", call. = FALSE)
+  if (!role %in% role_policy$supported_roles) {
+    stop("role is outside the Phase 1D role vocabulary.", call. = FALSE)
   }
-  if (!eligibility %in% c("ELIGIBLE", "NOT_ELIGIBLE", "UNKNOWN")) {
+  if (!eligibility %in% role_policy$eligibility) {
     stop("eligibility must be ELIGIBLE, NOT_ELIGIBLE, or UNKNOWN.", call. = FALSE)
   }
   if (!evidence_status %in% c("VERIFIED", "UNKNOWN")) {
@@ -276,6 +285,35 @@ new_v2_role_eligibility <- function(player_id,
     evidence_status <- "UNKNOWN"
   }
 
+  verification_status <- toupper(trimws(as.character(
+    verification_status %||% if (evidence_status == "VERIFIED") "VERIFIED" else "MISSING"
+  )))
+  if (length(verification_status) != 1L || is.na(verification_status) ||
+      !verification_status %in% role_policy$verification_statuses) {
+    stop(
+      "verification_status must be VERIFIED, DERIVED_VERIFIED, UNVERIFIED, or MISSING.",
+      call. = FALSE
+    )
+  }
+  if (eligibility != "UNKNOWN" &&
+      !verification_status %in% c("VERIFIED", "DERIVED_VERIFIED")) {
+    stop("Known role eligibility requires verified evidence.", call. = FALSE)
+  }
+  if (eligibility == "UNKNOWN" &&
+      verification_status %in% c("VERIFIED", "DERIVED_VERIFIED")) {
+    stop("Unknown role eligibility cannot claim verified evidence.", call. = FALSE)
+  }
+
+  evidence_class <- toupper(trimws(as.character(evidence_class %||%
+    if (evidence_status == "VERIFIED") "AUTHORITATIVE_FACT" else "UNKNOWN")))
+  if (length(evidence_class) != 1L || is.na(evidence_class) ||
+      !evidence_class %in% role_policy$evidence_classes) {
+    stop("evidence_class is outside the Phase 1D vocabulary.", call. = FALSE)
+  }
+  if (eligibility != "UNKNOWN" && evidence_class %in% c("MODEL_EVIDENCE", "UNKNOWN")) {
+    stop("Model or unknown evidence cannot establish role eligibility.", call. = FALSE)
+  }
+
   validation <- if (eligibility == "UNKNOWN") {
     aggregate_v2_validation(list(new_v2_validation_finding(
       code = "ROLE_ELIGIBILITY_UNKNOWN",
@@ -287,18 +325,35 @@ new_v2_role_eligibility <- function(player_id,
     aggregate_v2_validation()
   }
 
-  list(
+  contract <- list(
     contract_type = "tbi-v2-role-eligibility",
     contract_version = "1.0.0",
     player_id = normalized_player_id[[1]],
+    team_id = team_id,
+    season = season,
     role = role,
     eligibility = eligibility,
+    evidence_class = evidence_class,
+    source = if (is.null(evidence_source)) NULL else as.character(evidence_source)[[1]],
+    source_field = if (is.null(source_field)) NULL else as.character(source_field)[[1]],
+    source_version = if (is.null(source_version)) NULL else as.character(source_version)[[1]],
+    verification_status = verification_status,
     evidence_status = evidence_status,
     evidence_source = if (is.null(evidence_source)) NULL else as.character(evidence_source)[[1]],
     evidence_fields = unique(as.character(evidence_fields)),
     missing_fields = unique(as.character(missing_fields)),
+    reason_codes = unique(as.character(reason_codes)),
+    explanation = as.character(explanation %||% if (eligibility == "UNKNOWN") {
+      paste(role, "eligibility remains unknown because approved evidence is missing.")
+    } else {
+      paste(role, "eligibility is supported by approved evidence.")
+    })[[1]],
     status = validation$status,
     is_blocked = validation$is_blocked,
     validation = validation
   )
+  contract$input_signature <- v2_input_signature(contract[setdiff(
+    names(contract), c("input_signature", "status", "is_blocked", "validation")
+  )])
+  contract
 }
