@@ -49,7 +49,58 @@ Sys.setenv(
   TBI_FEEDBACK_MODE = "false"
 )
 
+options(
+  shiny.sanitize.errors = FALSE,
+  shiny.fullstacktrace = TRUE
+)
+
+diagnostic_server <- function(input, output, session) {
+  message("TBI_CONNECT_SERVER_START")
+
+  shiny::onUnhandledError(
+    function(err) {
+      message(
+        "TBI_CONNECT_UNHANDLED_ERROR: ",
+        conditionMessage(err)
+      )
+      message(
+        "TBI_CONNECT_FATAL: ",
+        inherits(err, "shiny.error.fatal")
+      )
+      message(
+        "TBI_CONNECT_ERROR_CLASS: ",
+        paste(class(err), collapse = ", ")
+      )
+    },
+    session = session
+  )
+
+  session$onSessionEnded(
+    function() {
+      message("TBI_CONNECT_SESSION_ENDED")
+    }
+  )
+
+  tryCatch(
+    {
+      app_server(input, output, session)
+      message("TBI_CONNECT_SERVER_BOUND")
+    },
+    error = function(err) {
+      message(
+        "TBI_CONNECT_SERVER_INIT_ERROR: ",
+        conditionMessage(err)
+      )
+      message(
+        "TBI_CONNECT_INIT_CLASS: ",
+        paste(class(err), collapse = ", ")
+      )
+      stop(err)
+    }
+  )
+}
+
 shiny::shinyApp(
   ui = app_ui,
-  server = app_server
+  server = diagnostic_server
 )
