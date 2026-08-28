@@ -7,5 +7,6 @@ pkgload::load_all(
 )
 
 run_tbi_feedback(
-  expires_at = Sys.time() + 8 * 60 * 60
+  expires_at = "2026-08-31 23:59:59",
+  timezone = "America/New_York"
 )
