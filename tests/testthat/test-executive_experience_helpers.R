@@ -506,7 +506,13 @@ testthat::test_that("data quality panel renders all confidence categories", {
     assumption_items = 3,
     review_items = 2,
     unavailable_items = 1,
-    updated_at = "2026-08-06"
+    updated_at = "2026-08-06",
+    title = "Decision Evidence",
+    explanation = paste(
+      "Shows how much of this executive recommendation is supported by verified team,",
+      "payroll, and draft inputs versus assumptions, missing facts, or review-required evidence.",
+      "This is not a probability or a scouting-confidence score."
+    )
   )
   
   html <- as.character(panel)
@@ -516,6 +522,11 @@ testthat::test_that("data quality panel renders all confidence categories", {
     "Assumption-Based",
     "Needs Review",
     "Unavailable",
+    "Loaded facts with verified/current evidence.",
+    "Outputs that depend on explicit modeled assumptions.",
+    "Loaded evidence that requires source or rule verification.",
+    "Required information not currently loaded.",
+    "not a probability or a scouting-confidence score",
     "2026-08-06"
   )
   

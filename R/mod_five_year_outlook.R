@@ -7,6 +7,147 @@
 # UI
 # ============================================================
 
+five_year_filter_text <- function(x) {
+  values <- x %||% ""
+  values <- ifelse(is.na(values), "", as.character(values))
+  trimws(values)
+}
+
+filter_five_year_contracts <- function(contracts, filters = list()) {
+  if (!is.data.frame(contracts) || !nrow(contracts)) {
+    return(contracts)
+  }
+
+  filter_value <- function(name) {
+    value <- five_year_filter_text(filters[[name]] %||% "")
+    if (length(value)) value[[1]] else ""
+  }
+
+  keep <- rep(TRUE, nrow(contracts))
+  exact_filters <- c(
+    contract_type = "contract_type",
+    free_agent_year = "free_agent_year",
+    option_status = "option_type"
+  )
+
+  for (name in names(exact_filters)) {
+    selected <- filter_value(name)
+    if (nzchar(selected)) {
+      keep <- keep & five_year_filter_text(contracts[[exact_filters[[name]]]]) == selected
+    }
+  }
+
+  search <- tolower(filter_value("search"))
+  if (nzchar(search)) {
+    searchable_fields <- intersect(
+      c(
+        "player_name", "primary_position", "contract_type",
+        "contract_end_season", "option_type", "free_agent_year", "bird_rights"
+      ),
+      names(contracts)
+    )
+    searchable <- do.call(
+      paste,
+      c(lapply(searchable_fields, function(field) five_year_filter_text(contracts[[field]])), sep = " ")
+    )
+    keep <- keep & grepl(search, tolower(searchable), fixed = TRUE)
+  }
+
+  contracts[keep, , drop = FALSE]
+}
+
+five_year_contract_runway_data <- function(contracts, season_year) {
+  if (!is.data.frame(contracts) || !nrow(contracts)) {
+    return(data.frame())
+  }
+
+  fa_year <- suppressWarnings(as.numeric(contracts$free_agent_year))
+  years_control <- fa_year - suppressWarnings(as.numeric(season_year)[[1]])
+  years_control[is.na(fa_year)] <- NA_real_
+  years_control[!is.na(years_control)] <- pmax(0, years_control[!is.na(years_control)])
+
+  data.frame(
+    Player = five_year_filter_text(contracts$player_name),
+    Position = ifelse(nzchar(five_year_filter_text(contracts$primary_position)), contracts$primary_position, NA_character_),
+    Age = suppressWarnings(as.numeric(contracts$player_age)),
+    `Current Cap Hit` = suppressWarnings(as.numeric(contracts$cap_hit)),
+    `Contract Type` = ifelse(nzchar(five_year_filter_text(contracts$contract_type)), contracts$contract_type, NA_character_),
+    `Contract Through` = ifelse(nzchar(five_year_filter_text(contracts$contract_end_season)), contracts$contract_end_season, NA_character_),
+    `Years Control` = years_control,
+    Option = ifelse(nzchar(five_year_filter_text(contracts$option_type)), contracts$option_type, NA_character_),
+    `FA Year` = fa_year,
+    `Bird Rights` = ifelse(nzchar(five_year_filter_text(contracts$bird_rights)), contracts$bird_rights, NA_character_),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+}
+
+five_year_summary_item <- function(label, value) {
+  shiny::div(
+    class = "outlook-v2-summary-item",
+    shiny::span(label),
+    shiny::strong(value)
+  )
+}
+
+five_year_display_value <- function(value, fallback = "UNKNOWN") {
+  if (
+    is.null(value) ||
+    !length(value) ||
+    is.na(value[[1]]) ||
+    !nzchar(trimws(as.character(value[[1]])))
+  ) {
+    fallback
+  } else {
+    value[[1]]
+  }
+}
+
+five_year_contract_token_cell <- function(value) {
+  shiny::span(
+    class = "outlook-v2-status-token",
+    five_year_display_value(value)
+  )
+}
+
+five_year_draft_summary_values <- function(summary) {
+  is_unrated <- identical(
+    toupper(five_year_display_value(summary$portfolio_grade %||% NULL, "")),
+    "UNRATED"
+  )
+
+  if (is.null(summary) || is_unrated) {
+    return(list(
+      portfolio = "UNKNOWN",
+      net_value = "Not loaded",
+      obligations = "UNKNOWN",
+      verification = "REQUIRES SOURCE VERIFICATION"
+    ))
+  }
+
+  numeric_value <- function(value) {
+    parsed <- suppressWarnings(as.numeric(value))
+    if (!length(parsed) || is.na(parsed[[1]]) || !is.finite(parsed[[1]])) NA_real_ else parsed[[1]]
+  }
+
+  net_value <- numeric_value(summary$net_portfolio_value)
+  obligations <- numeric_value(summary$obligations)
+  review_required <- numeric_value(summary$review_required)
+
+  list(
+    portfolio = five_year_display_value(summary$portfolio_grade),
+    net_value = if (is.finite(net_value)) sprintf("%.1f", net_value) else "UNKNOWN",
+    obligations = if (is.finite(obligations)) as.character(obligations) else "UNKNOWN",
+    verification = if (!is.finite(review_required)) {
+      "REQUIRES SOURCE VERIFICATION"
+    } else if (review_required > 0) {
+      "REVIEW"
+    } else {
+      "LOADED"
+    }
+  )
+}
+
 #' Five-Year Outlook UI
 #'
 #' @param id Internal module ID.
@@ -69,7 +210,7 @@ mod_five_year_outlook_ui <- function(id) {
         "
         .tbi-v2-outlook-page {
           display:grid;
-          gap:12px;
+          gap:12px !important;
         }
 
         .outlook-v2-five-grid {
@@ -81,8 +222,8 @@ mod_five_year_outlook_ui <- function(id) {
 
         .outlook-v2-year-card {
           position:relative;
-          min-height:158px;
-          padding:13px;
+          min-height:0;
+          padding:12px;
           overflow:hidden;
           border:1px solid rgba(148,163,184,.11);
           border-radius:10px;
@@ -97,7 +238,7 @@ mod_five_year_outlook_ui <- function(id) {
 
         .outlook-v2-year-label {
           color:#718198;
-          font-size:.53rem;
+          font-size:.64rem;
           font-weight:850;
           letter-spacing:.09em;
           text-transform:uppercase;
@@ -119,7 +260,7 @@ mod_five_year_outlook_ui <- function(id) {
           gap:8px;
           border-bottom:1px solid rgba(148,163,184,.075);
           color:#8594a8;
-          font-size:.57rem;
+          font-size:.70rem;
         }
 
         .outlook-v2-year-metric:last-child {
@@ -128,7 +269,7 @@ mod_five_year_outlook_ui <- function(id) {
 
         .outlook-v2-year-metric strong {
           color:#edf3f8;
-          font-size:.62rem;
+          font-size:.72rem;
         }
 
         .outlook-v2-bar {
@@ -145,15 +286,11 @@ mod_five_year_outlook_ui <- function(id) {
           background:#4b9cff;
         }
 
-        .outlook-v2-planning-grid {
-          display:grid;
-          grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);
-          gap:12px;
-        }
-
         .outlook-v2-table-wrap {
-          max-height:430px;
-          overflow:auto;
+          width:100%;
+          min-width:0;
+          overflow-x:auto;
+          overflow-y:visible;
         }
 
         .outlook-v2-signal-row {
@@ -165,7 +302,7 @@ mod_five_year_outlook_ui <- function(id) {
           gap:14px;
           border-bottom:1px solid rgba(148,163,184,.08);
           color:#8493a7;
-          font-size:.63rem;
+          font-size:.70rem;
         }
 
         .outlook-v2-signal-row:last-child {
@@ -198,7 +335,7 @@ mod_five_year_outlook_ui <- function(id) {
 
         .outlook-v2-rec-box span {
           color:#718198;
-          font-size:.52rem;
+          font-size:.62rem;
           font-weight:850;
           letter-spacing:.09em;
           text-transform:uppercase;
@@ -213,8 +350,185 @@ mod_five_year_outlook_ui <- function(id) {
 
         .outlook-v2-note {
           color:#77879b;
-          font-size:.59rem;
+          font-size:.68rem;
           line-height:1.5;
+        }
+
+        .outlook-v2-overview-grid,
+        .outlook-v2-flexibility-grid,
+        .outlook-v2-draft-grid {
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:12px;
+          align-items:start;
+        }
+
+        .outlook-v2-overview-grid .tbi-v2-decision-main {
+          min-height:108px;
+          padding:12px 14px;
+          gap:14px;
+        }
+
+        .outlook-v2-overview-grid .tbi-v2-decision-symbol {
+          width:56px;
+          height:56px;
+          flex-basis:56px;
+        }
+
+        .outlook-v2-overview-grid .tbi-v2-decision-metric {
+          min-height:58px;
+          padding:9px 12px;
+        }
+
+        .tbi-v2-outlook-page :is(.tbi-v2-snapshot-label,.tbi-v2-section-status,.tbi-v2-model-label) {
+          font-size:.62rem;
+        }
+
+        .outlook-v2-flexibility-grid {
+          grid-template-columns:minmax(0,1.22fr) minmax(320px,.78fr);
+        }
+
+        .outlook-v2-draft-grid {
+          grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);
+        }
+
+        .outlook-v2-draft-findings {
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:12px;
+        }
+
+        .outlook-v2-recommendation-workspace {
+          display:block;
+        }
+
+        .outlook-v2-contract-summary,
+        .outlook-v2-draft-summary {
+          display:grid;
+          grid-template-columns:repeat(4,minmax(0,1fr));
+          gap:8px;
+          padding:12px 16px;
+          border-bottom:1px solid rgba(148,163,184,.10);
+        }
+
+        .outlook-v2-summary-item {
+          min-width:0;
+        }
+
+        .outlook-v2-summary-item span {
+          display:block;
+          margin-bottom:4px;
+          color:#7f8fa4;
+          font-size:.62rem;
+          font-weight:800;
+        }
+
+        .outlook-v2-summary-item strong {
+          display:block;
+          overflow-wrap:anywhere;
+          color:#e8eef6;
+          font-size:.78rem;
+          line-height:1.35;
+        }
+
+        .outlook-v2-contract-workspace {
+          min-width:0;
+        }
+
+        .outlook-v2-contract-filters {
+          display:grid;
+          grid-template-columns:minmax(190px,1.35fr) repeat(3,minmax(130px,1fr)) auto;
+          gap:8px;
+          align-items:end;
+          padding:12px 16px;
+          border-bottom:1px solid rgba(148,163,184,.10);
+        }
+
+        .outlook-v2-contract-filters .form-group {
+          min-width:0;
+          margin:0;
+        }
+
+        .outlook-v2-contract-filters label {
+          margin-bottom:4px;
+          color:#8494a8;
+          font-size:.62rem;
+          font-weight:800;
+        }
+
+        .outlook-v2-contract-filters :is(.form-control,.selectize-input) {
+          min-height:34px;
+          font-size:.72rem;
+        }
+
+        .outlook-v2-clear-filters {
+          min-height:34px;
+          padding:6px 11px;
+          border:1px solid rgba(148,163,184,.20);
+          border-radius:7px;
+          background:rgba(51,65,85,.20);
+          color:#cbd5e1;
+          font-size:.70rem;
+          font-weight:750;
+          white-space:nowrap;
+        }
+
+        .outlook-v2-status-token {
+          display:inline-flex;
+          align-items:center;
+          min-height:22px;
+          padding:3px 7px;
+          border:1px solid rgba(148,163,184,.14);
+          border-radius:999px;
+          background:rgba(71,85,105,.14);
+          color:#b6c2d0;
+          font-size:.64rem;
+          line-height:1.2;
+          white-space:normal;
+        }
+
+        .tbi-v2-outlook-page [id$='-outlook_trade_scenario_banner']:empty {
+          display:none;
+        }
+
+        .tbi-v2-outlook-page .tbi-v2-context-header {
+          flex-wrap:wrap;
+          gap:8px;
+        }
+
+        .outlook-v2-readout-body {
+          padding:12px 16px;
+        }
+
+        .outlook-v2-rec-reasons {
+          display:grid;
+          gap:8px;
+          margin:0;
+          padding:0;
+          list-style:none;
+        }
+
+        .outlook-v2-rec-reasons li {
+          display:grid;
+          grid-template-columns:88px minmax(0,1fr);
+          gap:10px;
+          padding-top:8px;
+          border-top:1px solid rgba(148,163,184,.09);
+          color:#acbacb;
+          font-size:.73rem;
+          line-height:1.42;
+        }
+
+        .outlook-v2-rec-reasons li:first-child {
+          padding-top:0;
+          border-top:0;
+        }
+
+        .outlook-v2-rec-reasons strong {
+          color:#7f90a6;
+          font-size:.62rem;
+          letter-spacing:.04em;
+          text-transform:uppercase;
         }
 
         .outlook-v2-trade-banner {
@@ -236,7 +550,7 @@ mod_five_year_outlook_ui <- function(id) {
         .outlook-v2-trade-copy {
           min-width:0;
           color:#a9b8ca;
-          font-size:.61rem;
+          font-size:.70rem;
           line-height:1.45;
         }
 
@@ -249,7 +563,7 @@ mod_five_year_outlook_ui <- function(id) {
           border-radius:999px;
           background:rgba(59,130,246,.12);
           color:#72adff;
-          font-size:.52rem;
+          font-size:.62rem;
           font-weight:900;
           letter-spacing:.08em;
           white-space:nowrap;
@@ -257,7 +571,7 @@ mod_five_year_outlook_ui <- function(id) {
 
         .outlook-v2-trade-delta {
           color:#f4f8fc;
-          font-size:.64rem;
+          font-size:.70rem;
           font-weight:850;
           white-space:nowrap;
         }
@@ -292,18 +606,78 @@ mod_five_year_outlook_ui <- function(id) {
 
         @media(max-width:1100px) {
           .outlook-v2-five-grid {
+            grid-template-columns:repeat(6,minmax(0,1fr));
+          }
+
+          .outlook-v2-year-card {
+            grid-column:span 2;
+          }
+
+          .outlook-v2-year-card:nth-last-child(-n+2) {
+            grid-column:span 3;
+          }
+
+          .outlook-v2-flexibility-grid,
+          .outlook-v2-draft-grid,
+          .outlook-v2-recommendation-workspace {
+            grid-template-columns:1fr;
+          }
+
+          .outlook-v2-contract-filters {
             grid-template-columns:repeat(2,minmax(0,1fr));
           }
 
-          .outlook-v2-planning-grid {
-            grid-template-columns:1fr;
+          .outlook-v2-contract-filters .outlook-v2-clear-filters {
+            grid-column:1 / -1;
+            width:100%;
           }
         }
 
         @media(max-width:680px) {
-          .outlook-v2-five-grid,
-          .outlook-v2-rec-grid {
+          .outlook-v2-five-grid {
+            grid-template-columns:repeat(2,minmax(0,1fr));
+          }
+
+          .outlook-v2-year-card,
+          .outlook-v2-year-card:nth-last-child(-n+2) {
+            grid-column:span 1;
+          }
+
+          .outlook-v2-year-card:last-child:nth-child(odd) {
+            grid-column:1 / -1;
+          }
+
+          .outlook-v2-overview-grid,
+          .outlook-v2-draft-findings,
+          .outlook-v2-rec-grid,
+          .outlook-v2-contract-filters,
+          .outlook-v2-contract-summary,
+          .outlook-v2-draft-summary {
             grid-template-columns:1fr;
+          }
+
+          .outlook-v2-trade-banner {
+            align-items:flex-start;
+            flex-direction:column;
+          }
+
+          .outlook-v2-trade-delta {
+            white-space:normal;
+          }
+
+          .outlook-v2-rec-reasons li {
+            grid-template-columns:1fr;
+            gap:4px;
+          }
+        }
+
+        @media(max-width:430px) {
+          .outlook-v2-five-grid {
+            grid-template-columns:1fr;
+          }
+
+          .outlook-v2-year-card:last-child:nth-child(odd) {
+            grid-column:span 1;
           }
         }
         "
@@ -429,13 +803,13 @@ mod_five_year_outlook_ui <- function(id) {
     ),
     
     # --------------------------------------------------------
-    # Decision + strategy scorecard
+    # Overview story
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-main-grid",
-      `data-tbi-outlook-section` = "decision-and-scorecard",
-      `data-tbi-outlook-tab` = "flexibility",
+      class = "outlook-v2-overview-grid",
+      `data-tbi-outlook-section` = "overview-story",
+      `data-tbi-outlook-tab` = "overview",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card",
@@ -457,36 +831,56 @@ mod_five_year_outlook_ui <- function(id) {
       ),
       
       shiny::tags$section(
+        class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
+        shiny::div(
+          class = "tbi-v2-section-title",
+          shiny::span(
+            class = "tbi-v2-section-icon",
+            bsicons::bs_icon("calendar3")
+          ),
+          shiny::span("OUTLOOK HEADLINES")
+        ),
+        shiny::uiOutput(ns("outlook_headlines"))
+      )
+    ),
+
+    # --------------------------------------------------------
+    # Flexibility
+    # --------------------------------------------------------
+
+    shiny::div(
+      class = "outlook-v2-flexibility-grid",
+      `data-tbi-outlook-section` = "strategic-flexibility",
+      `data-tbi-outlook-tab` = "flexibility",
+      shiny::tags$section(
         class = "tbi-v2-scorecard-panel",
-        
         shiny::div(
           class = "tbi-v2-scorecard-header",
-          
           shiny::div(
             class = "tbi-v2-section-title",
-            shiny::span(
-              class = "tbi-v2-section-icon",
-              bsicons::bs_icon("graph-up-arrow")
-            ),
+            shiny::span(class = "tbi-v2-section-icon", bsicons::bs_icon("graph-up-arrow")),
             shiny::span("STRATEGIC FLEXIBILITY")
           ),
-          
           shiny::div(
             class = "tbi-v2-composite-score",
             shiny::span("Score"),
-            shiny::strong(
-              shiny::textOutput(
-                ns("flexibility_score"),
-                inline = TRUE
-              )
-            ),
+            shiny::strong(shiny::textOutput(ns("flexibility_score"), inline = TRUE)),
             shiny::span("/ 100")
           )
         ),
-        
-        shiny::uiOutput(
-          ns("strategy_scorecard")
-        )
+        shiny::uiOutput(ns("strategy_scorecard"))
+      ),
+      shiny::tags$section(
+        class = "tbi-v2-context-panel",
+        shiny::div(
+          class = "tbi-v2-context-header",
+          shiny::div(
+            shiny::div(class = "tbi-page-eyebrow", "FLEXIBILITY WINDOW"),
+            shiny::h3("Loaded drivers and release points")
+          ),
+          shiny::span(class = "tbi-v2-context-tag", "DECISION SUPPORT")
+        ),
+        shiny::div(class = "outlook-v2-readout-body", shiny::uiOutput(ns("outlook_readout")))
       )
     ),
     
@@ -522,89 +916,56 @@ mod_five_year_outlook_ui <- function(id) {
     ),
     
     # --------------------------------------------------------
-    # Headlines / risks / opportunities
+    # Draft and optionality
     # --------------------------------------------------------
     
     shiny::div(
-      class = paste(
-        "tbi-v2-exec-bottom-grid",
-        "tbi-outlook-tab-layout",
-        "tbi-outlook-signals-layout"
-      ),
-      
+      class = "outlook-v2-draft-grid",
+      `data-tbi-outlook-section` = "draft-control-and-optionality",
+      `data-tbi-outlook-tab` = "draft-optionality",
       shiny::tags$section(
-        class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
-        `data-tbi-outlook-section` = "outlook-headlines",
-        `data-tbi-outlook-tab` = "overview",
-        
+        class = "tbi-v2-context-panel",
         shiny::div(
-          class = "tbi-v2-section-title",
-          shiny::span(
-            class = "tbi-v2-section-icon",
-            bsicons::bs_icon("calendar3")
+          class = "tbi-v2-context-header",
+          shiny::div(
+            shiny::div(class = "tbi-page-eyebrow", "DRAFT CONTROL"),
+            shiny::h3("How loaded draft capital affects flexibility")
           ),
-          shiny::span("OUTLOOK HEADLINES")
+          shiny::span(class = "tbi-v2-context-tag", "LOADED ASSETS")
         ),
-        
-        shiny::uiOutput(
-          ns("outlook_headlines")
-        )
+        shiny::uiOutput(ns("outlook_draft_summary"))
       ),
-      
-      shiny::tags$section(
-        class = "tbi-v2-exec-list-panel tbi-v2-risks-panel",
-        `data-tbi-outlook-section` = "long-range-risks",
-        `data-tbi-outlook-tab` = "draft-optionality",
-        
-        shiny::div(
-          class = "tbi-v2-section-title",
-          shiny::span(
-            class = "tbi-v2-section-icon tbi-v2-section-icon-danger",
-            bsicons::bs_icon("exclamation-triangle")
+      shiny::div(
+        class = "outlook-v2-draft-findings",
+        shiny::tags$section(
+          class = "tbi-v2-exec-list-panel tbi-v2-risks-panel",
+          shiny::div(
+            class = "tbi-v2-section-title",
+            shiny::span(class = "tbi-v2-section-icon tbi-v2-section-icon-danger", bsicons::bs_icon("exclamation-triangle")),
+            shiny::span("CONSTRAINTS + RISKS")
           ),
-          shiny::span("LONG-RANGE RISKS")
+          shiny::uiOutput(ns("outlook_risks"))
         ),
-        
-        shiny::uiOutput(
-          ns("outlook_risks")
-        )
-      ),
-      
-      shiny::tags$section(
-        class = "tbi-v2-exec-list-panel tbi-v2-opportunities-panel",
-        `data-tbi-outlook-section` = "flexibility-opportunities",
-        `data-tbi-outlook-tab` = "draft-optionality",
-        
-        shiny::div(
-          class = "tbi-v2-section-title",
-          shiny::span(
-            class = "tbi-v2-section-icon tbi-v2-section-icon-success",
-            bsicons::bs_icon("bullseye")
+        shiny::tags$section(
+          class = "tbi-v2-exec-list-panel tbi-v2-opportunities-panel",
+          shiny::div(
+            class = "tbi-v2-section-title",
+            shiny::span(class = "tbi-v2-section-icon tbi-v2-section-icon-success", bsicons::bs_icon("bullseye")),
+            shiny::span("OPTIONALITY OPPORTUNITIES")
           ),
-          shiny::span("FLEXIBILITY OPPORTUNITIES")
-        ),
-        
-        shiny::uiOutput(
-          ns("outlook_opportunities")
+          shiny::uiOutput(ns("outlook_opportunities"))
         )
       )
     ),
     
     # --------------------------------------------------------
-    # Contract runway + strategic readout
+    # Contracts and free agency
     # --------------------------------------------------------
     
-    shiny::div(
-      class = paste(
-        "outlook-v2-planning-grid",
-        "tbi-outlook-tab-layout",
-        "tbi-outlook-planning-layout"
-      ),
-      
-      shiny::tags$section(
-        class = "tbi-v2-context-panel",
-        `data-tbi-outlook-section` = "contract-runway",
-        `data-tbi-outlook-tab` = "contracts-free-agency",
+    shiny::tags$section(
+      class = "tbi-v2-context-panel outlook-v2-contract-workspace",
+      `data-tbi-outlook-section` = "contract-runway",
+      `data-tbi-outlook-tab` = "contracts-free-agency",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -622,43 +983,18 @@ mod_five_year_outlook_ui <- function(id) {
             "ROSTER CONTROL"
           )
         ),
-        
-        shiny::div(
-          class = "outlook-v2-table-wrap",
-          reactable::reactableOutput(
-            ns("contract_runway_table")
-          )
-        )
+      shiny::uiOutput(ns("contract_runway_summary")),
+      shiny::div(
+        class = "outlook-v2-contract-filters",
+        shiny::textInput(ns("contract_search"), "Search", placeholder = "Player, contract, option, rights"),
+        shiny::selectInput(ns("contract_type_filter"), "Contract type", choices = c("All" = "")),
+        shiny::selectInput(ns("contract_fa_year_filter"), "Free-agency year", choices = c("All" = "")),
+        shiny::selectInput(ns("contract_option_filter"), "Option status", choices = c("All" = "")),
+        shiny::actionButton(ns("clear_contract_filters"), "Clear filters", class = "outlook-v2-clear-filters")
       ),
-      
-      shiny::tags$section(
-        class = "tbi-v2-context-panel",
-        `data-tbi-outlook-section` = "front-office-readout",
-        `data-tbi-outlook-tab` = "recommendation",
-        
-        shiny::div(
-          class = "tbi-v2-context-header",
-          
-          shiny::div(
-            shiny::div(
-              class = "tbi-page-eyebrow",
-              "STRATEGY ENGINE"
-            ),
-            shiny::h3("Front-office readout")
-          ),
-          
-          shiny::span(
-            class = "tbi-v2-context-tag",
-            "DECISION SUPPORT"
-          )
-        ),
-        
-        shiny::div(
-          style = "padding:14px 16px;",
-          shiny::uiOutput(
-            ns("outlook_readout")
-          )
-        )
+      shiny::div(
+        class = "outlook-v2-table-wrap",
+        reactable::reactableOutput(ns("contract_runway_table"))
       )
     ),
     
@@ -667,7 +1003,7 @@ mod_five_year_outlook_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::tags$section(
-      class = "tbi-v2-context-panel",
+      class = "tbi-v2-context-panel outlook-v2-recommendation-workspace",
       `data-tbi-outlook-section` = "executive-recommendation",
       `data-tbi-outlook-tab` = "recommendation",
       
@@ -688,9 +1024,7 @@ mod_five_year_outlook_ui <- function(id) {
         )
       ),
       
-      shiny::uiOutput(
-        ns("outlook_recommendation")
-      )
+      shiny::uiOutput(ns("outlook_recommendation"))
     )
   )
 }
@@ -1497,6 +1831,57 @@ mod_five_year_outlook_server <- function(
         }
         
         preview
+      })
+
+      reset_contract_filters <- function(contracts = current_roster_contracts()) {
+        choices_for <- function(field) {
+          values <- five_year_filter_text(contracts[[field]])
+          sort(unique(values[nzchar(values)]), method = "radix")
+        }
+
+        shiny::updateTextInput(session, "contract_search", value = "")
+        shiny::updateSelectInput(
+          session,
+          "contract_type_filter",
+          choices = c("All" = "", choices_for("contract_type")),
+          selected = ""
+        )
+        shiny::updateSelectInput(
+          session,
+          "contract_fa_year_filter",
+          choices = c("All" = "", choices_for("free_agent_year")),
+          selected = ""
+        )
+        shiny::updateSelectInput(
+          session,
+          "contract_option_filter",
+          choices = c("All" = "", choices_for("option_type")),
+          selected = ""
+        )
+      }
+
+      shiny::observeEvent(
+        list(selected_team(), selected_season(), active_trade_scenario()),
+        {
+          reset_contract_filters()
+        },
+        ignoreInit = FALSE
+      )
+
+      shiny::observeEvent(input$clear_contract_filters, {
+        reset_contract_filters()
+      })
+
+      filtered_current_contracts <- shiny::reactive({
+        filter_five_year_contracts(
+          current_roster_contracts(),
+          list(
+            search = input$contract_search %||% "",
+            contract_type = input$contract_type_filter %||% "",
+            free_agent_year = input$contract_fa_year_filter %||% "",
+            option_status = input$contract_option_filter %||% ""
+          )
+        )
       })
       
       
@@ -2450,6 +2835,19 @@ mod_five_year_outlook_server <- function(
       # ------------------------------------------------------
       # Risks
       # ------------------------------------------------------
+
+      output$outlook_draft_summary <- shiny::renderUI({
+        result <- draft_value_result()
+        values <- five_year_draft_summary_values(result$summary %||% NULL)
+
+        shiny::div(
+          class = "outlook-v2-draft-summary",
+          five_year_summary_item("Portfolio", values$portfolio),
+          five_year_summary_item("Net value", values$net_value),
+          five_year_summary_item("Obligations", values$obligations),
+          five_year_summary_item("Verification", values$verification)
+        )
+      })
       
       output$outlook_risks <- shiny::renderUI({
         
@@ -2539,7 +2937,7 @@ mod_five_year_outlook_server <- function(
             function(risk) {
               
               shiny::div(
-                class = "tbi-v2-risk-item",
+                class = "tbi-v2-risk-card",
                 
                 shiny::div(
                   class = "tbi-v2-risk-icon",
@@ -2663,115 +3061,69 @@ mod_five_year_outlook_server <- function(
       # ------------------------------------------------------
       # Contract runway table
       # ------------------------------------------------------
+
+      output$contract_runway_summary <- shiny::renderUI({
+        current <- current_roster_contracts()
+        fa_years <- suppressWarnings(as.numeric(current$free_agent_year))
+        loaded_fa_years <- fa_years[is.finite(fa_years)]
+        next_fa <- if (length(loaded_fa_years)) min(loaded_fa_years) else NA_real_
+        option_count <- sum(nzchar(five_year_filter_text(current$option_type)))
+
+        turnover <- if (length(loaded_fa_years)) table(loaded_fa_years) else integer()
+        peak_turnover <- if (length(turnover)) {
+          peak_index <- which.max(turnover)
+          paste0(names(turnover)[[peak_index]], " · ", unname(turnover[[peak_index]]), " players")
+        } else {
+          "UNKNOWN"
+        }
+
+        shiny::div(
+          class = "outlook-v2-contract-summary",
+          five_year_summary_item("Loaded roster records", as.character(nrow(current))),
+          five_year_summary_item("Next free-agency year", if (is.finite(next_fa)) as.character(next_fa) else "UNKNOWN"),
+          five_year_summary_item("Loaded option years", as.character(option_count)),
+          five_year_summary_item("Turnover concentration", peak_turnover)
+        )
+      })
       
       output$contract_runway_table <- reactable::renderReactable({
-        current <- current_roster_contracts()
+        current <- filtered_current_contracts()
         
         shiny::validate(
           shiny::need(
             nrow(current) > 0,
-            paste(
-              "No current roster contract data is available for",
-              selected_team(),
-              selected_season()
-            )
+            paste("No contracts match the active filters for", selected_team(), selected_season())
           )
         )
         
-        season_year <- season_start_year()
-        
-        years_remaining <- suppressWarnings(
-          as.numeric(
-            current$free_agent_year
-          )
-        ) -
-          season_year
-        
-        years_remaining[
-          is.na(
-            years_remaining
-          )
-        ] <- NA_real_
-        
-        display <- data.frame(
-          Player = current$player_name,
-          Position = ifelse(
-            is.na(
-              current$primary_position
-            ),
-            "—",
-            current$primary_position
-          ),
-          Age = ifelse(
-            is.na(
-              current$player_age
-            ),
-            "—",
-            current$player_age
-          ),
-          `Current Cap Hit` = vapply(
-            current$cap_hit,
-            money,
-            character(1)
-          ),
-          `Contract Through` = ifelse(
-            is.na(
-              current$contract_end_season
-            ),
-            "—",
-            current$contract_end_season
-          ),
-          `Years Control` = ifelse(
-            is.na(
-              years_remaining
-            ),
-            "—",
-            pmax(
-              0,
-              years_remaining
-            )
-          ),
-          Option = ifelse(
-            is.na(
-              current$option_type
-            ) |
-              !nzchar(
-                trimws(
-                  as.character(
-                    current$option_type
-                  )
-                )
-              ),
-            "—",
-            current$option_type
-          ),
-          `FA Year` = ifelse(
-            is.na(
-              current$free_agent_year
-            ),
-            "—",
-            current$free_agent_year
-          ),
-          `Bird Rights` = ifelse(
-            is.na(
-              current$bird_rights
-            ),
-            "—",
-            current$bird_rights
-          ),
-          check.names = FALSE,
-          stringsAsFactors = FALSE
-        )
-        
+        display <- five_year_contract_runway_data(current, season_start_year())
+
         reactable::reactable(
           display,
-          searchable = TRUE,
+          searchable = FALSE,
           highlight = TRUE,
           compact = TRUE,
           striped = FALSE,
           pagination = TRUE,
           defaultPageSize = 10,
           defaultSorted = "FA Year",
+          filterable = FALSE,
+          columns = list(
+            Position = reactable::colDef(cell = five_year_display_value),
+            Age = reactable::colDef(cell = five_year_display_value),
+            `Current Cap Hit` = reactable::colDef(
+              align = "right",
+              cell = function(value) {
+                if (identical(five_year_display_value(value), "UNKNOWN")) "UNKNOWN" else money(value)
+              }
+            ),
+            `Contract Type` = reactable::colDef(cell = five_year_contract_token_cell),
+            `Contract Through` = reactable::colDef(cell = five_year_display_value),
+            `Years Control` = reactable::colDef(cell = five_year_display_value),
+            Option = reactable::colDef(cell = five_year_contract_token_cell),
+            `FA Year` = reactable::colDef(cell = five_year_contract_token_cell),
+            `Bird Rights` = reactable::colDef(cell = five_year_contract_token_cell)
+          ),
           theme = reactable::reactableTheme(
             backgroundColor = "transparent",
             color = "#e6edf6",
@@ -2922,86 +3274,57 @@ mod_five_year_outlook_server <- function(
           "RESET LONG-RANGE STRUCTURE"
         }
         
-        rationale <- if (
-          metrics$composite >= 78
-        ) {
-          paste(
-            "The organization has a strong long-range flexibility profile.",
-            "Protect the future decision windows that allow the front office to pivot between retention, acquisition, and development."
-          )
-        } else if (
-          metrics$composite >= 62
-        ) {
-          paste(
-            "The long-range structure is workable but requires disciplined sequencing.",
-            "Avoid stacking major contract decisions into the same offseason and preserve controllable alternatives."
-          )
-        } else if (
-          metrics$composite >= 48
-        ) {
-          paste(
-            "The current timeline offers only moderate optionality.",
-            "Use extensions, trades, options, and upcoming expirations to spread risk and reopen future flexibility."
-          )
-        } else {
-          paste(
-            "The loaded long-range profile is restrictive.",
-            "Prioritize shorter commitment windows, controllable contracts, and asset replenishment before additional aggressive spending."
-          )
-        }
-        
         scenario <- active_trade_scenario()
-        
-        if (!is.null(scenario)) {
-          
-          payroll_delta <-
-            current_payroll() -
-            base_current_payroll()
-          
-          scenario_sentence <- if (
-            abs(payroll_delta) < 1
-          ) {
-            paste(
-              "The active trade scenario is approximately payroll-neutral in the current season.",
-              "Incoming and outgoing contract commitments are included across the loaded planning horizon."
-            )
-          } else if (
-            payroll_delta < 0
-          ) {
-            paste(
-              "The active trade scenario reduces current-season payroll by",
-              money(
-                abs(
-                  payroll_delta
-                )
-              ),
-              "and the five-year view includes the incoming and outgoing contract commitments."
-            )
-          } else {
-            paste(
-              "The active trade scenario increases current-season payroll by",
-              money(
-                payroll_delta
-              ),
-              "and the five-year view includes the incoming and outgoing contract commitments."
-            )
-          }
-          
-          rationale <- paste(
-            rationale,
-            scenario_sentence
-          )
+        payroll_delta <- if (is.null(scenario)) 0 else current_payroll() - base_current_payroll()
+        current <- current_roster_contracts()
+        fa_years <- suppressWarnings(as.numeric(current$free_agent_year))
+        loaded_fa_years <- fa_years[is.finite(fa_years)]
+        next_window <- if (length(loaded_fa_years)) {
+          paste0(min(loaded_fa_years), " free-agency window")
+        } else {
+          "UNKNOWN — no verified free-agency year is loaded"
         }
-        
-        if (
-          is.na(
-            draft_net_value()
+
+        main_risk <- if (near_term_fa() >= 6) {
+          paste(near_term_fa(), "near-term free agents concentrate roster turnover.")
+        } else if (metrics$payroll_flex < 50) {
+          "Loaded Year-3 commitments provide limited payroll relief."
+        } else if (is.na(draft_net_value())) {
+          "Draft-capital impact remains UNKNOWN because the portfolio is not loaded."
+        } else {
+          "No major structural risk is identified by the currently loaded inputs."
+        }
+
+        main_opportunity <- if (metrics$year3_drop >= .25) {
+          paste0(
+            "Loaded Year-3 payroll is ",
+            round(metrics$year3_drop * 100),
+            "% below current payroll."
           )
-        ) {
-          rationale <- paste(
-            rationale,
-            "Draft-capital analysis remains incomplete until the organization's draft assets are loaded."
-          )
+        } else if (team_option_count() > 0) {
+          paste(team_option_count(), "loaded team-option years preserve control.")
+        } else if (!is.na(draft_net_value()) && metrics$draft >= 60) {
+          "Loaded draft capital supports future transaction optionality."
+        } else {
+          "Upcoming contract decision points are the clearest available flexibility lever."
+        }
+
+        next_action <- if (metrics$composite >= 78) {
+          paste("Protect the", next_window, "and avoid unnecessary long-term commitments.")
+        } else if (metrics$composite >= 62) {
+          paste("Sequence major decisions around the", next_window, "to avoid concentrated exposure.")
+        } else {
+          paste("Use the", next_window, "to improve contract control before adding commitments.")
+        }
+
+        scenario_fact <- if (is.null(scenario)) {
+          paste("Authoritative baseline; current payroll is", money(current_payroll()), ".")
+        } else if (abs(payroll_delta) < 1) {
+          "Active trade scenario is approximately payroll-neutral in the current season."
+        } else if (payroll_delta < 0) {
+          paste("Active trade scenario reduces current payroll by", money(abs(payroll_delta)), ".")
+        } else {
+          paste("Active trade scenario increases current payroll by", money(payroll_delta), ".")
         }
         
         cba_reference_term <- if (
@@ -3049,15 +3372,17 @@ mod_five_year_outlook_server <- function(
           ),
           
           shiny::div(
-            
-            shiny::h3(
-              style = "margin:0 0 7px;",
-              rationale
+            shiny::tags$ul(
+              class = "outlook-v2-rec-reasons",
+              shiny::tags$li(shiny::strong("WHY"), shiny::span(paste("Flexibility score", round(metrics$composite), "/ 100;", scenario_fact))),
+              shiny::tags$li(shiny::strong("KEY WINDOW"), shiny::span(next_window)),
+              shiny::tags$li(shiny::strong("MAIN RISK"), shiny::span(main_risk)),
+              shiny::tags$li(shiny::strong("OPPORTUNITY"), shiny::span(main_opportunity)),
+              shiny::tags$li(shiny::strong("NEXT ACTION"), shiny::span(next_action))
             ),
-            
             shiny::p(
               class = "outlook-v2-note",
-              style = "margin:0;",
+              style = "margin:10px 0 0;",
               paste(
                 "This view uses contract, roster, option, free-agency, and available draft-value inputs",
                 "currently stored in TBI. Future salary values are loaded commitments, not salary projections."

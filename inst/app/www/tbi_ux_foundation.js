@@ -86,45 +86,75 @@
 
 })(window, document);
 
+(function (window, document) {
+  'use strict';
+
+  var TEAM_KEY = 'tbi-v2-selected-team-v1';
+
+  document.addEventListener('shiny:connected', function () {
+    var selector = document.getElementById('selected_team');
+    if (!selector || selector.value) return;
+    try {
+      var saved = window.sessionStorage.getItem(TEAM_KEY);
+      var savedOption = saved && Array.prototype.some.call(
+        selector.options,
+        function (option) { return option.value === saved; }
+      );
+      if (savedOption) {
+        if (selector.selectize && typeof selector.selectize.setValue === 'function') {
+          selector.selectize.setValue(saved);
+        } else {
+          selector.value = saved;
+          selector.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    } catch (error) {
+      // Session storage is optional; neutral selection remains the fallback.
+    }
+  });
+
+  document.addEventListener('shiny:inputchanged', function (event) {
+    if (!event || event.name !== 'selected_team') return;
+    try {
+      if (event.value) {
+        window.sessionStorage.setItem(TEAM_KEY, event.value);
+      } else {
+        window.sessionStorage.removeItem(TEAM_KEY);
+      }
+    } catch (error) {
+      // Selection remains mounted even when storage is unavailable.
+    }
+  });
+})(window, document);
+
 (function () {
   'use strict';
 
-  var TBI_PM_VERSION = '1.0.0';
-
-  function normalizeText(value) {
-    return (value || '').replace(/\s+/g, ' ').trim().toUpperCase();
-  }
-
-  function panelTitle(panel) {
-    var title = panel.querySelector('.pi-panel-title');
-    return title ? normalizeText(title.textContent) : '';
-  }
+  var TBI_PM_VERSION = '2.0.0';
+  var TBI_PM_TABS = ['overview', 'value', 'development', 'contract', 'recommendation'];
 
   function classifyPanel(panel) {
-    var title = panelTitle(panel);
-
-    if (title.indexOf('PLAYER VALUE') >= 0 || title.indexOf('VALUE & FIT') >= 0 || title.indexOf('BIE') >= 0) {
-      return 'value';
-    }
-    if (title.indexOf('FUTURE PROJECTION') >= 0 || title.indexOf('DEVELOPMENT') >= 0 || title.indexOf('ADVANCED IMPACT') >= 0) {
-      return 'development';
-    }
-    if (title.indexOf('CONTRACT INTELLIGENCE') >= 0 || title.indexOf('CBA FLAGS') >= 0 || title.indexOf('ELIGIBILITY') >= 0) {
-      return 'contract';
-    }
-    if (title.indexOf('EXECUTIVE RECOMMENDATION') >= 0 || title.indexOf('RECOMMENDATION') >= 0 || title.indexOf('RISK & OPPORTUNITY') >= 0) {
-      return 'recommendation';
-    }
+    var explicitTab = panel.getAttribute('data-tbi-pm-tab');
+    if (TBI_PM_TABS.indexOf(explicitTab) >= 0) return explicitTab;
     return 'overview';
   }
 
   function setTab(page, tabName) {
+    if (TBI_PM_TABS.indexOf(tabName) < 0) tabName = 'overview';
+
+    page.setAttribute('data-tbi-pm-active-tab', tabName);
+
     page.querySelectorAll('.tbi-pm-subtab').forEach(function (button) {
-      button.classList.toggle('active', button.getAttribute('data-tab') === tabName);
+      var isActive = button.getAttribute('data-tab') === tabName;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      button.setAttribute('tabindex', isActive ? '0' : '-1');
     });
 
     page.querySelectorAll('.tbi-pm-tab-target').forEach(function (target) {
-      target.classList.toggle('tbi-pm-hidden', target.getAttribute('data-tbi-pm-tab') !== tabName);
+      var isActive = target.getAttribute('data-tbi-pm-tab') === tabName;
+      target.classList.toggle('tbi-pm-hidden', !isActive);
+      target.setAttribute('aria-hidden', isActive ? 'false' : 'true');
     });
 
     try {
@@ -155,20 +185,22 @@
     subnav.className = 'tbi-pm-subnav';
     subnav.setAttribute('role', 'tablist');
 
-    [
-      ['overview', 'Overview'],
-      ['value', 'Value & Fit'],
-      ['development', 'Development'],
-      ['contract', 'Contract & CBA'],
-      ['recommendation', 'Recommendation']
-    ].forEach(function (tab) {
+    var labels = {
+      overview: 'Overview',
+      value: 'Value & Fit',
+      development: 'Development',
+      contract: 'Contract & CBA',
+      recommendation: 'Recommendation'
+    };
+
+    TBI_PM_TABS.forEach(function (tabName) {
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'tbi-pm-subtab';
-      button.textContent = tab[1];
-      button.setAttribute('data-tab', tab[0]);
+      button.textContent = labels[tabName];
+      button.setAttribute('data-tab', tabName);
       button.setAttribute('role', 'tab');
-      button.addEventListener('click', function () { setTab(page, tab[0]); });
+      button.addEventListener('click', function () { setTab(page, tabName); });
       subnav.appendChild(button);
     });
 
@@ -177,7 +209,7 @@
     var savedTab = 'overview';
     try {
       var stored = window.sessionStorage.getItem('tbi-player-management-tab');
-      if (stored) savedTab = stored;
+      if (TBI_PM_TABS.indexOf(stored) >= 0) savedTab = stored;
     } catch (e) {
       savedTab = 'overview';
     }
@@ -207,7 +239,7 @@
 
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '2.1.0';
 
   function text(el) {
     return (el && el.textContent ? el.textContent : '')
@@ -218,14 +250,18 @@
 
   function classify(el) {
 
+    var explicit = el.getAttribute('data-tbi-roster-tab');
+
+    if (explicit) return explicit;
+
     var value = text(el);
 
     if (value.indexOf('ROSTER NEEDS + GAP ANALYSIS') >= 0) {
-      return 'needs';
+      return 'risk';
     }
 
     if (value.indexOf('ROSTER DECISION INTELLIGENCE') >= 0) {
-      return 'decision';
+      return 'assessment';
     }
 
     if (value.indexOf('COMPLETE ROSTER') >= 0) {
@@ -239,21 +275,21 @@
 
     page.querySelectorAll('.tbi-roster-subtab')
       .forEach(function(button) {
-        button.classList.toggle(
-          'active',
-          button.getAttribute('data-tab') === tab
-        );
+        var active = button.getAttribute('data-tab') === tab;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
       });
 
     page.querySelectorAll('.tbi-roster-tab-target')
       .forEach(function(target) {
 
-        var targetTab =
-          target.getAttribute('data-tbi-roster-tab');
+        var targetTabs = (target.getAttribute('data-tbi-roster-tab') || '')
+          .split(/\s+/)
+          .filter(Boolean);
 
         target.classList.toggle(
           'tbi-roster-hidden',
-          targetTab !== tab
+          targetTabs.indexOf(tab) < 0
         );
 
       });
@@ -264,6 +300,8 @@
         tab
       );
     } catch(e) {}
+
+    page.setAttribute('data-tbi-roster-active-tab', tab);
 
     window.TBIUX.notifySubtab(page, tab);
 
@@ -306,10 +344,12 @@
 
       el.classList.add('tbi-roster-tab-target');
 
-      el.setAttribute(
-        'data-tbi-roster-tab',
-        classify(el)
-      );
+      if (!el.getAttribute('data-tbi-roster-tab')) {
+        el.setAttribute(
+          'data-tbi-roster-tab',
+          classify(el)
+        );
+      }
 
     });
 
@@ -319,8 +359,9 @@
 
     var tabs = [
       ['overview', 'Overview'],
-      ['decision', 'Decision Intelligence'],
-      ['needs', 'Needs & Gaps'],
+      ['construction', 'Roster Construction'],
+      ['assessment', 'Roster Assessment'],
+      ['risk', 'Risks & Opportunities'],
       ['roster', 'Complete Roster']
     ];
 
@@ -333,6 +374,7 @@
       button.textContent = item[1];
       button.setAttribute('data-tab', item[0]);
       button.setAttribute('role', 'tab');
+      button.setAttribute('aria-selected', 'false');
 
       button.addEventListener(
         'click',
@@ -354,7 +396,8 @@
 
     try {
       var stored = sessionStorage.getItem('tbi-roster-tab');
-      if (stored) selected = stored;
+      var validTabs = tabs.map(function(item) { return item[0]; });
+      if (validTabs.indexOf(stored) >= 0) selected = stored;
     } catch(e) {}
 
     page.setAttribute(
@@ -392,7 +435,7 @@
 
   'use strict';
 
-  var VERSION = '2.0.0';
+  var VERSION = '1.0.0';
 
   function cleanText(el) {
     return (el && el.textContent ? el.textContent : '')
@@ -410,6 +453,11 @@
     var nav = page.querySelector('.tbi-roster-subnav');
 
     if (!nav) return;
+
+    if (page.getAttribute('data-tbi-roster-tabs-ready') === '2.1.0') {
+      page.setAttribute('data-tbi-roster-correction', VERSION);
+      return;
+    }
 
     if (
       page.getAttribute('data-tbi-roster-correction') === VERSION
@@ -607,34 +655,99 @@
 
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '1.1.0';
+
+  function bindSituationalLineups(scope) {
+
+    scope
+      .querySelectorAll('.tbi-p3-situational-lineups')
+      .forEach(function(container) {
+
+        if (container.getAttribute('data-tbi-situational-ready') === VERSION) return;
+
+        container
+          .querySelectorAll('[data-situational-lineup]')
+          .forEach(function(button) {
+
+            button.addEventListener('click', function() {
+              var type = button.getAttribute('data-situational-lineup');
+              container.setAttribute('data-tbi-situational-active', type);
+              container
+                .querySelectorAll('[data-situational-lineup]')
+                .forEach(function(peer) {
+                  peer.setAttribute(
+                    'aria-pressed',
+                    peer.getAttribute('data-situational-lineup') === type ? 'true' : 'false'
+                  );
+                });
+            });
+
+          });
+
+        container.setAttribute('data-tbi-situational-ready', VERSION);
+
+      });
+
+  }
 
   function activate(page, tabName) {
 
-    page
+    var depthPage = page.closest('.tbi-depth-page') || page.parentElement;
+    var previousTab = depthPage && depthPage.getAttribute('data-tbi-depth-active-tab');
+    if (depthPage) depthPage.setAttribute('data-tbi-depth-active-tab', tabName);
+    var scope = depthPage || page;
+    bindSituationalLineups(scope);
+
+    scope
       .querySelectorAll('.tbi-depth-subtab')
       .forEach(function(button) {
 
-        button.classList.toggle(
-          'active',
-          button.getAttribute('data-tab') === tabName
-        );
+        var active = button.getAttribute('data-tab') === tabName;
+
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+        button.setAttribute('tabindex', active ? '0' : '-1');
 
       });
 
-    page
+    scope
       .querySelectorAll('.tbi-depth-tab-target')
       .forEach(function(target) {
 
-        var targetTab =
-          target.getAttribute('data-tbi-depth-tab');
+        var targetTabs =
+          (target.getAttribute('data-tbi-depth-tab') || '').split(' ');
 
         target.classList.toggle(
           'tbi-depth-hidden',
-          targetTab !== tabName
+          targetTabs.indexOf(tabName) < 0
         );
 
       });
+
+    var shell = scope.querySelector('.depth-v21-shell');
+    var workspace = scope.querySelector('.tbi-depth-v2-workspace');
+    var editorDisclosure = scope.querySelector('.depth-lineup-editor-disclosure');
+
+    if (shell && workspace) {
+      if (tabName === 'lineup') {
+        if (
+          workspace.parentNode !== shell.parentNode ||
+          workspace.nextElementSibling !== shell
+        ) {
+          shell.parentNode.insertBefore(workspace, shell);
+        }
+      } else if (shell.nextElementSibling !== workspace) {
+        shell.insertAdjacentElement('afterend', workspace);
+      }
+    }
+
+    if (editorDisclosure) {
+      if (tabName === 'depth') {
+        editorDisclosure.setAttribute('open', '');
+      } else if (tabName === 'lineup' && previousTab !== 'lineup') {
+        editorDisclosure.removeAttribute('open');
+      }
+    }
 
     try {
 
@@ -644,6 +757,24 @@
       );
 
     } catch(e) {}
+
+  }
+
+  function placeDepthTabs(shell, nav) {
+
+    var depthPage = shell.closest('.tbi-depth-page') || shell.parentElement;
+    var intro = depthPage && depthPage.querySelector('.tbi-depth-module-intro');
+
+    if (intro) {
+      if (intro.nextElementSibling !== nav) {
+        intro.insertAdjacentElement('afterend', nav);
+      }
+      return;
+    }
+
+    if (nav.parentElement !== shell || nav !== shell.firstElementChild) {
+      shell.insertBefore(nav, shell.firstChild);
+    }
 
   }
 
@@ -657,6 +788,18 @@
     if (
       shell.getAttribute('data-tbi-depth-tabs-ready') === VERSION
     ) {
+      var existingPage = shell.closest('.tbi-depth-page') || shell.parentElement;
+      var existingNav = existingPage && existingPage.querySelector('.tbi-depth-subnav');
+      if (existingNav) placeDepthTabs(shell, existingNav);
+      var existingWorkspace = existingPage && existingPage.querySelector('.tbi-depth-v2-workspace');
+      if (existingWorkspace) {
+        if (!existingWorkspace.classList.contains('tbi-depth-tab-target')) {
+          existingWorkspace.classList.add('tbi-depth-tab-target');
+        }
+        existingWorkspace.setAttribute('data-tbi-depth-tab', 'rotation lineup staggering gameplan');
+      }
+      var activeButton = existingPage.querySelector('.tbi-depth-subtab.active');
+      activate(shell, activeButton ? activeButton.getAttribute('data-tab') : 'depth');
       return;
     }
 
@@ -692,17 +835,21 @@
 
     court.setAttribute(
       'data-tbi-depth-tab',
-      'lineup'
+      'depth lineup'
     );
 
     playerRail.classList.add(
       'tbi-depth-tab-target'
     );
 
-    playerRail.setAttribute(
-      'data-tbi-depth-tab',
-      'player'
-    );
+    playerRail.setAttribute('data-tbi-depth-tab', 'depth');
+
+    var depthPage = shell.closest('.tbi-depth-page') || shell.parentElement;
+    var v2Workspace = depthPage && depthPage.querySelector('.tbi-depth-v2-workspace');
+    if (v2Workspace) {
+      v2Workspace.classList.add('tbi-depth-tab-target');
+      v2Workspace.setAttribute('data-tbi-depth-tab', 'rotation lineup staggering gameplan');
+    }
 
     var nav =
       document.createElement('div');
@@ -717,8 +864,10 @@
 
     var tabs = [
       ['depth', 'Depth Chart'],
-      ['lineup', 'Lineup & Rotation'],
-      ['player', 'Player Intelligence']
+      ['rotation', 'Rotation'],
+      ['lineup', 'Lineups'],
+      ['staggering', 'Staggering'],
+      ['gameplan', 'Game Plan']
     ];
 
     tabs.forEach(function(item) {
@@ -759,10 +908,7 @@
 
     });
 
-    shell.insertBefore(
-      nav,
-      shell.firstChild
-    );
+    placeDepthTabs(shell, nav);
 
     var selected = 'depth';
 
@@ -775,8 +921,10 @@
 
       if (
         stored === 'depth' ||
+        stored === 'rotation' ||
         stored === 'lineup' ||
-        stored === 'player'
+        stored === 'staggering' ||
+        stored === 'gameplan'
       ) {
         selected = stored;
       }
@@ -824,7 +972,7 @@
 
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '2.1.0';
 
   function cleanText(el) {
 
@@ -873,10 +1021,11 @@
       .querySelectorAll('.tbi-cap-subtab')
       .forEach(function(button) {
 
-        button.classList.toggle(
-          'active',
-          button.getAttribute('data-tab') === tabName
-        );
+        var selected = button.getAttribute('data-tab') === tabName;
+
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-selected', selected ? 'true' : 'false');
+        button.setAttribute('tabindex', selected ? '0' : '-1');
 
       });
 
@@ -892,6 +1041,11 @@
           targetTab !== tabName
         );
 
+        target.setAttribute(
+          'aria-hidden',
+          targetTab === tabName ? 'false' : 'true'
+        );
+
       });
 
     try {
@@ -902,6 +1056,10 @@
       );
 
     } catch(e) {}
+
+    page.setAttribute('data-tbi-cap-active-tab', tabName);
+
+    window.TBIUX.notifySubtab(page, tabName);
 
   }
 
@@ -939,14 +1097,14 @@
           child.classList.contains('tbi-cap-subnav')
         ) return;
 
-        child.classList.add(
-          'tbi-cap-tab-target'
-        );
+        if (!child.getAttribute('data-tbi-cap-tab')) {
+          child.classList.add('tbi-cap-tab-target');
+          child.setAttribute('data-tbi-cap-tab', classify(child));
+        }
 
-        child.setAttribute(
-          'data-tbi-cap-tab',
-          classify(child)
-        );
+        if (child.classList.contains('tbi-cap-tab-target')) {
+          child.setAttribute('role', 'tabpanel');
+        }
 
       }
     );
@@ -969,8 +1127,10 @@
     var tabs = [
       ['overview', 'Overview'],
       ['decision', 'Decision & Thresholds'],
+      ['contracts', 'Contracts & Commitments'],
+      ['market', 'Free Agent Market'],
       ['risk', 'Risks & Flexibility'],
-      ['contracts', 'Contracts & Readout']
+      ['recommendation', 'Recommendation']
     ];
 
     tabs.forEach(function(item) {
@@ -996,6 +1156,8 @@
         'tab'
       );
 
+      button.id = 'tbi-cap-tab-' + item[0];
+
       button.addEventListener(
         'click',
         function() {
@@ -1008,6 +1170,19 @@
         }
       );
 
+      button.addEventListener('keydown', function(event) {
+        var keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+        if (keys.indexOf(event.key) < 0) return;
+        event.preventDefault();
+        var current = tabs.findIndex(function(tab) { return tab[0] === item[0]; });
+        var next = event.key === 'Home' ? 0 :
+          event.key === 'End' ? tabs.length - 1 :
+          (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        activate(page, tabs[next][0]);
+        var nextButton = nav.querySelector('[data-tab="' + tabs[next][0] + '"]');
+        if (nextButton) nextButton.focus();
+      });
+
       nav.appendChild(button);
 
     });
@@ -1019,6 +1194,17 @@
       intro.nextSibling
     );
 
+    tabs.forEach(function(item) {
+      var button = nav.querySelector('[data-tab="' + item[0] + '"]');
+      var controlled = [];
+      page.querySelectorAll('.tbi-cap-tab-target[data-tbi-cap-tab="' + item[0] + '"]').forEach(function(target, index) {
+        target.id = 'tbi-cap-panel-' + item[0] + '-' + (index + 1);
+        target.setAttribute('aria-labelledby', button.id);
+        controlled.push(target.id);
+      });
+      button.setAttribute('aria-controls', controlled.join(' '));
+    });
+
     var selected = 'overview';
 
     try {
@@ -1028,12 +1214,7 @@
           'tbi-cap-tab'
         );
 
-      if (
-        stored === 'overview' ||
-        stored === 'decision' ||
-        stored === 'risk' ||
-        stored === 'contracts'
-      ) {
+      if (tabs.some(function(item) { return item[0] === stored; })) {
         selected = stored;
       }
 
@@ -1093,6 +1274,10 @@
 
   function classify(target) {
 
+    var explicit = target.getAttribute('data-tbi-team-tab');
+
+    if (explicit) return explicit;
+
     var txt = text(target);
 
     /* Builder is identified structurally first */
@@ -1137,10 +1322,15 @@
       .querySelectorAll('.tbi-trade-subtab')
       .forEach(function(button) {
 
+        var isActive = button.getAttribute('data-tab') === tabName;
+
         button.classList.toggle(
           'active',
-          button.getAttribute('data-tab') === tabName
+          isActive
         );
+
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
 
       });
 
@@ -1733,12 +1923,12 @@
 
   'use strict';
 
-  var VALID = [
-    'decision',
-    'scorecard',
-    'risks',
-    'context',
-    'confidence'
+  var TABS = [
+    ['decision', 'Executive Home'],
+    ['scorecard', 'Decision Scorecard'],
+    ['risks', 'Executive Priorities'],
+    ['context', 'Team Context'],
+    ['confidence', 'Decision Evidence']
   ];
 
   function selectedTab() {
@@ -1747,7 +1937,7 @@
 
     try {
       var stored = sessionStorage.getItem('tbi-command-tab');
-      if (VALID.indexOf(stored) >= 0) selected = stored;
+      if (TABS.some(function(item) { return item[0] === stored; })) selected = stored;
     } catch(e) {}
 
     return selected;
@@ -1764,18 +1954,28 @@
       tabName
     );
 
+    target.setAttribute('role', 'tabpanel');
+
   }
 
   function activate(page, tabName) {
+
+    var changed =
+      page.getAttribute('data-tbi-command-active-tab') !== tabName;
 
     page
       .querySelectorAll('.tbi-command-subtab')
       .forEach(function(button) {
 
+        var isActive = button.getAttribute('data-tab') === tabName;
+
         button.classList.toggle(
           'active',
-          button.getAttribute('data-tab') === tabName
+          isActive
         );
+
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
 
       });
 
@@ -1791,13 +1991,19 @@
           targetTab !== tabName
         );
 
+        target.setAttribute('aria-hidden', targetTab === tabName ? 'false' : 'true');
+
       });
 
-    try {
-      sessionStorage.setItem('tbi-command-tab', tabName);
-    } catch(e) {}
+    page.setAttribute('data-tbi-command-active-tab', tabName);
 
-    window.TBIUX.notifySubtab(page, tabName);
+    if (changed) {
+      try {
+        sessionStorage.setItem('tbi-command-tab', tabName);
+      } catch(e) {}
+
+      window.TBIUX.notifySubtab(page, tabName);
+    }
 
   }
 
@@ -1817,16 +2023,9 @@
 
     nav.className = 'tbi-command-subnav';
     nav.setAttribute('role', 'tablist');
+    nav.setAttribute('aria-label', 'Command Center sections');
 
-    var tabs = [
-      ['decision', 'Decision'],
-      ['scorecard', 'Scorecard'],
-      ['risks', 'Risks & Opportunities'],
-      ['context', 'Team Context'],
-      ['confidence', 'Data Confidence']
-    ];
-
-    tabs.forEach(function(item) {
+    TABS.forEach(function(item, tabIndex) {
 
       var button = document.createElement('button');
 
@@ -1836,9 +2035,23 @@
 
       button.setAttribute('data-tab', item[0]);
       button.setAttribute('role', 'tab');
+      button.id = 'tbi-command-tab-' + item[0];
 
       button.addEventListener('click', function() {
         activate(page, item[0]);
+      });
+
+      button.addEventListener('keydown', function(event) {
+        var nextIndex = tabIndex;
+        if (event.key === 'ArrowRight') nextIndex = (tabIndex + 1) % TABS.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (tabIndex + TABS.length - 1) % TABS.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = TABS.length - 1;
+        else return;
+        event.preventDefault();
+        var nextButton = nav.querySelectorAll('.tbi-command-subtab')[nextIndex];
+        activate(page, nextButton.getAttribute('data-tab'));
+        nextButton.focus();
       });
 
       nav.appendChild(button);
@@ -1861,11 +2074,6 @@
 
     if (!shell) return;
 
-    /* -----------------------------------------------------
-       Elements returned dynamically by executive_decision
-       are re-tagged after every Shiny render.
-       ----------------------------------------------------- */
-
     tag(
       shell.querySelector('.tbi-exec-recommendation'),
       'decision'
@@ -1886,8 +2094,6 @@
       'confidence'
     );
 
-    /* Scope note belongs with Data Confidence */
-
     tag(
       shell.querySelector('.tbi-executive-decision-view__scope-note'),
       'confidence'
@@ -1897,29 +2103,16 @@
 
   function tagContextSections(page) {
 
-    /* Executive status remains with the primary decision */
-
     var status =
       page.querySelector('.executive-status-strip');
 
     tag(status, 'decision');
 
-    /* All broader team information becomes Team Context */
-
-    var kpis =
-      page.querySelector('.terminal-kpi-grid');
-
-    tag(kpis, 'context');
-
-    var mainGrid =
-      page.querySelector('.terminal-main-grid');
-
-    tag(mainGrid, 'context');
-
-    var standings =
-      page.querySelector('.standings-panel');
-
-    tag(standings, 'context');
+    tag(page.querySelector('.command-team-context'), 'context');
+    tag(page.querySelector('.command-v2-basketball'), 'decision');
+    tag(page.querySelector('.command-bie-priorities'), 'risks');
+    tag(page.querySelector('.command-scenario-delta'), 'decision');
+    tag(page.querySelector('.command-cba-reference'), 'decision');
 
   }
 
@@ -1936,6 +2129,16 @@
 
     tagDecisionSections(page);
     tagContextSections(page);
+    TABS.forEach(function(item) {
+      var button = nav.querySelector('[data-tab="' + item[0] + '"]');
+      var controlled = [];
+      page.querySelectorAll('.tbi-command-tab-target[data-tbi-command-tab="' + item[0] + '"]').forEach(function(target, index) {
+        if (!target.id) target.id = 'tbi-command-panel-' + item[0] + '-' + (index + 1);
+        target.setAttribute('aria-labelledby', button.id);
+        controlled.push(target.id);
+      });
+      button.setAttribute('aria-controls', controlled.join(' '));
+    });
 
     activate(
       page,
@@ -1971,14 +2174,7 @@
 
   'use strict';
 
-  var VALID = [
-    'overview',
-    'decision',
-    'profile',
-    'risk',
-    'personnel',
-    'recommendation'
-  ];
+  var VERSION = '2.0.0';
 
   function text(el) {
 
@@ -2039,10 +2235,15 @@
       .querySelectorAll('.tbi-team-subtab')
       .forEach(function(button) {
 
+        var isActive = button.getAttribute('data-tab') === tabName;
+
         button.classList.toggle(
           'active',
-          button.getAttribute('data-tab') === tabName
+          isActive
         );
+
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
 
       });
 
@@ -2058,11 +2259,15 @@
           targetTab !== tabName
         );
 
+        target.setAttribute('aria-hidden', targetTab === tabName ? 'false' : 'true');
+
       });
 
     try {
       sessionStorage.setItem('tbi-team-tab', tabName);
     } catch(e) {}
+
+    page.setAttribute('data-tbi-team-active-tab', tabName);
 
     window.TBIUX.notifySubtab(page, tabName);
 
@@ -2075,7 +2280,7 @@
 
     if (!page) return;
 
-    if (page.getAttribute('data-tbi-team-tabs-ready') === '1') {
+    if (page.getAttribute('data-tbi-team-tabs-ready') === VERSION) {
       return;
     }
 
@@ -2108,10 +2313,11 @@
 
         child.classList.add('tbi-team-tab-target');
 
-        child.setAttribute(
-          'data-tbi-team-tab',
-          classify(child)
-        );
+        if (!child.getAttribute('data-tbi-team-tab')) {
+          child.setAttribute('data-tbi-team-tab', classify(child));
+        }
+
+        child.setAttribute('role', 'tabpanel');
 
       }
     );
@@ -2130,7 +2336,7 @@
       ['recommendation', 'Recommendation']
     ];
 
-    tabs.forEach(function(item) {
+    tabs.forEach(function(item, tabIndex) {
 
       var button = document.createElement('button');
 
@@ -2140,9 +2346,23 @@
 
       button.setAttribute('data-tab', item[0]);
       button.setAttribute('role', 'tab');
+      button.id = 'tbi-team-tab-' + item[0];
 
       button.addEventListener('click', function() {
         activate(page, item[0]);
+      });
+
+      button.addEventListener('keydown', function(event) {
+        var nextIndex = tabIndex;
+        if (event.key === 'ArrowRight') nextIndex = (tabIndex + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (tabIndex + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        var nextButton = nav.querySelectorAll('.tbi-team-subtab')[nextIndex];
+        activate(page, nextButton.getAttribute('data-tab'));
+        nextButton.focus();
       });
 
       nav.appendChild(button);
@@ -2156,17 +2376,28 @@
 
     var selected = 'overview';
 
+    tabs.forEach(function(item) {
+      var button = nav.querySelector('[data-tab="' + item[0] + '"]');
+      var controlled = [];
+      page.querySelectorAll('.tbi-team-tab-target[data-tbi-team-tab="' + item[0] + '"]').forEach(function(target, index) {
+        target.id = 'tbi-team-panel-' + item[0] + '-' + (index + 1);
+        target.setAttribute('aria-labelledby', button.id);
+        controlled.push(target.id);
+      });
+      button.setAttribute('aria-controls', controlled.join(' '));
+    });
+
     try {
 
       var stored = sessionStorage.getItem('tbi-team-tab');
 
-      if (VALID.indexOf(stored) >= 0) {
+      if (tabs.some(function(item) { return item[0] === stored; })) {
         selected = stored;
       }
 
     } catch(e) {}
 
-    page.setAttribute('data-tbi-team-tabs-ready', '1');
+    page.setAttribute('data-tbi-team-tabs-ready', VERSION);
 
     activate(page, selected);
 
@@ -2199,7 +2430,7 @@
 
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '2.0.0';
 
   var VALID = [
     'overview',
@@ -2210,34 +2441,21 @@
     'recommendation'
   ];
 
-  function syncLayouts(page, tabName) {
-
-    page
-      .querySelectorAll('.tbi-outlook-tab-layout')
-      .forEach(function (layout) {
-
-        var hasVisibleSection = Array.prototype.some.call(
-          layout.children,
-          function (child) {
-            return child.getAttribute('data-tbi-outlook-tab') === tabName;
-          }
-        );
-
-        layout.classList.toggle(
-          'tbi-outlook-layout-hidden',
-          !hasVisibleSection
-        );
-
-        layout.setAttribute(
-          'data-tbi-outlook-active-tab',
-          tabName
-        );
-
-      });
-
-  }
+  var REQUIRED_SECTIONS = [
+    'long-range-snapshot',
+    'overview-story',
+    'strategic-flexibility',
+    'organizational-timeline',
+    'contract-runway',
+    'draft-control-and-optionality',
+    'executive-recommendation'
+  ];
 
   function activate(page, tabName) {
+
+    if (page.getAttribute('data-tbi-team-active-tab') === tabName) return;
+
+    if (page.getAttribute('data-tbi-cap-active-tab') === tabName) return;
 
     page
       .querySelectorAll('.tbi-outlook-subtab')
@@ -2247,6 +2465,7 @@
 
         button.classList.toggle('active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
 
       });
 
@@ -2261,8 +2480,6 @@
         target.setAttribute('aria-hidden', isActive ? 'false' : 'true');
 
       });
-
-    syncLayouts(page, tabName);
 
     try {
       sessionStorage.setItem('tbi-five-year-outlook-tab', tabName);
@@ -2291,11 +2508,27 @@
     var targets =
       page.querySelectorAll('[data-tbi-outlook-tab]');
 
-    if (!intro || targets.length !== 9) return;
+    var availableSections = Array.prototype.map.call(
+      targets,
+      function (target) {
+        return target.getAttribute('data-tbi-outlook-section');
+      }
+    );
+
+    if (
+      !intro ||
+      !REQUIRED_SECTIONS.every(function (section) {
+        return availableSections.indexOf(section) >= 0;
+      })
+    ) return;
 
     targets.forEach(function (target) {
       target.classList.add('tbi-outlook-tab-target');
+      target.setAttribute('role', 'tabpanel');
     });
+
+    var previousNav = page.querySelector('.tbi-outlook-subnav');
+    if (previousNav) previousNav.remove();
 
     var nav = document.createElement('div');
 
@@ -2312,7 +2545,7 @@
       ['recommendation', 'Recommendation']
     ];
 
-    tabs.forEach(function (item) {
+    tabs.forEach(function (item, tabIndex) {
 
       var button = document.createElement('button');
 
@@ -2321,10 +2554,45 @@
       button.textContent = item[1];
 
       button.setAttribute('data-tab', item[0]);
+      button.id = 'tbi-outlook-tab-' + item[0];
       button.setAttribute('role', 'tab');
+      button.setAttribute('aria-selected', 'false');
+      button.setAttribute('tabindex', '-1');
+
+      var controlledTargets = Array.prototype.filter.call(
+        targets,
+        function (target) {
+          return target.getAttribute('data-tbi-outlook-tab') === item[0];
+        }
+      );
+
+      controlledTargets.forEach(function (target, targetIndex) {
+        target.id = 'tbi-outlook-panel-' + item[0] + '-' + (targetIndex + 1);
+        target.setAttribute('aria-labelledby', button.id);
+      });
+
+      button.setAttribute(
+        'aria-controls',
+        controlledTargets.map(function (target) { return target.id; }).join(' ')
+      );
 
       button.addEventListener('click', function () {
         activate(page, item[0]);
+      });
+
+      button.addEventListener('keydown', function (event) {
+        var nextIndex = tabIndex;
+
+        if (event.key === 'ArrowRight') nextIndex = (tabIndex + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (tabIndex + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else return;
+
+        event.preventDefault();
+        var nextTab = nav.querySelectorAll('.tbi-outlook-subtab')[nextIndex];
+        activate(page, nextTab.getAttribute('data-tab'));
+        nextTab.focus();
       });
 
       nav.appendChild(button);
@@ -2343,7 +2611,7 @@
       var stored =
         sessionStorage.getItem('tbi-five-year-outlook-tab');
 
-      if (VALID.indexOf(stored) >= 0) {
+      if (tabs.some(function(item) { return item[0] === stored; })) {
         selected = stored;
       }
 
@@ -2385,7 +2653,7 @@
 
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '2.1.0';
 
   var TABS = [
     ['proposal', 'Proposal'],
@@ -2446,6 +2714,7 @@
 
         button.classList.toggle('active', isActive);
         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        button.setAttribute('tabindex', isActive ? '0' : '-1');
 
       });
 
@@ -2462,6 +2731,7 @@
       });
 
     syncLayouts(page, tabName);
+    page.setAttribute('data-tbi-extension-active-tab', tabName);
 
     try {
       sessionStorage.setItem('tbi-extension-simulator-tab', tabName);
@@ -2491,7 +2761,7 @@
     var targets =
       page.querySelectorAll('[data-tbi-extension-tab]');
 
-    if (!intro || targets.length !== 11) return;
+    if (!intro || !targets.length) return;
 
     targets.forEach(function (target) {
       target.classList.add('tbi-extension-tab-target');
@@ -2503,7 +2773,7 @@
     nav.setAttribute('role', 'tablist');
     nav.setAttribute('aria-label', 'Extension Simulator sections');
 
-    TABS.forEach(function (item) {
+    TABS.forEach(function (item, tabIndex) {
 
       var button = document.createElement('button');
 
@@ -2513,9 +2783,23 @@
 
       button.setAttribute('data-tab', item[0]);
       button.setAttribute('role', 'tab');
+      button.id = 'tbi-extension-tab-' + item[0];
 
       button.addEventListener('click', function () {
         activate(page, item[0]);
+      });
+
+      button.addEventListener('keydown', function (event) {
+        var nextIndex = tabIndex;
+        if (event.key === 'ArrowRight') nextIndex = (tabIndex + 1) % TABS.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (tabIndex + TABS.length - 1) % TABS.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = TABS.length - 1;
+        else return;
+        event.preventDefault();
+        var nextButton = nav.querySelectorAll('.tbi-extension-subtab')[nextIndex];
+        activate(page, nextButton.getAttribute('data-tab'));
+        nextButton.focus();
       });
 
       nav.appendChild(button);
@@ -2526,6 +2810,18 @@
       nav,
       intro.nextSibling
     );
+
+    TABS.forEach(function (item) {
+      var button = nav.querySelector('[data-tab="' + item[0] + '"]');
+      var controlled = [];
+      page.querySelectorAll('[data-tbi-extension-tab="' + item[0] + '"]').forEach(function (target, index) {
+        target.id = 'tbi-extension-panel-' + item[0] + '-' + (index + 1);
+        target.setAttribute('role', 'tabpanel');
+        target.setAttribute('aria-labelledby', button.id);
+        controlled.push(target.id);
+      });
+      button.setAttribute('aria-controls', controlled.join(' '));
+    });
 
     var selected = 'proposal';
 

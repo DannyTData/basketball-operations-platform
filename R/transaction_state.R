@@ -4,6 +4,155 @@
 # Thompson Basketball Intelligence
 # ------------------------------------------------------------
 
+tbi_scenario_scope_value <- function(scenario) {
+  if (!is.list(scenario) || !isTRUE(scenario$active)) {
+    return(NULL)
+  }
+
+  explicit_scope <- as.character(scenario$scenario_scope %||% "")
+  if (length(explicit_scope) && explicit_scope[[1]] %in% c("SHARED_SUPPORTED", "TRADE_LOCAL")) {
+    return(explicit_scope[[1]])
+  }
+
+  if (identical(as.character(scenario$scenario_type), "v2_multiteam_trade")) {
+    return("TRADE_LOCAL")
+  }
+
+  if (identical(as.character(scenario$scenario_type), "trade")) {
+    return("SHARED_SUPPORTED")
+  }
+
+  NULL
+}
+
+tbi_scenario_is_shared_supported <- function(scenario) {
+  identical(tbi_scenario_scope_value(scenario), "SHARED_SUPPORTED")
+}
+
+tbi_scenario_is_trade_local <- function(scenario) {
+  identical(tbi_scenario_scope_value(scenario), "TRADE_LOCAL")
+}
+
+tbi_scenario_matches_season <- function(scenario, selected_season) {
+  if (!is.list(scenario) || !isTRUE(scenario$active)) {
+    return(TRUE)
+  }
+
+  selected_season <- trimws(as.character(selected_season %||% ""))
+  scenario_season <- trimws(as.character(
+    scenario$season %||% scenario$v2_transaction_graph$season %||% ""
+  ))
+  length(selected_season) == 1L &&
+    !is.na(selected_season) &&
+    nzchar(selected_season) &&
+    length(scenario_season) == 1L &&
+    !is.na(scenario_season) &&
+    nzchar(scenario_season) &&
+    identical(scenario_season, selected_season)
+}
+
+#' Authorize an authoritative write from the current scenario context.
+#'
+#' Exploratory scenario state is session-scoped.  No active scenario may
+#' silently persist its derived state to the authoritative database.  The
+#' supported two-team flow retains its working-preview behavior, while all
+#' other active envelopes fail closed as unsupported.
+#'
+#' @noRd
+tbi_authorize_official_write <- function(
+    scenario = NULL,
+    operation = "Official write") {
+  operation <- as.character(operation %||% "Official write")
+  operation <- if (
+    length(operation) &&
+      !is.na(operation[[1]]) &&
+      nzchar(trimws(operation[[1]]))
+  ) {
+    trimws(operation[[1]])
+  } else {
+    "Official write"
+  }
+
+  has_canonical_active <- is.list(scenario) &&
+    length(scenario$active) == 1L &&
+    is.logical(scenario$active) &&
+    !is.na(scenario$active)
+  state_unavailable <- !is.null(scenario) && (
+    !has_canonical_active || isTRUE(scenario$state_unavailable)
+  )
+  scenario_scope <- tbi_scenario_scope_value(scenario)
+
+  if (state_unavailable) {
+    return(list(
+      allowed = FALSE,
+      ok = FALSE,
+      status = "BLOCKED",
+      code = "SCENARIO_STATE_UNAVAILABLE",
+      operation = operation,
+      scenario_scope = scenario_scope,
+      message = paste(
+        "REVIEW / BLOCKED: Transaction scenario state is unavailable or invalid.",
+        operation,
+        "cannot modify the authoritative depth chart until scenario state is restored.",
+        "No official records were changed."
+      )
+    ))
+  }
+
+  active <- isTRUE(scenario$active)
+
+  if (!active) {
+    return(list(
+      allowed = TRUE,
+      ok = TRUE,
+      status = "PASS",
+      code = "OFFICIAL_WRITE_ALLOWED",
+      operation = operation,
+      scenario_scope = NULL,
+      message = paste(operation, "is authorized from the baseline state.")
+    ))
+  }
+
+  if (identical(scenario_scope, "SHARED_SUPPORTED")) {
+    return(list(
+      allowed = FALSE,
+      ok = FALSE,
+      status = "BLOCKED",
+      code = "ACTIVE_SCENARIO_WRITE_BLOCKED",
+      operation = operation,
+      scenario_scope = scenario_scope,
+      message = paste(
+        "BLOCKED:", operation,
+        "is unavailable while a supported scenario preview is active.",
+        "No official records were changed."
+      )
+    ))
+  }
+
+  scope_label <- if (identical(scenario_scope, "TRADE_LOCAL")) {
+    "TRADE-LOCAL"
+  } else {
+    "unsupported or unknown"
+  }
+
+  list(
+    allowed = FALSE,
+    ok = FALSE,
+    status = "BLOCKED",
+    code = "UNSUPPORTED_ACTIVE_SCENARIO",
+    operation = operation,
+    scenario_scope = scenario_scope,
+    message = paste(
+      "REVIEW / BLOCKED:", operation,
+      "cannot modify the authoritative depth chart while a",
+      scope_label,
+      "scenario is active.",
+      "Clear or reset the scenario before saving official records.",
+      "No official records were changed."
+    )
+  )
+}
+
 #' Create the shared front-office scenario state.
 #'
 #' The object is intentionally session-scoped. It stores a proposed
@@ -11,12 +160,55 @@
 #'
 #' @noRd
 tbi_transaction_state <- function() {
+
+  canonical_trade_rows <- function(x) {
+    x <- if (is.data.frame(x)) x else data.frame()
+    columns <- sort(names(x), method = "radix")
+    x <- x[, columns, drop = FALSE]
+
+    if (nrow(x)) {
+      row_signatures <- vapply(
+        seq_len(nrow(x)),
+        function(index) v2_canonical_text(as.list(x[index, , drop = FALSE])),
+        character(1)
+      )
+      x <- x[order(row_signatures, method = "radix"), , drop = FALSE]
+    }
+
+    rownames(x) <- NULL
+    x
+  }
+
+  two_team_transaction_identity <- function(team,
+                                             partner_team,
+                                             season,
+                                             outgoing_players,
+                                             incoming_players,
+                                             outgoing_draft_assets,
+                                             incoming_draft_assets) {
+    body <- list(
+      scenario_type = "trade",
+      team = as.character(team),
+      partner_team = as.character(partner_team),
+      season = as.character(season),
+      outgoing_players = canonical_trade_rows(outgoing_players),
+      incoming_players = canonical_trade_rows(incoming_players),
+      outgoing_draft_assets = canonical_trade_rows(outgoing_draft_assets),
+      incoming_draft_assets = canonical_trade_rows(incoming_draft_assets)
+    )
+
+    list(
+      signature = v2_input_signature(body),
+      scenario_id = v2_state_id("trade", body)
+    )
+  }
   
   state <- shiny::reactiveValues(
     active = FALSE,
     scenario_id = NULL,
     source = NULL,
     scenario_type = NULL,
+    scenario_scope = NULL,
     team = NULL,
     partner_team = NULL,
     season = NULL,
@@ -33,6 +225,12 @@ tbi_transaction_state <- function() {
     incoming_salary = 0,
     salary_delta = 0,
     evaluation = NULL,
+    transaction_signature = NULL,
+    evaluation_signature = NULL,
+    v2_transaction_graph = NULL,
+    v2_transaction_evaluation = NULL,
+    v2_exception_scenario = NULL,
+    v2_organizational_impact = NULL,
     created_at = NULL,
     updated_at = NULL
   )
@@ -58,6 +256,7 @@ tbi_transaction_state <- function() {
       scenario_id = state$scenario_id,
       source = state$source,
       scenario_type = state$scenario_type,
+      scenario_scope = state$scenario_scope,
       team = state$team,
       partner_team = state$partner_team,
       season = state$season,
@@ -108,6 +307,12 @@ tbi_transaction_state <- function() {
         )
       ),
       evaluation = state$evaluation,
+      transaction_signature = state$transaction_signature,
+      evaluation_signature = state$evaluation_signature,
+      v2_transaction_graph = state$v2_transaction_graph,
+      v2_transaction_evaluation = state$v2_transaction_evaluation,
+      v2_exception_scenario = state$v2_exception_scenario,
+      v2_organizational_impact = state$v2_organizational_impact,
       created_at = state$created_at,
       updated_at = state$updated_at
     )
@@ -230,35 +435,34 @@ tbi_transaction_state <- function() {
       "NOT USED"
     }
 
+    identity <- two_team_transaction_identity(
+      team = team,
+      partner_team = partner_team,
+      season = season,
+      outgoing_players = outgoing_players,
+      incoming_players = incoming_players,
+      outgoing_draft_assets = outgoing_draft_assets,
+      incoming_draft_assets = incoming_draft_assets
+    )
     now <- Sys.time()
-    
+    identity_changed <- !identical(
+      state$transaction_signature,
+      identity$signature
+    )
+
     if (
+      identity_changed ||
       is.null(state$scenario_id) ||
-      !nzchar(
-        as.character(
-          state$scenario_id
-        )
-      )
+      is.null(state$created_at)
     ) {
-      state$scenario_id <- paste0(
-        "trade-",
-        format(
-          now,
-          "%Y%m%d-%H%M%S"
-        ),
-        "-",
-        sample(
-          1000:9999,
-          1
-        )
-      )
-      
+      state$scenario_id <- identity$scenario_id
       state$created_at <- now
     }
     
     state$active <- TRUE
     state$source <- source
     state$scenario_type <- "trade"
+    state$scenario_scope <- "SHARED_SUPPORTED"
     state$team <- as.character(team)
     state$partner_team <- as.character(partner_team)
     state$season <- as.character(season)
@@ -284,11 +488,132 @@ tbi_transaction_state <- function() {
       incoming_salary -
       outgoing_salary
     state$evaluation <- evaluation
+    state$transaction_signature <- identity$signature
+    state$evaluation_signature <- if (is.null(evaluation)) {
+      NULL
+    } else {
+      identity$signature
+    }
+    state$v2_transaction_graph <- NULL
+    state$v2_transaction_evaluation <- NULL
+    state$v2_exception_scenario <- NULL
+    state$v2_organizational_impact <- NULL
     state$updated_at <- now
     
     invisible(
       snapshot()
     )
+  }
+
+  publish_v2_transaction <- function(graph,
+                                     evaluation,
+                                     organizational_impact,
+                                     exception_scenario = NULL,
+                                     source = "V2 Trade Intelligence") {
+    if (!is.list(graph) ||
+        !identical(graph$contract_type, "tbi-v2-transaction-graph")) {
+      stop("graph must be a V2 transaction graph.", call. = FALSE)
+    }
+    if (!is.list(evaluation) ||
+        !identical(evaluation$contract_type, "tbi-v2-transaction-evaluation")) {
+      stop("evaluation must be a V2 transaction evaluation.", call. = FALSE)
+    }
+    if (!is.list(organizational_impact) ||
+        !identical(organizational_impact$contract_type, "tbi-v2-organizational-impact")) {
+      stop("organizational_impact must be a V2 organizational impact.", call. = FALSE)
+    }
+
+    signature_error <- function(detail) {
+      clear()
+      stop(
+        paste("V2 transaction signatures are invalid or cross-wired:", detail),
+        call. = FALSE
+      )
+    }
+
+    graph_body <- list(
+      transaction_id = graph$transaction_id,
+      season = graph$season %||% NULL,
+      teams = graph$teams,
+      player_routes = graph$player_routes,
+      asset_routes = graph$asset_routes,
+      cash_routes = graph$cash_routes,
+      exception_routes = graph$exception_routes,
+      mechanisms = graph$mechanisms
+    )
+    expected_graph_signature <- v2_input_signature(graph_body)
+    expected_evaluation_signature <- v2_input_signature(list(
+      graph = graph$signature,
+      team_results = evaluation$team_results
+    ))
+    expected_impact_signature <- v2_input_signature(list(
+      graph = graph$signature,
+      evaluation = evaluation$signature
+    ))
+
+    if (!identical(graph$transaction_id, evaluation$transaction_id) ||
+        !identical(graph$transaction_id, organizational_impact$transaction_id)) {
+      signature_error("contract transaction IDs do not match.")
+    }
+    if (!identical(graph$signature, expected_graph_signature)) {
+      signature_error("the graph signature does not match its canonical content.")
+    }
+    if (!identical(evaluation$signature, expected_evaluation_signature)) {
+      signature_error("the evaluation signature does not match the graph and team results.")
+    }
+    if (!identical(organizational_impact$signature, expected_impact_signature)) {
+      signature_error("the impact signature does not match the graph and evaluation.")
+    }
+
+    if (!is.null(exception_scenario)) {
+      if (!is.list(exception_scenario)) {
+        signature_error("the exception scenario is missing its signed ledger.")
+      }
+      ledger <- exception_scenario$scenario_ledger
+      if (!is.list(ledger)) {
+        signature_error("the exception scenario is missing its signed ledger.")
+      }
+      ledger_body <- ledger
+      ledger_body$signature <- NULL
+      expected_ledger_signature <- v2_input_signature(ledger_body)
+      if (
+        !identical(ledger$transaction_id, graph$transaction_id) ||
+        !identical(ledger$transaction_signature, graph$signature) ||
+        !identical(ledger$signature, expected_ledger_signature)
+      ) {
+        signature_error("the exception ledger does not match the transaction graph.")
+      }
+    }
+
+    now <- Sys.time()
+    identity_changed <- !identical(state$transaction_signature, graph$signature)
+    state$active <- TRUE
+    state$scenario_id <- graph$transaction_id
+    state$source <- as.character(source)[[1]]
+    state$scenario_type <- "v2_multiteam_trade"
+    state$scenario_scope <- "TRADE_LOCAL"
+    state$season <- graph$season %||% NULL
+    state$transaction_signature <- graph$signature
+    state$evaluation_signature <- evaluation$signature
+    state$v2_transaction_graph <- graph
+    state$v2_transaction_evaluation <- evaluation
+    state$v2_exception_scenario <- exception_scenario
+    state$v2_organizational_impact <- organizational_impact
+    if (identity_changed || is.null(state$created_at)) state$created_at <- now
+    state$updated_at <- now
+    invisible(snapshot())
+  }
+
+  set_v2_exception_scenario <- function(exception_scenario) {
+    if (!isTRUE(state$active)) {
+      stop("An active transaction is required before attaching exception state.", call. = FALSE)
+    }
+    if (!is.null(exception_scenario) && !is.list(exception_scenario)) {
+      stop("exception_scenario must be a governed scenario result or NULL.", call. = FALSE)
+    }
+    state$v2_exception_scenario <- exception_scenario
+    state$updated_at <- Sys.time()
+    invisible(snapshot())
   }
   
   clear <- function() {
@@ -297,6 +622,7 @@ tbi_transaction_state <- function() {
     state$scenario_id <- NULL
     state$source <- NULL
     state$scenario_type <- NULL
+    state$scenario_scope <- NULL
     state$team <- NULL
     state$partner_team <- NULL
     state$season <- NULL
@@ -313,6 +639,12 @@ tbi_transaction_state <- function() {
     state$incoming_salary <- 0
     state$salary_delta <- 0
     state$evaluation <- NULL
+    state$transaction_signature <- NULL
+    state$evaluation_signature <- NULL
+    state$v2_transaction_graph <- NULL
+    state$v2_transaction_evaluation <- NULL
+    state$v2_exception_scenario <- NULL
+    state$v2_organizational_impact <- NULL
     state$created_at <- NULL
     state$updated_at <- NULL
     
@@ -323,6 +655,8 @@ tbi_transaction_state <- function() {
     state = state,
     snapshot = snapshot,
     publish_trade = publish_trade,
+    publish_v2_transaction = publish_v2_transaction,
+    set_v2_exception_scenario = set_v2_exception_scenario,
     clear = clear
   )
 }
@@ -344,9 +678,7 @@ tbi_scenario_active <- function(
   
   snapshot <- transaction_state$snapshot()
   
-  isTRUE(
-    snapshot$active
-  )
+  isTRUE(snapshot$active) && tbi_scenario_is_shared_supported(snapshot)
 }
 
 
@@ -376,6 +708,7 @@ tbi_apply_trade_scenario_to_roster <- function(
   
   if (
     !isTRUE(scenario$active) ||
+    !tbi_scenario_is_shared_supported(scenario) ||
     !identical(
       as.character(scenario$scenario_type),
       "trade"
@@ -504,6 +837,7 @@ tbi_apply_trade_scenario_to_payroll <- function(
   
   if (
     !isTRUE(scenario$active) ||
+    !tbi_scenario_is_shared_supported(scenario) ||
     !identical(
       as.character(scenario$scenario_type),
       "trade"

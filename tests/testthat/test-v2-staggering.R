@@ -1,6 +1,10 @@
 stagger_minute_fixture <- function(size = 10L, unknown = FALSE) {
   ids <- seq_len(size)
-  assigned <- if (size == 10L) c(rep(32L, 5), rep(16L, 5)) else c(rep(32L, 5), 14L, 14L, 14L, 14L, 13L, 11L)
+  assigned <- if (size == 10L) {
+    c(rep(32L, 5), rep(16L, 5))
+  } else {
+    c(rep(32L, 5), 14L, 14L, 14L, 11L, 16L, 11L)
+  }
   ledger <- data.frame(
     player_id = ids,
     player_name = paste("Player", ids),
@@ -49,6 +53,41 @@ stagger_role_fixture <- function(size = 10L, verified = FALSE) {
   )
 }
 
+stagger_position_fixture <- function(size = 10L, eligibility = "ELIGIBLE") {
+  base <- stagger_role_fixture(size, verified = TRUE)
+  base$records <- Filter(function(record) {
+    !identical(record$role, "POSITION_C")
+  }, base$records)
+  position_records <- unlist(lapply(seq_len(size), function(id) {
+    lapply(c("PG", "SG", "SF", "PF", "C"), function(position) {
+      position_eligibility <- if (
+        identical(eligibility, "ELIGIBLE") &&
+          identical(position, "C") &&
+          !id %in% c(5L, 10L)
+      ) {
+        "NOT_ELIGIBLE"
+      } else {
+        eligibility
+      }
+      new_v2_role_eligibility(
+        player_id = id,
+        role = paste0("POSITION_", position),
+        eligibility = position_eligibility,
+        evidence_status = "VERIFIED",
+        evidence_source = "TEST_VERIFIED_POSITION_LEDGER",
+        evidence_fields = "fixture.position_eligibility",
+        evidence_class = "AUTHORITATIVE_FACT",
+        verification_status = "VERIFIED",
+        reason_codes = paste0("TEST_POSITION_", position_eligibility),
+        explanation = "Focused staggering position-legality fixture."
+      )
+    })
+  }), recursive = FALSE)
+  base$records <- c(base$records, position_records)
+  base$input_signature <- v2_input_signature(base$records)
+  base
+}
+
 stagger_exposure <- function(plan) {
   ids <- sort(unique(unlist(plan$segments$player_ids, use.names = FALSE)))
   setNames(vapply(ids, function(id) {
@@ -95,6 +134,69 @@ testthat::test_that("Phase 2B uses verified role evidence and creates coherent b
   testthat::expect_false(any(plan$segments$starter_count == 0L))
   testthat::expect_true(any(plan$segments$bench_count >= 2L))
   testthat::expect_true(all(vapply(plan$substitution_events$resulting_five, function(x) length(x) == 5L && !anyDuplicated(x), logical(1))))
+})
+
+testthat::test_that("Phase 2B proves every segment has a legal five-position assignment", {
+  for (size in c(10L, 11L)) {
+    minutes <- stagger_minute_fixture(size)
+    roles <- stagger_position_fixture(size)
+    plan <- build_v2_stagger_plan(minutes, roles)
+
+    if (size == 10L) {
+      testthat::expect_identical(plan$status, "PASS")
+      testthat::expect_false(plan$is_blocked)
+    }
+    testthat::expect_true(all(plan$segments$position_legality_status == "PASS"))
+    testthat::expect_true(all(vapply(seq_len(nrow(plan$segments)), function(i) {
+      assignment <- plan$segments$assigned_positions[[i]]
+      identical(sort(unname(assignment)), sort(c("PG", "SG", "SF", "PF", "C"))) &&
+        identical(names(assignment), as.character(plan$segments$player_ids[[i]]))
+    }, logical(1))))
+    testthat::expect_equal(sum(plan$segments$duration) * 5L, 240L)
+    testthat::expect_equal(unname(stagger_exposure(plan)), minutes$ledger$assigned_minutes)
+  }
+})
+
+testthat::test_that("Phase 2B reviews unproven segment position legality without changing staggering math", {
+  for (size in c(10L, 11L)) {
+    minutes <- stagger_minute_fixture(size)
+    unknown <- build_v2_stagger_plan(minutes, stagger_role_fixture(size, verified = TRUE))
+    proven <- build_v2_stagger_plan(minutes, stagger_position_fixture(size))
+
+    if (size == 10L) {
+      testthat::expect_identical(unknown$status, "REVIEW")
+      testthat::expect_false(unknown$is_blocked)
+    }
+    testthat::expect_true(all(unknown$segments$position_legality_status == "REVIEW"))
+    testthat::expect_true(all(vapply(unknown$segments$assigned_positions, function(x) all(is.na(x)), logical(1))))
+    testthat::expect_true("SEGMENT_POSITION_ASSIGNMENT_UNKNOWN" %in%
+      vapply(unknown$validation$findings, `[[`, character(1), "code"))
+    testthat::expect_identical(unknown$segments$player_ids, proven$segments$player_ids)
+    testthat::expect_identical(unknown$segments$duration, proven$segments$duration)
+    testthat::expect_equal(unname(stagger_exposure(unknown)), minutes$ledger$assigned_minutes)
+  }
+})
+
+testthat::test_that("Phase 2B blocks a known-impossible segment position assignment", {
+  for (size in c(10L, 11L)) {
+    plan <- build_v2_stagger_plan(
+      stagger_minute_fixture(size),
+      stagger_position_fixture(size, eligibility = "NOT_ELIGIBLE")
+    )
+
+    testthat::expect_identical(plan$status, "FAIL")
+    testthat::expect_true(plan$is_blocked)
+    testthat::expect_true(all(plan$segments$position_legality_status == "FAIL"))
+    testthat::expect_true(all(vapply(plan$segments$assigned_positions, function(x) all(is.na(x)), logical(1))))
+    findings <- plan$validation$findings
+    index <- match(
+      "SEGMENT_POSITION_ASSIGNMENT_IMPOSSIBLE",
+      vapply(findings, `[[`, character(1), "code")
+    )
+    testthat::expect_false(is.na(index))
+    testthat::expect_true(findings[[index]]$is_blocking)
+    testthat::expect_equal(sum(plan$segments$duration) * 5L, 240L)
+  }
 })
 
 testthat::test_that("Phase 2B preserves availability limits already encoded by Phase 2A", {

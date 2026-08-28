@@ -1,16 +1,27 @@
-.tbi-demo-status {
+.tbi-demo-dock {
   position: fixed;
-  top: 14px;
-  right: 18px;
-  z-index: 9990;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1040;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 11px;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+}
+
+.tbi-demo-status {
+  position: static;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  max-width: 430px;
+  padding: 6px 8px;
   border: 1px solid rgba(100, 145, 210, .28);
   border-radius: 10px;
   background: rgba(5, 13, 24, .92);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .24);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .24);
   color: #b9c8da;
   font-size: 11px;
   font-weight: 700;
@@ -27,24 +38,36 @@
   letter-spacing: .07em;
 }
 
+.tbi-demo-status-context {
+  color: #d6e2f0;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+#tbi-demo-countdown {
+  color: #8fa3ba;
+  font-size: 10px;
+  font-weight: 650;
+}
+
 .tbi-demo-vault-toggle {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 9990;
+  position: static;
+  flex: 0 0 auto;
   border: 1px solid rgba(83, 145, 255, .45);
   border-radius: 10px;
-  padding: 10px 14px;
+  padding: 7px 10px;
   background: #246bfd;
   color: white;
   font-weight: 800;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, .32);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .32);
+  font-size: 11px;
 }
 
 .tbi-demo-vault {
   position: fixed;
   right: 18px;
-  bottom: 68px;
+  bottom: 86px;
   z-index: 9995;
   width: min(390px, calc(100vw - 36px));
   max-height: min(610px, calc(100vh - 110px));
@@ -233,21 +256,51 @@
   color: #96a8bb;
 }
 
+.tbi-demo-mode .tbi-page-content {
+  padding-bottom: 88px !important;
+}
+
 @media (max-width: 720px) {
-  .tbi-demo-status {
-    top: auto;
-    right: 12px;
-    bottom: 66px;
+  .tbi-demo-dock {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    max-width: none;
+    align-items: stretch;
   }
 
-  .tbi-demo-vault-toggle {
-    right: 12px;
-    bottom: 14px;
+  .tbi-demo-status {
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 auto;
   }
 
   .tbi-demo-vault {
     right: 12px;
-    bottom: 62px;
+    bottom: 80px;
     width: calc(100vw - 24px);
+  }
+
+  .tbi-demo-mode .tbi-page-content {
+    padding-bottom: 104px !important;
+  }
+}
+
+@media (max-width: 460px) {
+  .tbi-demo-dock {
+    flex-direction: column;
+  }
+
+  .tbi-demo-vault-toggle {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .tbi-demo-vault {
+    bottom: 130px;
+  }
+
+  .tbi-demo-mode .tbi-page-content {
+    padding-bottom: 154px !important;
   }
 }

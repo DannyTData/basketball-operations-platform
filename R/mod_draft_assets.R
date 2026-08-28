@@ -7,6 +7,232 @@
 # UI
 # ============================================================
 
+draft_ledger_text <- function(x, fallback = "") {
+  values <- x %||% ""
+  vapply(seq_along(values), function(i) draft_text(values[[i]], fallback), character(1))
+}
+
+draft_verification_reason <- function(row) {
+  verified <- identical(draft_ledger_text(row$verification_status), "Verified") &&
+    !isTRUE(row$requires_manual_review)
+
+  if (verified) {
+    return("Verified")
+  }
+
+  source_values <- c(row$source_name, row$source_url, row$source_date)
+  if (any(!nzchar(draft_ledger_text(source_values)))) {
+    return("Source provenance incomplete")
+  }
+
+  control <- draft_ledger_text(row$control_type)
+  if (grepl("Swap", control, fixed = TRUE) &&
+      !nzchar(draft_ledger_text(row$transaction_reference))) {
+    return("Swap terms incomplete")
+  }
+
+  if (!nzchar(draft_ledger_text(row$protection_text))) {
+    return("Protection language incomplete")
+  }
+
+  condition_count <- draft_integer(row$condition_count, 0L)
+  conveyance_values <- c(row$conveyance_start_year, row$conveyance_end_year)
+  if (is.finite(condition_count) && condition_count > 0L &&
+      all(!nzchar(draft_ledger_text(conveyance_values)))) {
+    return("Conveyance conditions incomplete")
+  }
+
+  "Loaded source provenance remains unverified"
+}
+
+prepare_draft_asset_ledger <- function(assets, valued) {
+  if (!is.data.frame(assets) || !nrow(assets)) {
+    return(data.frame())
+  }
+
+  ledger <- assets
+  valued <- if (is.data.frame(valued)) valued else data.frame()
+  valued_match <- if (nrow(valued) && "draft_asset_id" %in% names(valued)) {
+    match(ledger$draft_asset_id, valued$draft_asset_id)
+  } else {
+    rep(NA_integer_, nrow(ledger))
+  }
+
+  for (field in c("expected_slot", "blended_value_score", "value_tier")) {
+    ledger[[field]] <- if (field %in% names(valued)) valued[[field]][valued_match] else NA
+  }
+
+  asset_review <- if ("requires_manual_review" %in% names(ledger)) {
+    as.logical(ledger$requires_manual_review)
+  } else {
+    rep(FALSE, nrow(ledger))
+  }
+  valued_review <- if ("requires_manual_review" %in% names(valued)) {
+    as.logical(valued$requires_manual_review[valued_match])
+  } else {
+    rep(FALSE, nrow(ledger))
+  }
+  ledger$requires_verification <- ifelse(is.na(asset_review), FALSE, asset_review) |
+    ifelse(is.na(valued_review), FALSE, valued_review) |
+    draft_ledger_text(ledger$verification_status) != "Verified"
+
+  ledger$verification_state <- ifelse(
+    ledger$requires_verification,
+    "REQUIRES VERIFICATION",
+    "VERIFIED"
+  )
+  ledger$verification_reason <- vapply(
+    seq_len(nrow(ledger)),
+    function(i) draft_verification_reason(as.list(ledger[i, , drop = FALSE])),
+    character(1)
+  )
+  ledger$protection_filter <- draft_ledger_text(ledger$protection_type, "Terms incomplete")
+  ledger
+}
+
+filter_draft_asset_ledger <- function(ledger, filters = list()) {
+  if (!is.data.frame(ledger) || !nrow(ledger)) {
+    return(ledger)
+  }
+
+  value <- function(name) draft_ledger_text(filters[[name]] %||% "")[[1]]
+  keep <- rep(TRUE, nrow(ledger))
+  exact_filters <- c(
+    year = "draft_year",
+    round = "round",
+    control = "control_type",
+    original_team = "original_team",
+    protection = "protection_filter",
+    verification = "verification_state"
+  )
+
+  for (name in names(exact_filters)) {
+    selected <- value(name)
+    if (nzchar(selected)) {
+      keep <- keep & draft_ledger_text(ledger[[exact_filters[[name]]]]) == selected
+    }
+  }
+
+  search <- tolower(value("search"))
+  if (nzchar(search)) {
+    searchable <- do.call(
+      paste,
+      c(
+        lapply(
+          c("draft_year", "round", "control_type", "original_team", "protection_text", "verification_reason", "value_tier"),
+          function(field) draft_ledger_text(ledger[[field]])
+        ),
+        sep = " "
+      )
+    )
+    keep <- keep & grepl(search, tolower(searchable), fixed = TRUE)
+  }
+
+  ledger[keep, , drop = FALSE]
+}
+
+group_draft_asset_ledger <- function(ledger) {
+  if (!is.data.frame(ledger) || !nrow(ledger)) {
+    return(list())
+  }
+  years <- sort(unique(as.integer(ledger$draft_year)), method = "radix")
+  stats::setNames(
+    lapply(years, function(year) ledger[ledger$draft_year == year, , drop = FALSE]),
+    as.character(years)
+  )
+}
+
+draft_recommendation_facts <- function(ledger, summary) {
+  value <- draft_number(summary$net_portfolio_value, 0)
+  posture <- if (value >= 150) {
+    "PRESERVE + DEPLOY SELECTIVELY"
+  } else if (value >= 75) {
+    "MAINTAIN FLEXIBILITY"
+  } else if (value >= 20) {
+    "PROTECT CORE PICKS"
+  } else {
+    "ACQUIRE DRAFT CAPITAL"
+  }
+
+  modeled_rows <- ledger[is.finite(suppressWarnings(as.numeric(ledger$blended_value_score))), , drop = FALSE]
+  year_value <- if (nrow(modeled_rows)) {
+    stats::aggregate(blended_value_score ~ draft_year, modeled_rows, sum)
+  } else {
+    data.frame(draft_year = integer(), blended_value_score = numeric())
+  }
+  strongest <- if (nrow(year_value)) year_value$draft_year[[which.max(year_value$blended_value_score)]] else NA_integer_
+  constrained <- if (nrow(year_value)) year_value$draft_year[[which.min(year_value$blended_value_score)]] else NA_integer_
+  review_count <- sum(ledger$requires_verification %||% logical(), na.rm = TRUE)
+  obligation_rows <- ledger[ledger$control_type %in% c("Outgoing", "Swap Obligation"), , drop = FALSE]
+  modeled_obligations <- obligation_rows[
+    is.finite(suppressWarnings(as.numeric(obligation_rows$blended_value_score))),
+    ,
+    drop = FALSE
+  ]
+  biggest_obligation <- if (nrow(modeled_obligations)) {
+    scores <- suppressWarnings(as.numeric(modeled_obligations$blended_value_score))
+    obligation <- modeled_obligations[which.min(scores), , drop = FALSE]
+    paste(
+      obligation$draft_year,
+      obligation$round,
+      obligation$control_type,
+      "record from",
+      obligation$original_team,
+      "is the largest loaded obligation by modeled value."
+    )
+  } else if (nrow(obligation_rows)) {
+    "The largest loaded obligation is UNKNOWN because modeled value is unavailable."
+  } else {
+    "No outgoing obligation is loaded in the planning window."
+  }
+
+  list(
+    posture = posture,
+    strongest_year = if (is.na(strongest)) "No supported year" else paste(strongest, "has the strongest modeled control value."),
+    constrained_year = if (is.na(constrained)) "No supported year" else paste(constrained, "is the most constrained modeled year."),
+    verification = paste(
+      review_count,
+      if (review_count == 1L) "record requires" else "records require",
+      "verification before transaction use."
+    ),
+    biggest_obligation = biggest_obligation,
+    next_action = if (is.na(strongest)) {
+      "Resolve verification gaps before assigning draft capital to a transaction."
+    } else if (value >= 75) {
+      paste("Preserve", strongest, "control unless a supported high-impact transaction justifies deployment.")
+    } else {
+      paste("Protect the strongest supported control in", strongest, "and avoid increasing exposure in", constrained, ".")
+    }
+  )
+}
+
+draft_error_recommendation <- function(message = NULL) {
+  value <- as.character(message %||% character())
+  detail <- if (length(value) && !is.na(value[[1]])) trimws(value[[1]]) else ""
+  if (!nzchar(detail)) detail <- "Draft evidence is unavailable."
+
+  list(
+    posture = "REVIEW / UNKNOWN",
+    strongest_year = "UNKNOWN — the Draft engine did not return supported evidence.",
+    constrained_year = "UNKNOWN — the Draft engine did not return supported evidence.",
+    verification = "UNKNOWN — source verification could not be evaluated.",
+    biggest_obligation = "UNKNOWN — obligations could not be evaluated.",
+    next_action = paste(
+      "Review only. Restore the Draft engine/query and re-run before taking draft-capital action.",
+      detail
+    )
+  )
+}
+
+draft_finding <- function(category, fact, impact, consequence) {
+  list(
+    category = category,
+    fact = fact,
+    impact = impact,
+    consequence = consequence
+  )
+}
+
 #' Draft Intelligence UI
 #'
 #' @param id Internal module ID.
@@ -52,111 +278,195 @@ mod_draft_assets_ui <- function(id) {
           gap:12px;
         }
 
-        .draft-v2-portfolio-grid {
+        .tbi-v2-draft-page :is(.draft-v2-overview-balance-grid,.draft-v2-portfolio-balance-grid) {
           display:grid;
-          grid-template-columns:minmax(315px,.72fr) minmax(0,1.28fr);
+          grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+          gap:16px;
+          align-items:start;
+        }
+
+        .draft-v2-overview-balance-grid > section,
+        .draft-v2-portfolio-balance-grid > section {
+          min-width:0;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-decision-card {
+          padding:12px 16px 0;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-decision-main {
+          min-height:0;
+          padding:16px 8px 12px;
           gap:12px;
         }
 
-        .draft-v2-value-hero {
-          padding:18px;
-          display:grid;
-          grid-template-columns:105px minmax(0,1fr);
-          gap:16px;
-          align-items:center;
+        .draft-v2-overview-balance-grid .tbi-v2-decision-symbol {
+          width:44px;
+          height:44px;
+          flex-basis:44px;
         }
 
-        .draft-v2-score-ring {
-          width:100px;
-          height:100px;
-          display:grid;
-          place-items:center;
-          border-radius:50%;
-          border:2px solid rgba(96,165,250,.42);
-          box-shadow:inset 0 0 0 8px rgba(59,130,246,.045);
-          background:#101826;
+        .draft-v2-overview-balance-grid .tbi-v2-decision-symbol svg {
+          width:20px !important;
+          height:20px !important;
         }
 
-        .draft-v2-score-ring strong {
-          display:block;
-          color:#61a8ff;
-          font-size:1.55rem;
-          line-height:1;
-          text-align:center;
-        }
-
-        .draft-v2-score-ring span {
-          display:block;
-          margin-top:4px;
-          color:#718198;
-          font-size:.48rem;
-          font-weight:850;
-          letter-spacing:.08em;
-          text-align:center;
-          text-transform:uppercase;
-        }
-
-        .draft-v2-grade {
-          margin:4px 0;
-          color:#f6f8fb;
-          font-size:1.45rem;
-          font-weight:850;
+        .draft-v2-overview-balance-grid .tbi-v2-decision-word {
+          margin-bottom:8px;
+          font-size:1.2rem;
           letter-spacing:-.025em;
         }
 
-        .draft-v2-summary {
-          margin:5px 0 0;
-          color:#9aa8ba;
-          font-size:.67rem;
-          line-height:1.5;
+        .draft-v2-overview-balance-grid .tbi-v2-decision-copy p {
+          font-size:.70rem;
+          line-height:1.45;
         }
 
-        .draft-v2-year-grid {
-          padding:13px 15px 15px;
+        .draft-v2-overview-balance-grid .tbi-v2-decision-metric {
+          min-height:0;
+          padding:12px 16px;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-score-row {
+          min-height:52px;
+          padding:8px 12px;
+          grid-template-columns:minmax(0,1fr) auto auto;
+          gap:6px 8px;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-score-name {
+          grid-column:1;
+          grid-row:1;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-score-meter {
+          grid-column:1 / -1;
+          grid-row:2;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-score-number {
+          grid-column:2;
+          grid-row:1;
+        }
+
+        .draft-v2-overview-balance-grid .tbi-v2-score-rating {
+          grid-column:3;
+          grid-row:1;
+        }
+
+        .draft-v2-control-summary {
+          padding:8px 16px 12px;
+        }
+
+        .draft-v2-strength-summary {
+          padding:16px;
           display:grid;
-          grid-template-columns:repeat(5,minmax(0,1fr));
-          gap:8px;
+          grid-template-columns:auto minmax(0,1fr);
+          gap:8px 16px;
+          align-items:end;
         }
 
-        .draft-v2-year-card {
-          min-height:90px;
-          padding:11px;
-          border:1px solid rgba(148,163,184,.10);
-          border-radius:9px;
-          background:rgba(255,255,255,.012);
-        }
-
-        .draft-v2-year-card strong {
+        .draft-v2-strength-net span,
+        .draft-v2-strength-grade span,
+        .draft-v2-strength-metric span {
           display:block;
-          color:#f3f6fa;
-          font-size:.88rem;
-        }
-
-        .draft-v2-year-card span {
-          display:block;
-          margin-top:4px;
-          color:#77879b;
-          font-size:.57rem;
-          line-height:1.4;
-        }
-
-        .draft-v2-year-value {
-          margin-top:9px !important;
-          color:#61a8ff !important;
-          font-size:.74rem !important;
+          color:#718198;
+          font-size:.58rem;
           font-weight:800;
         }
 
+        .draft-v2-strength-net strong {
+          display:block;
+          margin-top:4px;
+          color:#61a8ff;
+          font-size:1.35rem;
+          line-height:1;
+        }
+
+        .draft-v2-strength-grade strong {
+          display:block;
+          margin-top:4px;
+          color:#f6f8fb;
+          font-size:1rem;
+        }
+
+        .draft-v2-summary {
+          grid-column:1 / -1;
+          max-width:68ch;
+          margin:4px 0 0;
+          color:#9aa8ba;
+          font-size:.68rem;
+          line-height:1.45;
+        }
+
+        .draft-v2-strength-metrics {
+          grid-column:1 / -1;
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:8px;
+          margin-top:4px;
+        }
+
+        .draft-v2-strength-metric {
+          padding:8px 0;
+          border-top:1px solid rgba(148,163,184,.09);
+        }
+
+        .draft-v2-strength-metric strong {
+          display:block;
+          margin-top:3px;
+          color:#eef3f8;
+          font-size:.86rem;
+        }
+
+        .draft-v2-year-grid {
+          padding:8px 16px 12px;
+          display:grid;
+          grid-template-columns:1fr;
+          gap:0;
+        }
+
+        .draft-v2-year-card {
+          min-height:0;
+          padding:10px 0;
+          display:grid;
+          grid-template-columns:48px minmax(0,1fr) minmax(0,1fr) auto;
+          gap:8px;
+          align-items:center;
+          border-top:1px solid rgba(148,163,184,.09);
+        }
+
+        .draft-v2-year-card:first-child {
+          border-top:0;
+        }
+
+        .draft-v2-year-card strong {
+          color:#f3f6fa;
+          font-size:.80rem;
+        }
+
+        .draft-v2-year-card span {
+          color:#8796aa;
+          font-size:.65rem;
+          line-height:1.35;
+        }
+
+        .draft-v2-year-value {
+          color:#61a8ff !important;
+          font-weight:800;
+          text-align:right;
+        }
+
         .draft-v2-signal-row {
-          min-height:39px;
-          padding:7px 0;
+          min-height:36px;
+          padding:8px 0;
           display:flex;
           justify-content:space-between;
           align-items:center;
           gap:12px;
           border-bottom:1px solid rgba(148,163,184,.08);
           color:#8796aa;
-          font-size:.63rem;
+          font-size:.66rem;
         }
 
         .draft-v2-signal-row:last-child {
@@ -191,8 +501,159 @@ mod_draft_assets_ui <- function(id) {
         .draft-v2-dot.success { background:#34d399; }
 
         .draft-v2-table-wrap {
-          max-height:480px;
-          overflow:auto;
+          min-width:0;
+          padding:0 14px 14px;
+        }
+
+        .draft-v2-filter-bar {
+          display:grid;
+          grid-template-columns:minmax(190px,1.35fr) repeat(6,minmax(112px,1fr)) auto;
+          gap:8px;
+          align-items:end;
+          padding:12px 14px;
+          border-bottom:1px solid rgba(148,163,184,.10);
+        }
+
+        .draft-v2-filter-bar .form-group {
+          min-width:0;
+          margin:0;
+        }
+
+        .draft-v2-filter-bar label {
+          margin-bottom:4px;
+          color:#8494a8;
+          font-size:.62rem;
+          font-weight:800;
+        }
+
+        .draft-v2-filter-bar :is(.form-control,.selectize-input) {
+          min-height:34px;
+          font-size:.70rem;
+        }
+
+        .draft-v2-clear-filters {
+          min-height:34px;
+          padding:6px 11px;
+          border:1px solid rgba(148,163,184,.22);
+          border-radius:7px;
+          background:rgba(51,65,85,.22);
+          color:#cbd5e1;
+          font-size:.68rem;
+          font-weight:750;
+          white-space:nowrap;
+        }
+
+        .draft-v2-ledger-summary {
+          padding:10px 0;
+          color:#91a0b3;
+          font-size:.72rem;
+        }
+
+        .draft-v2-year-group {
+          border-top:1px solid rgba(148,163,184,.12);
+        }
+
+        .draft-v2-year-group > summary {
+          display:flex;
+          justify-content:space-between;
+          gap:12px;
+          padding:11px 2px;
+          color:#edf3fa;
+          font-size:.78rem;
+          font-weight:800;
+          cursor:pointer;
+        }
+
+        .draft-v2-year-group > summary span {
+          color:#8797aa;
+          font-size:.68rem;
+          font-weight:650;
+          text-align:right;
+        }
+
+        .draft-v2-asset-row {
+          display:grid;
+          grid-template-columns:minmax(90px,.55fr) minmax(110px,.7fr) minmax(145px,1fr) minmax(145px,1.1fr);
+          gap:8px 14px;
+          padding:10px 8px;
+          border-top:1px solid rgba(148,163,184,.07);
+        }
+
+        .draft-v2-asset-row > div {
+          min-width:0;
+        }
+
+        .draft-v2-asset-label {
+          display:block;
+          margin-bottom:2px;
+          color:#738399;
+          font-size:.58rem;
+          font-weight:800;
+          text-transform:uppercase;
+        }
+
+        .draft-v2-asset-value {
+          display:block;
+          color:#c8d3df;
+          font-size:.72rem;
+          line-height:1.4;
+          overflow-wrap:anywhere;
+        }
+
+        .draft-v2-asset-detail {
+          grid-column:1 / -1;
+        }
+
+        .draft-v2-asset-detail summary {
+          color:#8ca4c1;
+          font-size:.66rem;
+          cursor:pointer;
+        }
+
+        .draft-v2-asset-detail p {
+          max-width:90ch;
+          margin:7px 0 0;
+          color:#aebccb;
+          font-size:.70rem;
+          line-height:1.5;
+        }
+
+        .draft-v2-empty-ledger {
+          padding:20px 4px;
+          color:#aab7c7;
+          font-size:.76rem;
+        }
+
+        .draft-v2-finding {
+          display:grid;
+          grid-template-columns:minmax(112px,.34fr) minmax(0,1fr);
+          gap:6px 12px;
+          padding:10px 0;
+          border-bottom:1px solid rgba(148,163,184,.09);
+        }
+
+        .draft-v2-finding:last-child {
+          border-bottom:0;
+        }
+
+        .draft-v2-finding-category {
+          grid-row:1 / span 3;
+          color:#91a4bc;
+          font-size:.64rem;
+          font-weight:800;
+        }
+
+        .draft-v2-finding p {
+          margin:0;
+          color:#aebac8;
+          font-size:.70rem;
+          line-height:1.42;
+        }
+
+        .draft-v2-finding p strong {
+          color:#77879b;
+          font-size:.59rem;
+          text-transform:uppercase;
         }
 
         .draft-v2-rec-grid {
@@ -228,24 +689,66 @@ mod_draft_assets_ui <- function(id) {
           font-size:1.2rem;
         }
 
-        @media(max-width:1050px) {
-          .draft-v2-portfolio-grid {
-            grid-template-columns:1fr;
+        @media(max-width:1200px) {
+          .tbi-v2-draft-page :is(.draft-v2-overview-balance-grid,.draft-v2-portfolio-balance-grid) {
+            grid-template-columns:repeat(2,minmax(0,1fr)) !important;
           }
 
-          .draft-v2-year-grid {
-            grid-template-columns:repeat(2,minmax(0,1fr));
+          .draft-v2-overview-balance-grid > :last-child,
+          .draft-v2-portfolio-balance-grid > :last-child {
+            grid-column:1 / -1;
+          }
+
+          .draft-v2-filter-bar {
+            grid-template-columns:repeat(3,minmax(0,1fr));
+          }
+        }
+
+        @media(max-width:900px) {
+          .tbi-v2-draft-page :is(.draft-v2-overview-balance-grid,.draft-v2-portfolio-balance-grid) {
+            grid-template-columns:1fr !important;
+          }
+
+          .draft-v2-overview-balance-grid > :last-child,
+          .draft-v2-portfolio-balance-grid > :last-child {
+            grid-column:auto;
           }
         }
 
         @media(max-width:680px) {
-          .draft-v2-value-hero,
           .draft-v2-rec-grid {
             grid-template-columns:1fr;
           }
 
-          .draft-v2-year-grid {
+          .draft-v2-year-card {
+            grid-template-columns:44px minmax(0,1fr) auto;
+          }
+
+          .draft-v2-year-obligations {
+            grid-column:2;
+          }
+
+          .draft-v2-year-value {
+            grid-column:3;
+            grid-row:1 / span 2;
+          }
+
+          .draft-v2-filter-bar,
+          .draft-v2-asset-row,
+          .draft-v2-finding {
             grid-template-columns:1fr;
+          }
+
+          .draft-v2-asset-detail {
+            grid-column:auto;
+          }
+
+          .draft-v2-finding-category {
+            grid-row:auto;
+          }
+
+          .draft-v2-clear-filters {
+            width:100%;
           }
         }
         "
@@ -365,7 +868,7 @@ mod_draft_assets_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-main-grid",
+      class = "tbi-v2-exec-main-grid draft-v2-overview-balance-grid",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card",
@@ -416,6 +919,26 @@ mod_draft_assets_ui <- function(id) {
         shiny::uiOutput(
           ns("portfolio_scorecard")
         )
+      ),
+
+      shiny::tags$section(
+        class = "tbi-v2-scorecard-panel draft-v2-control-panel",
+
+        shiny::div(
+          class = "tbi-v2-scorecard-header",
+          shiny::div(
+            class = "tbi-v2-section-title",
+            shiny::span(
+              class = "tbi-v2-section-icon",
+              bsicons::bs_icon("shield-check")
+            ),
+            shiny::span("CONTROL / VERIFICATION")
+          )
+        ),
+
+        shiny::uiOutput(
+          ns("overview_control_summary")
+        )
       )
     ),
     
@@ -424,7 +947,7 @@ mod_draft_assets_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "draft-v2-portfolio-grid",
+      class = "draft-v2-portfolio-grid draft-v2-portfolio-balance-grid",
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
@@ -448,6 +971,31 @@ mod_draft_assets_ui <- function(id) {
         
         shiny::uiOutput(
           ns("portfolio_value_hero")
+        )
+      ),
+
+      shiny::tags$section(
+        class = "tbi-v2-context-panel",
+
+        shiny::div(
+          class = "tbi-v2-context-header",
+
+          shiny::div(
+            shiny::div(
+              class = "tbi-page-eyebrow",
+              "CONTROL & OBLIGATIONS"
+            ),
+            shiny::h3("Portfolio commitments")
+          ),
+
+          shiny::span(
+            class = "tbi-v2-context-tag",
+            "CURRENT FACTS"
+          )
+        ),
+
+        shiny::uiOutput(
+          ns("portfolio_control_summary")
         )
       ),
       
@@ -556,13 +1104,29 @@ mod_draft_assets_ui <- function(id) {
         
         shiny::span(
           class = "tbi-v2-context-tag",
-          "VERIFIED + MODELED"
+          "Records Requiring Verification"
+        )
+      ),
+
+      shiny::div(
+        class = "draft-v2-filter-bar",
+        shiny::textInput(ns("draft_search"), "Search assets", placeholder = "Team, terms, tier…"),
+        shiny::selectInput(ns("draft_year_filter"), "Year", choices = c("All years" = "")),
+        shiny::selectInput(ns("draft_round_filter"), "Round", choices = c("All rounds" = "")),
+        shiny::selectInput(ns("draft_control_filter"), "Control", choices = c("All control types" = "")),
+        shiny::selectInput(ns("draft_original_team_filter"), "Original team", choices = c("All original teams" = "")),
+        shiny::selectInput(ns("draft_protection_filter"), "Protection", choices = c("All protection types" = "")),
+        shiny::selectInput(ns("draft_verification_filter"), "Verification", choices = c("All records" = "")),
+        shiny::actionButton(
+          ns("clear_draft_filters"),
+          "Clear filters",
+          class = "draft-v2-clear-filters"
         )
       ),
       
       shiny::div(
         class = "draft-v2-table-wrap",
-        reactable::reactableOutput(
+        shiny::uiOutput(
           ns("draft_asset_table")
         )
       )
@@ -735,6 +1299,30 @@ mod_draft_assets_server <- function(
           class = "draft-v2-signal-row",
           shiny::span(label),
           shiny::strong(value)
+        )
+      }
+
+      control_summary_ui <- function(assets, summary) {
+        shiny::div(
+          class = "draft-v2-control-summary",
+          signal_row("Controlled first-round assets", assets$controlled_first_round),
+          signal_row("Controlled second-round assets", assets$controlled_second_round),
+          signal_row("Swap rights", assets$swap_rights),
+          signal_row("Outgoing obligations", assets$outgoing_obligations),
+          signal_row("Records Requiring Source Verification", summary$review_required)
+        )
+      }
+
+      finding_row <- function(category, fact, impact, consequence) {
+        field <- function(label, value) {
+          shiny::p(shiny::strong(paste0(label, " · ")), value)
+        }
+        shiny::div(
+          class = "draft-v2-finding",
+          shiny::div(class = "draft-v2-finding-category", category),
+          field("Fact", fact),
+          field("Impact", impact),
+          field("Decision consequence", consequence)
         )
       }
       
@@ -956,6 +1544,88 @@ mod_draft_assets_server <- function(
           }
         )
       })
+
+      draft_ledger <- shiny::reactive({
+        prepare_draft_asset_ledger(draft_assets(), valued_assets())
+      })
+
+      valid_filter <- function(selected, allowed) {
+        selected <- draft_ledger_text(selected %||% "")[[1]]
+        if (nzchar(selected) && selected %in% draft_ledger_text(allowed)) selected else ""
+      }
+
+      active_draft_filters <- shiny::reactive({
+        ledger <- draft_ledger()
+        list(
+          search = draft_ledger_text(input$draft_search %||% "")[[1]],
+          year = valid_filter(input$draft_year_filter, ledger$draft_year),
+          round = valid_filter(input$draft_round_filter, ledger$round),
+          control = valid_filter(input$draft_control_filter, ledger$control_type),
+          original_team = valid_filter(input$draft_original_team_filter, ledger$original_team),
+          protection = valid_filter(input$draft_protection_filter, ledger$protection_filter),
+          verification = valid_filter(input$draft_verification_filter, ledger$verification_state)
+        )
+      })
+
+      filter_team <- shiny::reactiveVal(NULL)
+
+      filtered_draft_assets <- shiny::reactive({
+        if (!identical(filter_team(), selected_team())) {
+          return(draft_ledger())
+        }
+        filter_draft_asset_ledger(draft_ledger(), active_draft_filters())
+      })
+
+      shiny::observeEvent(
+        list(
+          input$draft_search,
+          input$draft_year_filter,
+          input$draft_round_filter,
+          input$draft_control_filter,
+          input$draft_original_team_filter,
+          input$draft_protection_filter,
+          input$draft_verification_filter
+        ),
+        filter_team(selected_team()),
+        ignoreInit = TRUE
+      )
+
+      update_draft_filter_choices <- function() {
+        ledger <- draft_ledger()
+        choices <- function(label, values) {
+          values <- sort(unique(draft_ledger_text(values)), method = "radix")
+          values <- values[nzchar(values)]
+          c(stats::setNames("", label), stats::setNames(values, values))
+        }
+        shiny::updateSelectInput(session, "draft_year_filter", choices = choices("All years", ledger$draft_year))
+        shiny::updateSelectInput(session, "draft_round_filter", choices = choices("All rounds", ledger$round))
+        shiny::updateSelectInput(session, "draft_control_filter", choices = choices("All control types", ledger$control_type))
+        shiny::updateSelectInput(session, "draft_original_team_filter", choices = choices("All original teams", ledger$original_team))
+        shiny::updateSelectInput(session, "draft_protection_filter", choices = choices("All protection types", ledger$protection_filter))
+        shiny::updateSelectInput(session, "draft_verification_filter", choices = choices("All records", ledger$verification_state))
+      }
+
+      reset_draft_filters <- function() {
+        filter_ids <- c(
+          "draft_search", "draft_year_filter", "draft_round_filter", "draft_control_filter",
+          "draft_original_team_filter", "draft_protection_filter", "draft_verification_filter"
+        )
+        lapply(filter_ids, function(id) shiny::freezeReactiveValue(input, id))
+        shiny::updateTextInput(session, "draft_search", value = "")
+        for (id in setdiff(filter_ids, "draft_search")) {
+          shiny::updateSelectInput(session, id, selected = "")
+        }
+      }
+
+      shiny::observeEvent(draft_ledger(), update_draft_filter_choices(), ignoreInit = FALSE)
+      shiny::observeEvent(selected_team(), {
+        filter_team(NULL)
+        reset_draft_filters()
+      }, ignoreInit = TRUE)
+      shiny::observeEvent(input$clear_draft_filters, {
+        filter_team(NULL)
+        reset_draft_filters()
+      }, ignoreInit = TRUE)
       
       # ------------------------------------------------------
       # Snapshot
@@ -1035,7 +1705,7 @@ mod_draft_assets_server <- function(
                 
                 shiny::strong(
                   class = "tbi-v2-decision-word",
-                  "REVIEW DATA"
+                  "REVIEW / UNKNOWN"
                 ),
                 
                 shiny::p(
@@ -1189,25 +1859,6 @@ mod_draft_assets_server <- function(
             12
         )
         
-        verification_score <- if (
-          safe_num(
-            assets$total_assets,
-            0
-          ) > 0
-        ) {
-          100 *
-            safe_num(
-              assets$verified_assets,
-              0
-            ) /
-            safe_num(
-              assets$total_assets,
-              1
-            )
-        } else {
-          0
-        }
-        
         obligation_score <- max(
           0,
           100 -
@@ -1242,19 +1893,16 @@ mod_draft_assets_server <- function(
           ),
           
           score_row(
-            "Verification Quality",
-            "Records marked verified",
-            "person-badge",
-            verification_score
-          ),
-          
-          score_row(
             "Obligation Exposure",
             "Outgoing pick and swap burden",
             "arrow-left-right",
             obligation_score
           )
         )
+      })
+
+      control_summary <- shiny::reactive({
+        control_summary_ui(asset_summary(), draft_summary())
       })
       
       # ------------------------------------------------------
@@ -1270,96 +1918,47 @@ mod_draft_assets_server <- function(
           0
         )
         
-        shiny::tagList(
+        strength_metric <- function(label, value) {
           shiny::div(
-            class = "draft-v2-value-hero",
-            
-            shiny::div(
-              class = "draft-v2-score-ring",
-              shiny::div(
-                shiny::strong(
-                  sprintf(
-                    "%.0f",
-                    net_value
-                  )
-                ),
-                shiny::span(
-                  "NET VALUE"
-                )
-              )
-            ),
-            
-            shiny::div(
-              shiny::div(
-                class = "tbi-page-eyebrow",
-                "PORTFOLIO GRADE"
-              ),
-              
-              shiny::div(
-                class = "draft-v2-grade",
-                summary$portfolio_grade
-              ),
-              
-              shiny::p(
-                class = "draft-v2-summary",
-                summary$executive_summary
-              )
-            )
+            class = "draft-v2-strength-metric",
+            shiny::span(label),
+            shiny::strong(value)
+          )
+        }
+
+        shiny::div(
+          class = "draft-v2-strength-summary",
+          shiny::div(
+            class = "draft-v2-strength-net",
+            shiny::span("NET VALUE"),
+            shiny::strong(sprintf("%.0f", net_value))
           ),
-          
           shiny::div(
-            style = "padding:0 16px 14px;",
-            
-            signal_row(
+            class = "draft-v2-strength-grade",
+            shiny::span("PORTFOLIO GRADE"),
+            shiny::strong(summary$portfolio_grade)
+          ),
+          shiny::p(
+            class = "draft-v2-summary",
+            summary$executive_summary
+          ),
+          shiny::div(
+            class = "draft-v2-strength-metrics",
+            strength_metric(
               "Gross asset value",
-              sprintf(
-                "%.1f",
-                safe_num(
-                  summary$gross_asset_value,
-                  0
-                )
-              )
+              sprintf("%.1f", safe_num(summary$gross_asset_value, 0))
             ),
-            
-            signal_row(
+            strength_metric(
               "Obligation value",
-              sprintf(
-                "%.1f",
-                safe_num(
-                  summary$gross_obligation_value,
-                  0
-                )
-              )
+              sprintf("%.1f", safe_num(summary$gross_obligation_value, 0))
             ),
-            
-            signal_row(
+            strength_metric(
               "Premium assets",
-              as.character(
-                safe_num(
-                  summary$premium_assets,
-                  0
-                )
-              )
+              as.character(safe_num(summary$premium_assets, 0))
             ),
-            
-            signal_row(
+            strength_metric(
               "Strong assets",
-              as.character(
-                safe_num(
-                  summary$strong_assets,
-                  0
-                )
-              )
-            ),
-            
-            signal_row(
-              "Manual review",
-              as.character(
-                safe_num(
-                  summary$review_required,
-                  0
-                )
-              )
+              as.character(safe_num(summary$strong_assets, 0))
             )
           )
         )
@@ -1483,6 +2082,7 @@ mod_draft_assets_server <- function(
               ),
               
               shiny::span(
+                class = "draft-v2-year-obligations",
                 paste0(
                   obligations,
                   " obligation",
@@ -1551,7 +2151,7 @@ mod_draft_assets_server <- function(
             if (
               summary$review_required == 1
             ) "" else "s",
-            " require manual verification."
+            " require verification before transaction use."
           )
         )
         
@@ -1569,7 +2169,7 @@ mod_draft_assets_server <- function(
         assets <- asset_summary()
         summary <- draft_summary()
         
-        risks <- character()
+        risks <- list()
         
         if (
           safe_num(
@@ -1577,17 +2177,16 @@ mod_draft_assets_server <- function(
             0
           ) > 0
         ) {
-          risks <- c(
-            risks,
+          risks <- append(risks, list(draft_finding(
+            "CONTROL RISKS",
             paste0(
-              assets$outgoing_obligations,
-              " outgoing draft obligation",
-              if (
-                assets$outgoing_obligations == 1
-              ) "" else "s",
+              assets$outgoing_obligations, " outgoing draft obligation",
+              if (assets$outgoing_obligations == 1) "" else "s",
               " reduce future flexibility."
-            )
-          )
+            ),
+            "Those obligations reduce clean control in the affected years.",
+            "Do not treat the affected draft capital as fully deployable."
+          )))
         }
         
         if (
@@ -1596,17 +2195,16 @@ mod_draft_assets_server <- function(
             0
           ) > 0
         ) {
-          risks <- c(
-            risks,
+          risks <- append(risks, list(draft_finding(
+            "CONTROL RISKS",
             paste0(
-              assets$swap_obligations,
-              " swap obligation",
-              if (
-                assets$swap_obligations == 1
-              ) "" else "s",
+              assets$swap_obligations, " swap obligation",
+              if (assets$swap_obligations == 1) "" else "s",
               " create future downside exposure."
-            )
-          )
+            ),
+            "Those obligations reduce clean control in the affected years.",
+            "Do not treat the affected draft capital as fully deployable."
+          )))
         }
         
         if (
@@ -1615,17 +2213,16 @@ mod_draft_assets_server <- function(
             0
           ) > 0
         ) {
-          risks <- c(
-            risks,
+          risks <- append(risks, list(draft_finding(
+            "PROTECTION / CONVEYANCE RISKS",
             paste0(
-              summary$review_required,
-              " valued record",
-              if (
-                summary$review_required == 1
-              ) "" else "s",
+              summary$review_required, " valued record",
+              if (summary$review_required == 1) "" else "s",
               " require protection or verification review before transaction use."
-            )
-          )
+            ),
+            "The record cannot be treated as transaction-ready until the missing terms are verified.",
+            "Verify the named evidence before routing the asset."
+          )))
         }
         
         if (
@@ -1634,41 +2231,27 @@ mod_draft_assets_server <- function(
             0
           ) < 20
         ) {
-          risks <- c(
-            risks,
-            "Estimated draft-capital value is limited, reducing transaction downside protection."
-          )
+          risks <- append(risks, list(draft_finding(
+            "TRADE FLEXIBILITY",
+            "Estimated draft-capital value is limited, reducing transaction downside protection.",
+            "The loaded portfolio provides less downside protection in transaction planning.",
+            "Do not treat the affected draft capital as fully deployable."
+          )))
         }
         
         if (!length(risks)) {
-          risks <- "No major structural draft-capital risk is identified by the loaded portfolio."
+          risks <- list(draft_finding(
+            "TRADE FLEXIBILITY",
+            "No major structural draft-capital risk is identified by the loaded portfolio.",
+            "The loaded portfolio does not expose a controlling structural risk.",
+            "Preserve verification discipline before deploying draft capital."
+          ))
         }
         
         shiny::tagList(
           lapply(
-            unique(risks),
-            function(risk) {
-              
-              shiny::div(
-                class = "tbi-v2-risk-card",
-                
-                shiny::span(
-                  class = "tbi-v2-risk-icon",
-                  bsicons::bs_icon(
-                    "exclamation-triangle"
-                  )
-                ),
-                
-                shiny::div(
-                  shiny::strong(
-                    "Risk"
-                  ),
-                  shiny::p(
-                    risk
-                  )
-                )
-              )
-            }
+            risks,
+            function(risk) finding_row(risk$category, risk$fact, risk$impact, risk$consequence)
           )
         )
       })
@@ -1678,10 +2261,21 @@ mod_draft_assets_server <- function(
       # ------------------------------------------------------
       
       output$draft_opportunities <- shiny::renderUI({
+        result <- draft_value_result()
+
+        if (inherits(result, "tbi_draft_error")) {
+          return(finding_row(
+            "REVIEW / UNKNOWN",
+            "Draft opportunity evidence is unavailable.",
+            result$message,
+            "Restore the Draft engine/query and re-run before taking draft-capital action."
+          ))
+        }
+
         assets <- asset_summary()
         summary <- draft_summary()
         
-        opportunities <- character()
+        opportunities <- list()
         
         if (
           safe_num(
@@ -1689,17 +2283,16 @@ mod_draft_assets_server <- function(
             0
           ) > 0
         ) {
-          opportunities <- c(
-            opportunities,
+          opportunities <- append(opportunities, list(draft_finding(
+            "TRADE FLEXIBILITY",
             paste0(
-              summary$premium_assets,
-              " premium asset",
-              if (
-                summary$premium_assets == 1
-              ) "" else "s",
+              summary$premium_assets, " premium asset",
+              if (summary$premium_assets == 1) "" else "s",
               " can anchor high-level transaction packages."
-            )
-          )
+            ),
+            "The supported inventory can preserve options across transaction structures.",
+            "Preserve the strongest controlled years unless the return justifies deployment."
+          )))
         }
         
         if (
@@ -1708,17 +2301,16 @@ mod_draft_assets_server <- function(
             0
           ) > 0
         ) {
-          opportunities <- c(
-            opportunities,
+          opportunities <- append(opportunities, list(draft_finding(
+            "TRADE FLEXIBILITY",
             paste0(
-              assets$swap_rights,
-              " swap right",
-              if (
-                assets$swap_rights == 1
-              ) "" else "s",
+              assets$swap_rights, " swap right",
+              if (assets$swap_rights == 1) "" else "s",
               " preserve upside without requiring full pick ownership."
-            )
-          )
+            ),
+            "The supported inventory can preserve options across transaction structures.",
+            "Preserve the strongest controlled years unless the return justifies deployment."
+          )))
         }
         
         if (
@@ -1727,10 +2319,12 @@ mod_draft_assets_server <- function(
             0
           ) >= 4
         ) {
-          opportunities <- c(
-            opportunities,
-            "First-round inventory provides meaningful flexibility for consolidation or star-level acquisition scenarios."
-          )
+          opportunities <- append(opportunities, list(draft_finding(
+            "ACQUISITION OPPORTUNITIES",
+            "First-round inventory provides meaningful flexibility for consolidation or star-level acquisition scenarios.",
+            "Additional controlled assets improve future transaction coverage.",
+            "Prioritize controllable assets rather than adding conditional exposure."
+          )))
         }
         
         if (
@@ -1739,41 +2333,32 @@ mod_draft_assets_server <- function(
             0
           ) >= 75
         ) {
-          opportunities <- c(
-            opportunities,
-            "The modeled portfolio provides useful transaction currency while preserving future optionality."
-          )
+          opportunities <- append(opportunities, list(draft_finding(
+            "TRADE FLEXIBILITY",
+            "The modeled portfolio provides useful transaction currency while preserving future optionality.",
+            "The supported inventory can preserve options across transaction structures.",
+            "Preserve the strongest controlled years unless the return justifies deployment."
+          )))
         }
         
         if (!length(opportunities)) {
-          opportunities <- "Prioritize adding or preserving controllable future draft assets before aggressive consolidation."
+          opportunities <- list(draft_finding(
+            "ACQUISITION OPPORTUNITIES",
+            "Prioritize adding or preserving controllable future draft assets before aggressive consolidation.",
+            "Additional controlled assets would improve future transaction coverage.",
+            "Prioritize controllable assets rather than adding conditional exposure."
+          ))
         }
         
         shiny::tagList(
           lapply(
-            unique(opportunities),
-            function(opportunity) {
-              
-              shiny::div(
-                class = "tbi-v2-opportunity-card",
-                
-                shiny::span(
-                  class = "tbi-v2-opportunity-icon",
-                  bsicons::bs_icon(
-                    "graph-up-arrow"
-                  )
-                ),
-                
-                shiny::div(
-                  shiny::strong(
-                    "Opportunity"
-                  ),
-                  shiny::p(
-                    opportunity
-                  )
-                )
-              )
-            }
+            opportunities,
+            function(opportunity) finding_row(
+              opportunity$category,
+              opportunity$fact,
+              opportunity$impact,
+              opportunity$consequence
+            )
           )
         )
       })
@@ -1782,139 +2367,99 @@ mod_draft_assets_server <- function(
       # Asset ledger
       # ------------------------------------------------------
       
-      output$draft_asset_table <- reactable::renderReactable({
-        assets <- draft_assets()
-        valued <- valued_assets()
-        
-        shiny::validate(
-          shiny::need(
-            nrow(assets) > 0,
-            paste(
-              "No active draft assets are loaded for",
-              selected_team(),
-              "in the current planning window."
-            )
-          )
-        )
-        
-        merged <- merge(
-          assets,
-          valued[
-            ,
-            c(
-              "draft_asset_id",
-              "expected_slot",
-              "blended_value_score",
-              "value_tier",
-              "requires_manual_review"
-            ),
-            drop = FALSE
-          ],
-          by = "draft_asset_id",
-          all.x = TRUE,
-          suffixes = c(
-            "",
-            "_value"
-          )
-        )
-        
-        review_col <- if (
-          "requires_manual_review_value" %in%
-          names(merged)
-        ) {
-          merged$requires_manual_review_value
-        } else if (
-          "requires_manual_review" %in%
-          names(merged)
-        ) {
-          merged$requires_manual_review
-        } else {
-          rep(
-            FALSE,
-            nrow(merged)
-          )
+      output$draft_asset_table <- shiny::renderUI({
+        ledger <- filtered_draft_assets()
+        total <- nrow(draft_ledger())
+
+        if (!nrow(ledger)) {
+          return(shiny::div(
+            class = "draft-v2-empty-ledger",
+            paste("No draft assets match the active filters for", selected_team(), ".")
+          ))
         }
-        
-        display <- data.frame(
-          Year = merged$draft_year,
-          Round = merged$round,
-          Control = merged$control_type,
-          `Original Team` = merged$original_team,
-          Protection = ifelse(
-            is.na(
-              merged$protection_text
-            ) |
-              !nzchar(
-                trimws(
-                  as.character(
-                    merged$protection_text
+
+        groups <- group_draft_asset_ledger(ledger)
+        year_ui <- Map(
+          function(year, rows, index) {
+            firsts <- sum(rows$round == "First", na.rm = TRUE)
+            seconds <- sum(rows$round == "Second", na.rm = TRUE)
+            obligations <- sum(rows$control_type %in% c("Outgoing", "Swap Obligation"), na.rm = TRUE)
+            review <- sum(rows$requires_verification, na.rm = TRUE)
+            count_label <- function(value, singular) {
+              paste(value, paste0(singular, if (value == 1L) "" else "s"))
+            }
+
+            asset_rows <- lapply(seq_len(nrow(rows)), function(i) {
+              row <- rows[i, , drop = FALSE]
+              protection <- draft_ledger_text(row$protection_text, "Protection language not specified")[[1]]
+              score <- suppressWarnings(as.numeric(row$blended_value_score))
+              expected_slot <- draft_integer(row$expected_slot, NA_integer_)
+              value <- if (is.finite(score)) {
+                sprintf("%.1f · %s", score, draft_ledger_text(row$value_tier, "Untiered")[[1]])
+              } else {
+                "UNKNOWN"
+              }
+
+              shiny::div(
+                class = "draft-v2-asset-row",
+                shiny::div(shiny::span(class = "draft-v2-asset-label", "Round"), shiny::span(class = "draft-v2-asset-value", row$round)),
+                shiny::div(shiny::span(class = "draft-v2-asset-label", "Control"), shiny::span(class = "draft-v2-asset-value", row$control_type)),
+                shiny::div(shiny::span(class = "draft-v2-asset-label", "Original team"), shiny::span(class = "draft-v2-asset-value", row$original_team)),
+                shiny::div(shiny::span(class = "draft-v2-asset-label", "Verification"), shiny::span(class = "draft-v2-asset-value", row$verification_reason)),
+                shiny::tags$details(
+                  class = "draft-v2-asset-detail",
+                  shiny::tags$summary("Protection, provenance & modeled value"),
+                  shiny::p(protection),
+                  shiny::p(
+                    paste0(
+                      "Source: ", draft_ledger_text(row$source_name, "UNKNOWN")[[1]],
+                      " · Verification: ", row$verification_state,
+                      " · Expected slot: ", if (is.na(expected_slot)) "UNKNOWN" else expected_slot,
+                      " · Value: ", value
+                    )
+                  )
+                )
+              )
+            })
+
+            shiny::tags$details(
+              class = "draft-v2-year-group",
+              open = if (index <= 2L) NA else NULL,
+              shiny::tags$summary(
+                shiny::strong(year),
+                shiny::span(
+                  paste0(
+                    count_label(nrow(rows), "record"), " · ",
+                    count_label(firsts, "first"), " · ",
+                    count_label(seconds, "second"), " · ",
+                    count_label(obligations, "obligation"), " · ",
+                    review, if (review == 1L) " requires" else " require", " verification"
                   )
                 )
               ),
-            "Unprotected / Not specified",
-            merged$protection_text
-          ),
-          `Expected Slot` = ifelse(
-            is.na(
-              merged$expected_slot
-            ),
-            "—",
-            merged$expected_slot
-          ),
-          `Value Score` = ifelse(
-            is.na(
-              merged$blended_value_score
-            ),
-            "—",
-            sprintf(
-              "%.1f",
-              merged$blended_value_score
+              asset_rows
             )
-          ),
-          Tier = ifelse(
-            is.na(
-              merged$value_tier
-            ),
-            "—",
-            merged$value_tier
-          ),
-          Verified = ifelse(
-            merged$verification_status == "Verified",
-            "Yes",
-            "Review"
-          ),
-          `Manual Review` = ifelse(
-            review_col,
-            "Required",
-            "No"
-          ),
-          check.names = FALSE,
-          stringsAsFactors = FALSE
+          },
+          names(groups),
+          groups,
+          seq_along(groups)
         )
-        
-        reactable::reactable(
-          display,
-          searchable = TRUE,
-          highlight = TRUE,
-          striped = FALSE,
-          compact = TRUE,
-          pagination = TRUE,
-          defaultPageSize = 12,
-          defaultSorted = "Year",
-          theme = reactable::reactableTheme(
-            backgroundColor = "transparent",
-            color = "#e6edf6",
-            borderColor = "rgba(148,163,184,.10)",
-            headerStyle = list(
-              backgroundColor = "#111824",
-              color = "#7f8da0",
-              fontWeight = 800
-            ),
-            rowHighlightStyle = list(
-              backgroundColor = "rgba(59,130,246,.045)"
-            )
-          )
+
+        shiny::tagList(
+          shiny::div(
+            class = "draft-v2-ledger-summary",
+            paste0("Showing ", nrow(ledger), " of ", total, " records across ", length(groups), " year groups.")
+          ),
+          year_ui
         )
+      })
+
+      output$overview_control_summary <- shiny::renderUI({
+        control_summary()
+      })
+
+      output$portfolio_control_summary <- shiny::renderUI({
+        control_summary()
       })
       
       # ------------------------------------------------------
@@ -1922,75 +2467,12 @@ mod_draft_assets_server <- function(
       # ------------------------------------------------------
       
       output$draft_recommendation <- shiny::renderUI({
+        result <- draft_value_result()
         summary <- draft_summary()
-        assets <- asset_summary()
-        
-        value <- safe_num(
-          summary$net_portfolio_value,
-          0
-        )
-        
-        label <- if (
-          value >= 150
-        ) {
-          "PRESERVE + DEPLOY SELECTIVELY"
-        } else if (
-          value >= 75
-        ) {
-          "MAINTAIN FLEXIBILITY"
-        } else if (
-          value >= 20
-        ) {
-          "PROTECT CORE PICKS"
+        recommendation <- if (inherits(result, "tbi_draft_error")) {
+          draft_error_recommendation(result$message)
         } else {
-          "ACQUIRE DRAFT CAPITAL"
-        }
-        
-        rationale <- if (
-          value >= 150
-        ) {
-          paste(
-            "The portfolio carries substantial modeled transaction value.",
-            "Avoid unnecessary dilution while preserving the ability to consolidate for a high-impact acquisition."
-          )
-        } else if (
-          value >= 75
-        ) {
-          paste(
-            "The portfolio provides useful transaction currency.",
-            "Deploy selectively while preserving enough future control to protect against roster and competitive downside."
-          )
-        } else if (
-          value >= 20
-        ) {
-          paste(
-            "Draft capital is functional but not deep.",
-            "Protect the strongest controlled picks and use second-round or lower-value assets before premium inventory."
-          )
-        } else {
-          paste(
-            "Draft capital provides limited transaction protection.",
-            "Prioritize acquiring controllable picks and reducing outgoing obligations before aggressive asset consolidation."
-          )
-        }
-        
-        if (
-          safe_num(
-            summary$review_required,
-            0
-          ) > 0
-        ) {
-          rationale <- paste(
-            rationale,
-            paste0(
-              summary$review_required,
-              " asset record",
-              if (
-                summary$review_required == 1
-              ) "" else "s",
-              " should be verified before inclusion in a transaction."
-            )
-          )
+          draft_recommendation_facts(draft_ledger(), summary)
         }
         
         shiny::div(
@@ -2002,23 +2484,26 @@ mod_draft_assets_server <- function(
               "RECOMMENDATION"
             ),
             shiny::strong(
-              label
+              recommendation$posture
             )
           ),
           
           shiny::div(
             shiny::h3(
               style = "margin:0 0 7px;",
-              rationale
+              paste(selected_team(), "draft-capital action")
             ),
-            
+            shiny::div(
+              class = "draft-v2-recommendation-facts",
+              signal_row("Strongest control year", recommendation$strongest_year),
+              signal_row("Most constrained year", recommendation$constrained_year),
+              signal_row("Biggest obligation", recommendation$biggest_obligation),
+              signal_row("Records requiring verification", recommendation$verification),
+              signal_row("Next action", recommendation$next_action)
+            ),
             shiny::p(
-              style = "margin:0; color:#8998ab; line-height:1.55;",
-              paste(
-                "Draft value is an internal decision-support estimate.",
-                "Verified pick language, scouting context, market conditions,",
-                "and transaction objectives remain controlling inputs."
-              )
+              style = "margin:9px 0 0; color:#8998ab; line-height:1.5;",
+              "FACT + MODEL OUTPUT · Draft value is internal decision support; verified ownership and protection language remain controlling inputs."
             )
           )
         )

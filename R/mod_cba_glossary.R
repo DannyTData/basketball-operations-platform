@@ -995,6 +995,15 @@ tbi_cba_filter_glossary <- function(
     d <- d[keep, , drop = FALSE]
   }
 
+  if (nrow(d)) {
+    d <- d[
+      order(d$category, d$term, method = "radix"),
+      ,
+      drop = FALSE
+    ]
+    rownames(d) <- NULL
+  }
+
   d
 }
 
@@ -1257,33 +1266,35 @@ mod_cba_glossary_ui <- function(id) {
           width:max-content;
         }
 
-        .cba-kb-page.cba-index-collapsed .cba-kb-layout {
-          grid-template-columns:56px minmax(0,1fr);
-        }
+        @media(min-width:1181px) {
+          .cba-kb-page.cba-index-collapsed .cba-kb-layout {
+            grid-template-columns:56px minmax(0,1fr);
+          }
 
-        .cba-kb-page.cba-index-collapsed .cba-kb-index-panel
-          :is(.cba-kb-panel-head strong,.cba-kb-panel-head > span,.cba-kb-search-panel,.cba-kb-list) {
-          display:none !important;
-        }
+          .cba-kb-page.cba-index-collapsed .cba-kb-index-panel
+            :is(.cba-kb-panel-head strong,.cba-kb-panel-head > span,.cba-kb-search-panel,.cba-kb-list) {
+            display:none !important;
+          }
 
-        .cba-kb-page.cba-index-collapsed .cba-kb-index-panel .cba-kb-panel-head {
-          min-height:56px;
-          padding:0;
-          justify-content:center;
-          border-bottom:0;
-        }
+          .cba-kb-page.cba-index-collapsed .cba-kb-index-panel .cba-kb-panel-head {
+            min-height:56px;
+            padding:0;
+            justify-content:center;
+            border-bottom:0;
+          }
 
-        .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle {
-          width:36px;
-          padding:7px 0;
-        }
+          .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle {
+            width:36px;
+            padding:7px 0;
+          }
 
-        .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle-label {
-          display:none;
-        }
+          .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle-label {
+            display:none;
+          }
 
-        .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle-icon {
-          transform:rotate(180deg);
+          .cba-kb-page.cba-index-collapsed .cba-kb-index-toggle-icon {
+            transform:rotate(180deg);
+          }
         }
 
         .cba-kb-panel {
@@ -1737,7 +1748,7 @@ mod_cba_glossary_ui <- function(id) {
           display:none;
         }
 
-        @media(min-width:1001px) {
+        @media(min-width:1181px) {
           .tbi-v2-page-content:has(> .cba-kb-page) {
             max-width:none !important;
           }
@@ -1760,7 +1771,7 @@ mod_cba_glossary_ui <- function(id) {
           }
         }
 
-        @media(max-width:1000px) {
+        @media(max-width:1180px) {
           .cba-kb-layout {
             display:block;
           }
@@ -1873,8 +1884,10 @@ mod_cba_glossary_ui <- function(id) {
             }
             page.dataset.cbaKnowledgeBound = 'true';
 
+            var compactIndexMedia = window.matchMedia('(max-width:1180px)');
+
             function compactIndex() {
-              return window.matchMedia('(max-width:1000px)').matches;
+              return compactIndexMedia.matches;
             }
 
             function syncIndexButtons() {
@@ -1947,6 +1960,19 @@ mod_cba_glossary_ui <- function(id) {
                 closeCompactIndex();
               }
             });
+
+            function handleIndexModeChange(event) {
+              if (!event.matches) {
+                page.classList.remove('cba-index-open');
+              }
+              syncIndexButtons();
+            }
+
+            if (typeof compactIndexMedia.addEventListener === 'function') {
+              compactIndexMedia.addEventListener('change', handleIndexModeChange);
+            } else if (typeof compactIndexMedia.addListener === 'function') {
+              compactIndexMedia.addListener(handleIndexModeChange);
+            }
 
             syncIndexButtons();
           })();

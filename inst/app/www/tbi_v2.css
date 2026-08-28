@@ -424,6 +424,19 @@ body {
   letter-spacing: .13em;
 }
 
+/* Global selectors remain compact but readable and programmatically labelled. */
+.tbi-v2-header .tbi-v2-filter-label {
+  font-size: .625rem !important;
+  line-height: 1.2;
+}
+
+@media (max-width: 700px) {
+  .tbi-v2-header .tbi-v2-filter :is(select, .form-select, .selectize-input) {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+}
+
 .tbi-v2-filter .form-group,
 .tbi-v2-filter .shiny-input-container {
   margin: 0 !important;

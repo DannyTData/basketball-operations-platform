@@ -129,32 +129,7 @@ v2_lineup_legal_assignment <- function(player_ids, role_ledger,
   if (is.null(position_index)) {
     position_index <- v2_lineup_position_index(role_ledger, ids, policy)
   }
-  eligible <- position_index[as.character(ids)]
-  assign_one <- function(remaining_positions, remaining_ids, assigned) {
-    if (!length(remaining_positions)) return(assigned)
-    counts <- vapply(remaining_positions, function(position) {
-      sum(vapply(remaining_ids, function(id) position %in% eligible[[as.character(id)]], logical(1)))
-    }, integer(1))
-    if (any(counts == 0L)) return(NULL)
-    position <- remaining_positions[order(counts, match(remaining_positions, policy$positions))][[1]]
-    candidates <- sort(remaining_ids[vapply(remaining_ids, function(id) {
-      position %in% eligible[[as.character(id)]]
-    }, logical(1))])
-    for (id in candidates) {
-      result <- assign_one(setdiff(remaining_positions, position), setdiff(remaining_ids, id),
-        c(assigned, setNames(position, as.character(id))))
-      if (!is.null(result)) return(result)
-    }
-    NULL
-  }
-  assignment <- assign_one(policy$positions, sort(ids), character())
-  if (is.null(assignment)) return(NULL)
-  assignment <- assignment[as.character(ids)]
-  if (exists("position_balance_evaluation", mode = "function")) {
-    protected <- position_balance_evaluation(unname(assignment))
-    if (!isTRUE(protected$balanced) || isTRUE(protected$review_required)) return(NULL)
-  }
-  assignment
+  v2_role_position_assignment(ids, position_index, policy$positions)
 }
 
 

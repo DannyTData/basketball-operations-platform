@@ -13,9 +13,58 @@
 #' @return A normalized database path.
 #' @noRd
 resolve_tbi_db_path <- function(db_path = NULL) {
+  domain <- tryCatch(
+    shiny::getDefaultReactiveDomain(),
+    error = function(e) NULL
+  )
+  feedback_session <- !is.null(domain) &&
+    !is.null(domain$userData) &&
+    isTRUE(domain$userData$tbi_feedback_mode)
+
+  if (feedback_session) {
+    feedback_path <- as.character(domain$userData$tbi_feedback_db_path %||% "")
+    if (
+      length(feedback_path) != 1L ||
+      is.na(feedback_path) ||
+      !nzchar(trimws(feedback_path)) ||
+      !file.exists(feedback_path)
+    ) {
+      stop(
+        "Feedback database isolation is active, but this session has no valid disposable database.",
+        call. = FALSE
+      )
+    }
+    return(normalizePath(feedback_path, winslash = "/", mustWork = TRUE))
+  }
+
+  feedback_process <- tolower(trimws(Sys.getenv("TBI_FEEDBACK_MODE", "false"))) %in%
+    c("1", "true", "yes", "on")
+  if (feedback_process) {
+    stop(
+      "Feedback database access requires an active isolated Shiny session; authoritative fallback is disabled.",
+      call. = FALSE
+    )
+  }
+
   # TBI_PHASE15J_WEB_DB_OVERRIDE
   demo_mode <- tolower(trimws(Sys.getenv("TBI_DEMO_MODE", "false"))) %in% c("1", "true", "yes", "on")
   demo_override <- trimws(Sys.getenv("TBI_DB_OVERRIDE", ""))
+
+  # Isolated tests may supply their own unique database beneath tempdir().
+  # The demo override still dominates repository, installed, or other paths.
+  if (
+    isTRUE(demo_mode) &&
+    !is.null(db_path) &&
+    length(db_path) == 1L &&
+    !is.na(db_path) &&
+    file.exists(db_path)
+  ) {
+    explicit_path <- normalizePath(db_path, winslash = "/", mustWork = TRUE)
+    temp_root <- normalizePath(tempdir(), winslash = "/", mustWork = TRUE)
+    if (startsWith(tolower(explicit_path), paste0(tolower(temp_root), "/"))) {
+      return(explicit_path)
+    }
+  }
 
   if (
     isTRUE(demo_mode) &&
@@ -69,6 +118,40 @@ resolve_tbi_db_path <- function(db_path = NULL) {
   normalizePath(existing[[1]], winslash = "/", mustWork = TRUE)
 }
 
+#' Resolve the feedback source database without fallback from an explicit path.
+#' @noRd
+tbi_resolve_feedback_source_db <- function(source_db = NULL) {
+  if (!is.null(source_db)) {
+    source_db <- as.character(source_db)
+    if (
+      length(source_db) != 1L ||
+      is.na(source_db) ||
+      !nzchar(trimws(source_db)) ||
+      !file.exists(source_db)
+    ) {
+      stop("The explicit feedback source database does not exist.", call. = FALSE)
+    }
+    return(normalizePath(source_db, winslash = "/", mustWork = TRUE))
+  }
+
+  candidates <- file.path("inst", "database", "tbi.sqlite")
+  if (exists("app_sys", mode = "function")) {
+    installed <- tryCatch(app_sys("database", "tbi.sqlite"), error = function(e) "")
+    if (nzchar(installed)) candidates <- c(candidates, installed)
+  }
+  package_name <- tryCatch(utils::packageName(), error = function(e) "")
+  if (!is.null(package_name) && nzchar(package_name)) {
+    installed <- system.file("database", "tbi.sqlite", package = package_name)
+    if (nzchar(installed)) candidates <- c(candidates, installed)
+  }
+  candidates <- unique(candidates[nzchar(candidates)])
+  existing <- candidates[file.exists(candidates)]
+  if (!length(existing)) {
+    stop("The feedback source database could not be resolved safely.", call. = FALSE)
+  }
+  normalizePath(existing[[1]], winslash = "/", mustWork = TRUE)
+}
+
 #' Connect to the TBI SQLite database
 #'
 #' @param db_path Optional explicit database path.
@@ -115,7 +198,7 @@ disconnect_db <- function(con) {
 
 get_teams <- function() {
   
-  con <- connect_db()
+  con <- connect_db(read_only = TRUE)
   
   on.exit(
     disconnect_db(con),
@@ -143,7 +226,7 @@ get_teams <- function() {
 
 get_team <- function(team_value) {
   
-  con <- connect_db()
+  con <- connect_db(read_only = TRUE)
   
   on.exit(
     disconnect_db(con),
@@ -181,7 +264,7 @@ get_team <- function(team_value) {
 
 get_roster <- function(team_value, season = NULL) {
   
-  con <- connect_db()
+  con <- connect_db(read_only = TRUE)
   
   on.exit(disconnect_db(con), add = TRUE)
   
@@ -315,10 +398,8 @@ ensure_tbi_support_tables <- function(con) {
 # Shared source of truth for both depth-chart displays
 # ------------------------------------------------------------
 get_depth_chart_records <- function(team_value, season, db_path = NULL) {
-  path <- resolve_tbi_db_path(db_path %||% file.path("inst", "database", "tbi.sqlite"))
-  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = path)
+  con <- connect_db(db_path = db_path, read_only = TRUE)
   on.exit(disconnect_db(con), add = TRUE)
-  ensure_tbi_support_tables(con)
   
   sql <- "
     WITH contract_data AS (
@@ -429,10 +510,8 @@ get_depth_chart_records <- function(team_value, season, db_path = NULL) {
 # Eligible positions for editable depth charts
 # ------------------------------------------------------------
 get_player_eligible_positions <- function(player_id, primary_position = NULL, db_path = NULL) {
-  path <- resolve_tbi_db_path(db_path %||% file.path("inst", "database", "tbi.sqlite"))
-  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = path)
+  con <- connect_db(db_path = db_path, read_only = TRUE)
   on.exit(disconnect_db(con), add = TRUE)
-  ensure_tbi_support_tables(con)
   
   explicit <- DBI::dbGetQuery(
     con,
@@ -759,8 +838,7 @@ reset_depth_chart_override <- function(player_id, team_value, season, db_path = 
 }
 
 get_cap_thresholds <- function(season, db_path = NULL) {
-  path <- resolve_tbi_db_path(db_path %||% file.path("inst", "database", "tbi.sqlite"))
-  con <- DBI::dbConnect(RSQLite::SQLite(), dbname = path)
+  con <- connect_db(db_path = db_path, read_only = TRUE)
   on.exit(disconnect_db(con), add = TRUE)
   DBI::dbGetQuery(
     con,

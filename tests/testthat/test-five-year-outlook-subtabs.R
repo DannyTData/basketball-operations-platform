@@ -62,13 +62,11 @@ testthat::test_that("every Five-Year Outlook section is assigned exactly once", 
 
   expected <- c(
     `long-range-snapshot` = "overview",
-    `decision-and-scorecard` = "flexibility",
+    `overview-story` = "overview",
+    `strategic-flexibility` = "flexibility",
     `organizational-timeline` = "timeline",
-    `outlook-headlines` = "overview",
-    `long-range-risks` = "draft-optionality",
-    `flexibility-opportunities` = "draft-optionality",
+    `draft-control-and-optionality` = "draft-optionality",
     `contract-runway` = "contracts-free-agency",
-    `front-office-readout` = "recommendation",
     `executive-recommendation` = "recommendation"
   )
 
@@ -97,6 +95,8 @@ testthat::test_that("Five-Year Outlook keeps every existing Shiny output ID", {
     "outlook_headlines",
     "outlook_risks",
     "outlook_opportunities",
+    "outlook_draft_summary",
+    "contract_runway_summary",
     "contract_runway_table",
     "outlook_readout",
     "outlook_recommendation"

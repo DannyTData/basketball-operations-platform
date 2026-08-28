@@ -166,11 +166,112 @@ v2_stagger_coverage <- function(lineup, eligible_ids, unknown_ids) {
 }
 
 
+v2_stagger_position_state_index <- function(
+    role_ledger,
+    player_ids,
+    positions = v2_role_policy()$canonical_positions) {
+  ids <- unique(suppressWarnings(as.integer(player_ids)))
+  ids <- ids[!is.na(ids)]
+  positions <- as.character(positions)
+
+  eligibility_state <- function(player_id, position) {
+    record <- tryCatch(
+      v2_role_record(role_ledger, player_id, paste0("POSITION_", position)),
+      error = function(e) NULL
+    )
+    if (is.null(record)) return("UNKNOWN")
+    eligibility <- toupper(trimws(as.character(record$eligibility %||% "UNKNOWN")))
+    verification <- toupper(trimws(as.character(record$verification_status %||% "MISSING")))
+    evidence_class <- toupper(trimws(as.character(record$evidence_class %||% "UNKNOWN")))
+    is_verified <- verification %in% c("VERIFIED", "DERIVED_VERIFIED") &&
+      evidence_class %in% c("AUTHORITATIVE_FACT", "DETERMINISTIC_DERIVATION")
+    if (is_verified && identical(eligibility, "ELIGIBLE")) return("ELIGIBLE")
+    if (is_verified && identical(eligibility, "NOT_ELIGIBLE")) return("NOT_ELIGIBLE")
+    "UNKNOWN"
+  }
+
+  setNames(lapply(ids, function(id) {
+    setNames(vapply(positions, function(position) {
+      eligibility_state(id, position)
+    }, character(1)), positions)
+  }), as.character(ids))
+}
+
+
+v2_stagger_position_legality <- function(
+    player_ids,
+    role_ledger,
+    positions = v2_role_policy()$canonical_positions,
+    position_state_index = NULL) {
+  ids <- suppressWarnings(as.integer(player_ids))
+  positions <- as.character(positions)
+  if (length(ids) != length(positions) ||
+      any(is.na(ids)) || anyDuplicated(ids) ||
+      !identical(positions, c("PG", "SG", "SF", "PF", "C"))) {
+    return(list(
+      status = "FAIL",
+      assigned_positions = setNames(rep(NA_character_, length(ids)), as.character(ids)),
+      reason_code = "SEGMENT_POSITION_ASSIGNMENT_IMPOSSIBLE"
+    ))
+  }
+
+  if (is.null(position_state_index)) {
+    position_state_index <- v2_stagger_position_state_index(
+      role_ledger,
+      ids,
+      positions
+    )
+  }
+
+  states <- setNames(lapply(ids, function(id) {
+    player_states <- position_state_index[[as.character(id)]]
+    setNames(vapply(positions, function(position) {
+      value <- player_states[[position]] %||% "UNKNOWN"
+      value <- toupper(trimws(as.character(value)))
+      if (length(value) != 1L || is.na(value) ||
+          !value %in% c("ELIGIBLE", "NOT_ELIGIBLE", "UNKNOWN")) {
+        return("UNKNOWN")
+      }
+      value
+    }, character(1)), positions)
+  }), as.character(ids))
+  verified_index <- lapply(states, function(player_states) {
+    names(player_states)[player_states == "ELIGIBLE"]
+  })
+  verified_assignment <- v2_role_position_assignment(ids, verified_index, positions)
+  if (!is.null(verified_assignment)) {
+    return(list(
+      status = "PASS",
+      assigned_positions = verified_assignment,
+      reason_code = "SEGMENT_POSITION_ASSIGNMENT_VERIFIED"
+    ))
+  }
+
+  possible_index <- lapply(states, function(player_states) {
+    names(player_states)[player_states != "NOT_ELIGIBLE"]
+  })
+  possible_assignment <- v2_role_position_assignment(ids, possible_index, positions)
+  if (!is.null(possible_assignment)) {
+    return(list(
+      status = "REVIEW",
+      assigned_positions = setNames(rep(NA_character_, length(ids)), as.character(ids)),
+      reason_code = "SEGMENT_POSITION_ASSIGNMENT_UNKNOWN"
+    ))
+  }
+  list(
+    status = "FAIL",
+    assigned_positions = setNames(rep(NA_character_, length(ids)), as.character(ids)),
+    reason_code = "SEGMENT_POSITION_ASSIGNMENT_IMPOSSIBLE"
+  )
+}
+
+
 v2_stagger_clock <- function(minutes_remaining) paste0(as.integer(minutes_remaining), ":00")
 
 
 v2_stagger_segments <- function(lineups, rows, role_sets,
-                                policy = v2_stagger_policy()) {
+                                policy = v2_stagger_policy(),
+                                role_ledger = NULL) {
   total_ticks <- as.integer(policy$periods * policy$minutes_per_period)
   period_minutes <- as.integer(policy$minutes_per_period)
   starts <- c(1L, which(vapply(seq.int(2L, total_ticks), function(i) {
@@ -179,6 +280,24 @@ v2_stagger_segments <- function(lineups, rows, role_sets,
     period_change || !identical(lineups[[i]], lineups[[i - 1L]])
   }, logical(1))) + 1L)
   ends <- c(starts[-1L] - 1L, total_ticks)
+  position_state_index <- v2_stagger_position_state_index(
+    role_ledger,
+    rows$player_id
+  )
+  position_cache <- new.env(parent = emptyenv())
+  position_legality <- function(lineup) {
+    key <- paste(as.integer(lineup), collapse = ",")
+    if (exists(key, envir = position_cache, inherits = FALSE)) {
+      return(get(key, envir = position_cache, inherits = FALSE))
+    }
+    value <- v2_stagger_position_legality(
+      lineup,
+      role_ledger,
+      position_state_index = position_state_index
+    )
+    assign(key, value, envir = position_cache)
+    value
+  }
   records <- lapply(seq_along(starts), function(i) {
     start <- starts[[i]]
     end <- ends[[i]]
@@ -189,11 +308,13 @@ v2_stagger_segments <- function(lineups, rows, role_sets,
     creator <- v2_stagger_coverage(lineup, union(role_sets$eligible$PRIMARY_CREATOR, role_sets$eligible$BALL_HANDLER), union(role_sets$unknown$PRIMARY_CREATOR, role_sets$unknown$BALL_HANDLER))
     handler <- v2_stagger_coverage(lineup, role_sets$eligible$BALL_HANDLER, role_sets$unknown$BALL_HANDLER)
     big <- v2_stagger_coverage(lineup, union(role_sets$eligible$POSITION_C, role_sets$eligible$BACKUP_C), union(role_sets$unknown$POSITION_C, role_sets$unknown$BACKUP_C))
+    position <- position_legality(lineup)
     starter_count <- sum(rows$is_starter[match(lineup, rows$player_id)])
     codes <- c(
       if (creator == "REVIEW") "CREATOR_COVERAGE_UNKNOWN" else if (creator == "FAIL") "CREATOR_COVERAGE_UNMET",
       if (handler == "REVIEW") "BALL_HANDLER_COVERAGE_UNKNOWN" else if (handler == "FAIL") "BALL_HANDLER_COVERAGE_UNMET",
       if (big == "REVIEW") "BIG_CENTER_COVERAGE_UNKNOWN" else if (big == "FAIL") "BIG_CENTER_COVERAGE_UNMET",
+      position$reason_code,
       if (starter_count == 0L) "ALL_BENCH_LINEUP" else "STARTER_STAGGERED"
     )
     list(
@@ -209,7 +330,9 @@ v2_stagger_segments <- function(lineups, rows, role_sets,
       creator_coverage_status = creator,
       ball_handler_coverage_status = handler,
       big_center_coverage_status = big,
-      validation = if (any(c(creator, handler, big) == "FAIL")) "FAIL" else if (any(c(creator, handler, big) == "REVIEW")) "REVIEW" else "PASS",
+      position_legality_status = position$status,
+      assigned_positions = position$assigned_positions,
+      validation = if (any(c(creator, handler, big, position$status) == "FAIL")) "FAIL" else if (any(c(creator, handler, big, position$status) == "REVIEW")) "REVIEW" else "PASS",
       reason_codes = unique(codes)
     )
   })
@@ -225,10 +348,12 @@ v2_stagger_segments <- function(lineups, rows, role_sets,
     creator_coverage_status = vapply(records, `[[`, character(1), "creator_coverage_status"),
     ball_handler_coverage_status = vapply(records, `[[`, character(1), "ball_handler_coverage_status"),
     big_center_coverage_status = vapply(records, `[[`, character(1), "big_center_coverage_status"),
+    position_legality_status = vapply(records, `[[`, character(1), "position_legality_status"),
     validation = vapply(records, `[[`, character(1), "validation"),
     stringsAsFactors = FALSE
   )
   frame$player_ids <- I(lapply(records, `[[`, "player_ids"))
+  frame$assigned_positions <- I(lapply(records, `[[`, "assigned_positions"))
   frame$reason_codes <- I(lapply(records, `[[`, "reason_codes"))
   frame
 }
@@ -294,17 +419,43 @@ build_v2_stagger_plan <- function(minute_ledger,
   rows <- v2_stagger_minute_rows(minute_ledger, policy)
   role_sets <- v2_stagger_role_sets(role_ledger, rows$player_id)
   lineups <- v2_stagger_select_lineups(rows, role_sets, policy)
-  segments <- v2_stagger_segments(lineups, rows, role_sets, policy)
+  segments <- v2_stagger_segments(
+    lineups,
+    rows,
+    role_sets,
+    policy = policy,
+    role_ledger = role_ledger
+  )
   events <- v2_stagger_events(lineups, policy)
 
   findings <- list()
   add_finding <- function(...) findings[[length(findings) + 1L]] <<- new_v2_validation_finding(...)
-  if (any(segments$validation == "FAIL")) {
+  role_status <- unlist(segments[c(
+    "creator_coverage_status", "ball_handler_coverage_status",
+    "big_center_coverage_status"
+  )], use.names = FALSE)
+  if (any(role_status == "FAIL")) {
     add_finding("VERIFIED_ROLE_COVERAGE_UNMET", "FAIL", "At least one segment lacks required verified creator, handler, or center coverage.")
   }
   unknown_codes <- intersect(unique(unlist(segments$reason_codes, use.names = FALSE)), c("CREATOR_COVERAGE_UNKNOWN", "BALL_HANDLER_COVERAGE_UNKNOWN", "BIG_CENTER_COVERAGE_UNKNOWN"))
   if (length(unknown_codes)) {
     add_finding("ROLE_COVERAGE_UNKNOWN", "REVIEW", "Segment role coverage remains unknown because governed evidence is incomplete.", missing_fields = "verified_segment_role_coverage")
+  }
+  if (any(segments$position_legality_status == "FAIL")) {
+    add_finding(
+      "SEGMENT_POSITION_ASSIGNMENT_IMPOSSIBLE",
+      "FAIL",
+      "At least one segment has no legal PG/SG/SF/PF/C assignment under known position eligibility.",
+      is_blocking = TRUE,
+      evidence_fields = "verified_position_eligibility"
+    )
+  } else if (any(segments$position_legality_status == "REVIEW")) {
+    add_finding(
+      "SEGMENT_POSITION_ASSIGNMENT_UNKNOWN",
+      "REVIEW",
+      "At least one segment lacks enough verified position evidence to prove a legal PG/SG/SF/PF/C assignment.",
+      missing_fields = "verified_segment_position_eligibility"
+    )
   }
   if (any(segments$starter_count == 0L)) {
     add_finding("ALL_BENCH_LINEUP", "REVIEW", "An all-bench segment could not be avoided while reconciling exact minutes.")

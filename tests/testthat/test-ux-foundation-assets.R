@@ -64,6 +64,70 @@ testthat::test_that("UX foundation script is deferred and content-versioned", {
   )
 })
 
+testthat::test_that("global navigation keeps all eleven destinations visible without a scroll rail", {
+  root <- ux_foundation_project_root()
+  rendered <- htmltools::renderTags(app_ui(NULL))$html
+  nav_match <- regexpr(
+    '<nav class="tbi-primary-navigation tbi-v2-navigation">[\\s\\S]*?</nav>',
+    rendered,
+    perl = TRUE
+  )
+
+  testthat::expect_gt(unname(nav_match), 0L)
+  if (unname(nav_match) < 1L) return(invisible(NULL))
+
+  navigation <- regmatches(rendered, nav_match)
+  expected <- c(
+    nav_executive = "Command Center",
+    nav_team = "Team Overview",
+    nav_roster = "Roster Intelligence",
+    nav_depth = "Depth Chart",
+    nav_player_manager = "Player Management",
+    nav_salary = "Cap Intelligence",
+    nav_extension = "Extension Simulator",
+    nav_trade = "Trade Intelligence",
+    nav_draft = "Draft Intelligence",
+    nav_outlook = "Five-Year Outlook",
+    nav_cba_glossary = "CBA Info Hub"
+  )
+  id_positions <- vapply(names(expected), function(id) {
+    unname(regexpr(paste0('id="', id, '"'), navigation, fixed = TRUE))
+  }, integer(1))
+
+  testthat::expect_true(all(id_positions > 0L))
+  testthat::expect_true(all(diff(id_positions) > 0L))
+  for (label in unname(expected)) {
+    testthat::expect_match(navigation, label, fixed = TRUE)
+  }
+  testthat::expect_equal(
+    lengths(regmatches(navigation, gregexpr('id="nav_[^"]+"', navigation, perl = TRUE))),
+    11L
+  )
+
+  stylesheet <- paste(
+    readLines(file.path(root, "inst", "app", "www", "tbi_ux_foundation.css"), warn = FALSE),
+    collapse = "\n"
+  )
+  start_marker <- "/* >>> TBI_TOP_NAV_VISIBILITY_HOTFIX_START >>> */"
+  end_marker <- "/* <<< TBI_TOP_NAV_VISIBILITY_HOTFIX_END <<< */"
+  block <- strsplit(stylesheet, start_marker, fixed = TRUE)[[1L]][[2L]]
+  block <- strsplit(block, end_marker, fixed = TRUE)[[1L]][[1L]]
+
+  testthat::expect_match(block, "grid-template-rows:\\s*auto minmax\\(0,1fr\\)\\s*!important")
+  testthat::expect_match(block, "overflow:\\s*visible\\s*!important")
+  testthat::expect_match(block, "scrollbar-width:\\s*none\\s*!important")
+  testthat::expect_false(grepl("overflow-x:auto", block, fixed = TRUE))
+  testthat::expect_match(block, "@media\\s*\\(min-width:\\s*1800px\\)")
+  testthat::expect_match(block, "@media\\s*\\(max-width:\\s*1439px\\)")
+  testthat::expect_match(block, "grid-template-columns:\\s*repeat\\(6,minmax\\(0,1fr\\)\\)\\s*!important")
+  testthat::expect_match(block, "@media\\s*\\(max-width:\\s*700px\\)")
+  testthat::expect_match(block, "grid-template-columns:\\s*repeat\\(2,minmax\\(0,1fr\\)\\)\\s*!important")
+  testthat::expect_match(block, "min-height:\\s*44px\\s*!important")
+  testthat::expect_match(block, "flex:\\s*0 0 auto\\s*!important")
+  testthat::expect_match(block, "white-space:\\s*nowrap\\s*!important")
+  testthat::expect_false(grepl("text-overflow", block, fixed = TRUE))
+})
+
 testthat::test_that("all internal sub-tab rails share responsive distribution", {
   root <- ux_foundation_project_root()
   stylesheet <- paste(
@@ -123,6 +187,16 @@ testthat::test_that("all internal sub-tab rails share responsive distribution", 
     distribution_start + nchar(start_marker),
     distribution_end - 1L
   )
+
+  for (name in c(rail_classes, tab_classes, desktop_tab_selectors)) {
+    testthat::expect_match(distribution_block, name, fixed = TRUE)
+  }
+  testthat::expect_match(distribution_block, "min-height:44px !important", fixed = TRUE)
+  testthat::expect_match(distribution_block, "padding:8px 12px !important", fixed = TRUE)
+  testthat::expect_match(distribution_block, "font-size:.72rem !important", fixed = TRUE)
+  testthat::expect_match(distribution_block, "line-height:1 !important", fixed = TRUE)
+  testthat::expect_match(distribution_block, "background:rgba(37,99,235,.17) !important", fixed = TRUE)
+  testthat::expect_match(distribution_block, ":focus-visible", fixed = TRUE)
   desktop_media <- regexpr(
     "@media\\s*\\(min-width:\\s*701px\\)",
     distribution_block,

@@ -7,17 +7,7 @@
 #'
 #' @noRd
 tbi_db_connect <- function() {
-  
-  database_path <- system.file(
-    "database/tbi.sqlite",
-    package = "basketballops",
-    mustWork = TRUE
-  )
-  
-  DBI::dbConnect(
-    RSQLite::SQLite(),
-    database_path
-  )
+  connect_db(read_only = TRUE)
 }
 
 

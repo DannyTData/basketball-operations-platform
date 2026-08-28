@@ -78,8 +78,24 @@ mod_player_manager_ui <- function(id) {
         "
         .pi-page {
           display: grid;
-          gap: 12px;
+          gap: 8px !important;
           width: 100%;
+        }
+
+        .pi-page .tbi-pm-subnav {
+          min-height: 44px !important;
+          margin: 0 !important;
+          padding: 4px !important;
+          gap: 4px !important;
+          box-shadow: none !important;
+        }
+
+        .pi-page .tbi-pm-subtab {
+          min-height: 44px !important;
+          height: auto !important;
+          padding: 8px 12px !important;
+          font-size: .72rem !important;
+          line-height: 1 !important;
         }
 
         .pi-cba-link {
@@ -106,12 +122,20 @@ mod_player_manager_ui <- function(id) {
           display: flex;
           align-items: end;
           justify-content: space-between;
-          gap: 18px;
-          margin-bottom: 2px;
+          gap: 12px;
+          margin-bottom: 0;
         }
 
         .pi-selector-wrap {
           width: min(420px, 100%);
+        }
+
+        .pi-selector-wrap .form-group {
+          margin-bottom: 0;
+        }
+
+        .pi-scenario-slot:not(:has(.pi-trade-banner)) {
+          display:none;
         }
 
         .pi-selector-label,
@@ -135,8 +159,8 @@ mod_player_manager_ui <- function(id) {
         }
 
         .pi-panel-head {
-          min-height: 42px;
-          padding: 0 14px;
+          min-height: 38px;
+          padding: 0 12px;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -160,20 +184,20 @@ mod_player_manager_ui <- function(id) {
           display: grid;
           grid-template-columns: minmax(330px,1.35fr) minmax(300px,.85fr);
           gap: 0;
-          min-height: 150px;
+          min-height: 132px;
         }
 
         .pi-profile-main {
-          padding: 18px;
+          padding: 14px 16px;
           display: grid;
-          grid-template-columns: 82px minmax(0,1fr);
-          gap: 17px;
+          grid-template-columns: 72px minmax(0,1fr);
+          gap: 16px;
           align-items: center;
         }
 
         .pi-avatar {
-          width: 82px;
-          height: 82px;
+          width: 72px;
+          height: 72px;
           display: grid;
           place-items: center;
           border: 1px solid rgba(96,165,250,.28);
@@ -220,7 +244,7 @@ mod_player_manager_ui <- function(id) {
         }
 
         .pi-player-detail-line {
-          margin-top: 10px;
+          margin-top: 8px;
           color: #73849a;
           font-size: .63rem;
           font-weight: 700;
@@ -228,17 +252,17 @@ mod_player_manager_ui <- function(id) {
         }
 
         .pi-profile-meta {
-          padding: 16px;
+          padding: 12px;
           display: grid;
-          grid-template-columns: repeat(3, minmax(0,1fr));
-          gap: 9px;
+          grid-template-columns: repeat(4, minmax(0,1fr));
+          gap: 8px;
           align-content: center;
           border-left: 1px solid rgba(148,163,184,.11);
         }
 
         .pi-metric-box {
-          min-height: 64px;
-          padding: 10px 11px;
+          min-height: 56px;
+          padding: 8px 10px;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -267,6 +291,69 @@ mod_player_manager_ui <- function(id) {
           align-items: start;
         }
 
+        .pi-page[data-tbi-pm-active-tab] .pi-main-grid {
+          grid-template-columns: minmax(0,1fr) !important;
+          gap: 12px !important;
+          align-items: start !important;
+        }
+
+        .pi-page[data-tbi-pm-active-tab] :is(
+          .pi-left-grid,
+          .pi-three-grid,
+          .pi-three-grid-secondary,
+          .pi-right-rail
+        ) {
+          display: contents !important;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='overview'] .pi-main-grid {
+          grid-template-columns:
+            minmax(0,1.08fr)
+            minmax(0,1.08fr)
+            minmax(280px,.84fr) !important;
+          align-items:stretch !important;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='overview'] :is(
+          .pi-overview-performance,
+          .pi-overview-role,
+          .pi-overview-summary
+        ) {
+          height:100%;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='development'] .pi-main-grid {
+          grid-template-columns:
+            minmax(260px,.8fr)
+            minmax(460px,1.5fr)
+            minmax(280px,.9fr) !important;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='contract'] .pi-main-grid {
+          grid-template-columns:
+            minmax(360px,1.08fr)
+            minmax(360px,.92fr) !important;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='contract'] .pi-contract-timeline {
+          grid-column: 1;
+          grid-row: 1;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='contract'] .pi-contract-cba {
+          grid-column: 2;
+          grid-row: 1;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='recommendation'] .pi-main-grid {
+          grid-template-columns: minmax(0,1fr) !important;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='value'] .pi-value-workspace,
+        .pi-page[data-tbi-pm-active-tab='value'] .pi-data-note {
+          grid-column: 1 / -1;
+        }
+
         .pi-left-grid {
           display: grid;
           gap: 12px;
@@ -286,7 +373,7 @@ mod_player_manager_ui <- function(id) {
         }
 
         .pi-panel-body {
-          padding: 13px 14px;
+          padding: 12px;
         }
 
         .pi-stats-grid {
@@ -301,8 +388,8 @@ mod_player_manager_ui <- function(id) {
         }
 
         .pi-stat-cell {
-          min-height: 58px;
-          padding: 9px 8px;
+          min-height: 50px;
+          padding: 7px 8px;
           display: flex;
           flex-direction: column;
           gap: 4px;
@@ -410,7 +497,7 @@ mod_player_manager_ui <- function(id) {
 
         .pi-projection-grid {
           display: grid;
-          grid-template-columns: repeat(3,minmax(0,1fr));
+          grid-template-columns: repeat(4,minmax(0,1fr));
           gap: 8px;
         }
 
@@ -512,9 +599,83 @@ mod_player_manager_ui <- function(id) {
 
         .pi-recommendation {
           display:grid;
-          grid-template-columns:220px minmax(0,1fr) minmax(0,1fr);
-          gap:18px;
-          padding:15px 17px;
+          gap:0;
+        }
+
+        .pi-recommendation-decision {
+          display:grid;
+          grid-template-columns:220px minmax(0,1fr) minmax(220px,.55fr);
+          gap:16px;
+          align-items:start;
+          padding:12px 16px;
+          border-bottom:1px solid rgba(148,163,184,.11);
+        }
+
+        .pi-recommendation-columns {
+          display:grid;
+          grid-template-columns: repeat(3,minmax(0,1fr));
+        }
+
+        .pi-recommendation-column {
+          min-width:0;
+          padding:12px 16px;
+        }
+
+        .pi-recommendation-column + .pi-recommendation-column {
+          border-left:1px solid rgba(148,163,184,.10);
+        }
+
+        .pi-recommendation-column-title {
+          margin:0 0 8px;
+          color:#8fbdf5;
+          font-size:.66rem;
+          font-weight:850;
+          letter-spacing:.08em;
+          text-transform:uppercase;
+        }
+
+        .pi-rec-fact-list {
+          display:grid;
+          gap:0;
+        }
+
+        .pi-rec-fact {
+          display:flex;
+          align-items:flex-start;
+          justify-content:space-between;
+          gap:12px;
+          padding:6px 0;
+          border-bottom:1px solid rgba(148,163,184,.08);
+          color:#8493a8;
+          font-size:.70rem;
+          line-height:1.4;
+        }
+
+        .pi-rec-fact:last-child {
+          border-bottom:0;
+        }
+
+        .pi-rec-fact strong {
+          max-width:68%;
+          color:#e7eef7;
+          font-size:.74rem;
+          font-weight:760;
+          text-align:right;
+          overflow-wrap:anywhere;
+        }
+
+        .pi-recommendation-evidence {
+          display:inline-flex;
+          justify-self:end;
+          padding:6px 9px;
+          border:1px solid rgba(245,158,11,.22);
+          border-radius:999px;
+          background:rgba(146,91,12,.10);
+          color:#f2bd62;
+          font-size:.62rem;
+          font-weight:800;
+          line-height:1.3;
+          text-align:right;
         }
 
         .pi-rec-label {
@@ -530,12 +691,68 @@ mod_player_manager_ui <- function(id) {
           font-size:.61rem;
         }
 
+        .pi-rec-watch {
+          margin-top: 8px;
+          color: #aab8c9;
+          font-size: .66rem;
+          line-height: 1.45;
+        }
+
+        .pi-rec-watch strong {
+          display: block;
+          margin-bottom: 3px;
+          color: #f59e0b;
+          font-size: .55rem;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+        }
+
         .pi-rec-list {
           margin:0;
           padding-left:16px;
           color:#cbd5e1;
           font-size:.62rem;
-          line-height:1.6;
+          line-height:1.5;
+        }
+
+        .pi-rec-list li + li {
+          margin-top:4px;
+        }
+
+        .pi-rec-risk-block + .pi-rec-risk-block {
+          margin-top:8px;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='contract'] .pi-signal-row {
+          min-height:30px;
+          padding:4px 0;
+          gap:10px;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='contract']
+          .pi-contract-timeline .pi-panel-body {
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          column-gap:16px;
+        }
+
+        .pi-page[data-tbi-pm-active-tab='contract'] .pi-signal-row strong {
+          max-width:68%;
+          overflow-wrap:anywhere;
+        }
+
+        .pi-page .selectize-input,
+        .pi-page .selectize-dropdown {
+          border-color:rgba(148,163,184,.18) !important;
+          background:#101925 !important;
+          color:#e7eef7 !important;
+          box-shadow:none !important;
+        }
+
+        .pi-page .selectize-input .item,
+        .pi-page .selectize-input input,
+        .pi-page .selectize-dropdown-content .option {
+          color:#e7eef7 !important;
         }
 
         .pi-data-note {
@@ -822,12 +1039,44 @@ mod_player_manager_ui <- function(id) {
           .pi-right-rail { grid-template-columns:repeat(3,minmax(0,1fr)); }
         }
 
+        @media (max-width: 1100px) {
+          .pi-page[data-tbi-pm-active-tab='development'] .pi-main-grid {
+            grid-template-columns:minmax(0,1fr) !important;
+          }
+        }
+
         @media (max-width: 1000px) {
+          .pi-page[data-tbi-pm-active-tab] .pi-main-grid {
+            grid-template-columns: minmax(0,1fr) !important;
+          }
+
+          .pi-page[data-tbi-pm-active-tab='contract'] :is(
+            .pi-contract-timeline,
+            .pi-contract-cba
+          ) {
+            grid-column: 1;
+            grid-row: auto;
+          }
+
           .pi-three-grid,
           .pi-three-grid-secondary { grid-template-columns:1fr; }
           .pi-profile-card { grid-template-columns:1fr; }
           .pi-profile-meta { border-left:0; border-top:1px solid rgba(148,163,184,.11); }
-          .pi-recommendation { grid-template-columns:1fr; }
+          .pi-recommendation-decision {
+            grid-template-columns:200px minmax(0,1fr);
+          }
+          .pi-recommendation-evidence {
+            grid-column:1 / -1;
+            justify-self:start;
+          }
+          .pi-recommendation-columns {
+            grid-template-columns:repeat(2,minmax(0,1fr));
+          }
+          .pi-recommendation-risk {
+            grid-column:1 / -1;
+            border-left:0 !important;
+            border-top:1px solid rgba(148,163,184,.10);
+          }
           .pi-right-rail { grid-template-columns:1fr; }
         }
 
@@ -836,7 +1085,19 @@ mod_player_manager_ui <- function(id) {
           .pi-avatar { width:64px; height:64px; }
           .pi-profile-meta { grid-template-columns:repeat(2,minmax(0,1fr)); }
           .pi-stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+          .pi-projection-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
           .pi-selector-row { align-items:stretch; flex-direction:column; }
+          .pi-recommendation-decision,
+          .pi-recommendation-columns { grid-template-columns:1fr; }
+          .pi-recommendation-column + .pi-recommendation-column {
+            border-left:0;
+            border-top:1px solid rgba(148,163,184,.10);
+          }
+          .pi-recommendation-risk { grid-column:auto; }
+          .pi-page[data-tbi-pm-active-tab='contract']
+            .pi-contract-timeline .pi-panel-body {
+            grid-template-columns:1fr;
+          }
         }
         "
       )
@@ -882,8 +1143,11 @@ mod_player_manager_ui <- function(id) {
       )
     ),
     
-    shiny::uiOutput(
-      ns("player_trade_scenario_banner")
+    shiny::div(
+      class = "pi-scenario-slot",
+      shiny::uiOutput(
+        ns("player_trade_scenario_banner")
+      )
     ),
     
     # --------------------------------------------------------
@@ -948,6 +1212,7 @@ mod_player_manager_ui <- function(id) {
         metric_box("HEIGHT", "height"),
         metric_box("WEIGHT", "weight"),
         metric_box("AGE", "age"),
+        metric_box("JERSEY", "jersey_number"),
         metric_box("CAP HIT", "cap_hit"),
         metric_box("CONTRACT THROUGH", "contract_through"),
         metric_box("TEAM CONTROL", "team_control")
@@ -970,7 +1235,8 @@ mod_player_manager_ui <- function(id) {
           
           # Current performance
           shiny::tags$section(
-            class = "pi-panel",
+            class = "pi-panel pi-overview-performance",
+            `data-tbi-pm-tab` = "overview",
             
             shiny::div(
               class = "pi-panel-head",
@@ -1022,7 +1288,8 @@ mod_player_manager_ui <- function(id) {
           
           # Role & value
           shiny::tags$section(
-            class = "pi-panel",
+            class = "pi-panel pi-overview-role",
+            `data-tbi-pm-tab` = "overview",
             
             shiny::div(
               class = "pi-panel-head",
@@ -1097,7 +1364,8 @@ mod_player_manager_ui <- function(id) {
           
           # Advanced impact
           shiny::tags$section(
-            class = "pi-panel",
+            class = "pi-panel pi-development-current",
+            `data-tbi-pm-tab` = "development",
             
             shiny::div(
               class = "pi-panel-head",
@@ -1136,7 +1404,8 @@ mod_player_manager_ui <- function(id) {
         # ----------------------------------------------------
         
         shiny::tags$section(
-          class = "pi-panel pi-bie-panel",
+          class = "pi-panel pi-bie-panel pi-value-workspace",
+          `data-tbi-pm-tab` = "value",
           
           shiny::div(
             class = "pi-panel-head",
@@ -1367,7 +1636,8 @@ mod_player_manager_ui <- function(id) {
           
           # Future projection
           shiny::tags$section(
-            class = "pi-panel",
+            class = "pi-panel pi-development-timeline",
+            `data-tbi-pm-tab` = "development",
             
             shiny::div(
               class = "pi-panel-head",
@@ -1383,6 +1653,17 @@ mod_player_manager_ui <- function(id) {
               
               shiny::div(
                 class = "pi-projection-grid",
+
+                shiny::div(
+                  class = "pi-projection-card",
+                  shiny::span("CURRENT"),
+                  shiny::strong(
+                    shiny::textOutput(
+                      ns("projection_current"),
+                      inline = TRUE
+                    )
+                  )
+                ),
                 
                 shiny::div(
                   class = "pi-projection-card",
@@ -1431,14 +1712,15 @@ mod_player_manager_ui <- function(id) {
           
           # CBA flags
           shiny::tags$section(
-            class = "pi-panel",
+            class = "pi-panel pi-contract-cba",
+            `data-tbi-pm-tab` = "contract",
             
             shiny::div(
               class = "pi-panel-head",
               shiny::div(
                 class = "pi-panel-title",
                 bsicons::bs_icon("exclamation-triangle"),
-                "CBA FLAGS & ELIGIBILITY"
+                "DECISION WINDOWS & CBA FLAGS"
               )
             ),
             
@@ -1452,7 +1734,8 @@ mod_player_manager_ui <- function(id) {
           
           # Development
           shiny::tags$section(
-            class = "pi-panel",
+            class = "pi-panel pi-development-insights",
+            `data-tbi-pm-tab` = "development",
             
             shiny::div(
               class = "pi-panel-head",
@@ -1508,7 +1791,8 @@ mod_player_manager_ui <- function(id) {
         # ----------------------------------------------------
         
         shiny::tags$section(
-          class = "pi-panel",
+          class = "pi-panel pi-recommendation-panel",
+          `data-tbi-pm-tab` = "recommendation",
           
           shiny::div(
             class = "pi-panel-head",
@@ -1525,43 +1809,123 @@ mod_player_manager_ui <- function(id) {
           
           shiny::div(
             class = "pi-recommendation",
-            
+
             shiny::div(
+              class = "pi-recommendation-decision",
+
               shiny::div(
-                class = "pi-rec-label",
-                shiny::textOutput(
-                  ns("recommendation"),
-                  inline = TRUE
+                shiny::div(
+                  class = "pi-rec-label",
+                  shiny::textOutput(
+                    ns("recommendation"),
+                    inline = TRUE
+                  )
+                ),
+                shiny::div(
+                  class = "pi-rec-sub",
+                  shiny::textOutput(
+                    ns("recommendation_subtitle"),
+                    inline = TRUE
+                  )
                 )
               ),
+
               shiny::div(
-                class = "pi-rec-sub",
+                shiny::div(
+                  class = "pi-kicker",
+                  style = "margin-bottom:5px;",
+                  "WHY"
+                ),
+                shiny::uiOutput(
+                  ns("recommendation_rationale")
+                )
+              ),
+
+              shiny::div(
+                class = "pi-recommendation-evidence",
                 shiny::textOutput(
-                  ns("recommendation_subtitle"),
+                  ns("recommendation_evidence_state"),
                   inline = TRUE
                 )
               )
             ),
-            
+
             shiny::div(
+              class = "pi-recommendation-columns",
+
               shiny::div(
-                class = "pi-kicker",
-                style = "margin-bottom:5px;",
-                "RATIONALE"
+                class = paste(
+                  "pi-recommendation-column",
+                  "pi-recommendation-value"
+                ),
+                shiny::h4(
+                  class = "pi-recommendation-column-title",
+                  "PLAYER VALUE"
+                ),
+                shiny::uiOutput(
+                  ns("recommendation_value_brief")
+                )
               ),
-              shiny::uiOutput(
-                ns("recommendation_rationale")
-              )
-            ),
-            
-            shiny::div(
+
               shiny::div(
-                class = "pi-kicker",
-                style = "margin-bottom:5px;",
-                "RECOMMENDED ACTIONS"
+                class = paste(
+                  "pi-recommendation-column",
+                  "pi-recommendation-control"
+                ),
+                shiny::h4(
+                  class = "pi-recommendation-column-title",
+                  "CONTROL & OUTLOOK"
+                ),
+                shiny::uiOutput(
+                  ns("recommendation_control_brief")
+                ),
+                shiny::div(
+                  class = "pi-rec-watch",
+                  shiny::strong("DECISION WINDOW"),
+                  shiny::textOutput(
+                    ns("recommendation_contract_watch"),
+                    inline = TRUE
+                  )
+                )
               ),
-              shiny::uiOutput(
-                ns("recommended_actions")
+
+              shiny::div(
+                class = paste(
+                  "pi-recommendation-column",
+                  "pi-recommendation-risk"
+                ),
+                shiny::h4(
+                  class = "pi-recommendation-column-title",
+                  "RISK & ACTION"
+                ),
+                shiny::div(
+                  class = "pi-rec-risk-block pi-risk",
+                  shiny::strong("PRIMARY RISK"),
+                  shiny::p(
+                    shiny::textOutput(
+                      ns("key_risk"),
+                      inline = TRUE
+                    )
+                  )
+                ),
+                shiny::div(
+                  class = "pi-rec-risk-block pi-opportunity",
+                  shiny::strong("PRIMARY OPPORTUNITY"),
+                  shiny::p(
+                    shiny::textOutput(
+                      ns("key_opportunity"),
+                      inline = TRUE
+                    )
+                  )
+                ),
+                shiny::div(
+                  class = "pi-kicker",
+                  style = "margin:10px 0 5px;",
+                  "NEXT ACTIONS"
+                ),
+                shiny::uiOutput(
+                  ns("recommended_actions")
+                )
               )
             )
           )
@@ -1569,6 +1933,7 @@ mod_player_manager_ui <- function(id) {
         
         shiny::div(
           class = "pi-panel pi-data-note",
+          `data-tbi-pm-tab` = "value",
           shiny::textOutput(
             ns("model_scope_note"),
             inline = TRUE
@@ -1582,7 +1947,8 @@ mod_player_manager_ui <- function(id) {
         
         # Player summary
         shiny::tags$section(
-          class = "pi-panel",
+          class = "pi-panel pi-overview-summary",
+          `data-tbi-pm-tab` = "overview",
           
           shiny::div(
             class = "pi-panel-head",
@@ -1618,14 +1984,15 @@ mod_player_manager_ui <- function(id) {
         
         # Contract intelligence
         shiny::tags$section(
-          class = "pi-panel",
+          class = "pi-panel pi-contract-timeline",
+          `data-tbi-pm-tab` = "contract",
           
           shiny::div(
             class = "pi-panel-head",
             shiny::div(
               class = "pi-panel-title",
               bsicons::bs_icon("cash-stack"),
-              "CONTRACT INTELLIGENCE"
+              "CONTRACT TIMELINE & CONTROL"
             )
           ),
           
@@ -1643,47 +2010,6 @@ mod_player_manager_ui <- function(id) {
             ),
             signal_row("Option", "option_type"),
             signal_row("Free agency", "free_agent_year")
-          )
-        ),
-        
-        # Risk opportunity
-        shiny::tags$section(
-          class = "pi-panel",
-          
-          shiny::div(
-            class = "pi-panel-head",
-            shiny::div(
-              class = "pi-panel-title",
-              bsicons::bs_icon("exclamation-triangle"),
-              "RISK & OPPORTUNITY"
-            )
-          ),
-          
-          shiny::div(
-            class = "pi-panel-body",
-            
-            shiny::div(
-              class = "pi-risk",
-              shiny::strong("KEY RISK"),
-              shiny::p(
-                shiny::textOutput(
-                  ns("key_risk"),
-                  inline = TRUE
-                )
-              )
-            ),
-            
-            shiny::div(
-              class = "pi-opportunity",
-              style = "margin-top:9px;",
-              shiny::strong("KEY OPPORTUNITY"),
-              shiny::p(
-                shiny::textOutput(
-                  ns("key_opportunity"),
-                  inline = TRUE
-                )
-              )
-            )
           )
         )
       )
@@ -2213,6 +2539,8 @@ mod_player_manager_server <- function(
           as.character(x[[1]])
         }
       }
+
+      contract_unknown <- "UNKNOWN / REQUIRES SOURCE VERIFICATION"
       
       num_value <- function(x, fallback = NA_real_) {
         value <- suppressWarnings(as.numeric(x))
@@ -2314,7 +2642,7 @@ mod_player_manager_server <- function(
           return("Veteran Extension")
         }
         
-        "Veteran Extension"
+        NULL
       }
       
       bullet_list <- function(items, tone = "green") {
@@ -2340,6 +2668,22 @@ mod_player_manager_server <- function(
                   )
                 ),
                 shiny::span(item)
+              )
+            }
+          )
+        )
+      }
+
+      recommendation_fact_list <- function(items) {
+        shiny::div(
+          class = "pi-rec-fact-list",
+          lapply(
+            items,
+            function(item) {
+              shiny::div(
+                class = "pi-rec-fact",
+                shiny::span(item$label),
+                shiny::strong(item$value)
               )
             }
           )
@@ -3079,34 +3423,21 @@ mod_player_manager_server <- function(
             selected_season()
         )
       })
+
+      performance_season_context <- shiny::reactive({
+        perf <- performance_season()
+        roster <- as.character(selected_season())
+
+        if (identical(perf, roster)) {
+          paste0(perf, " • CURRENT")
+        } else {
+          paste0(perf, " • LATEST AVAILABLE")
+        }
+      })
       
       
       output$performance_season_label <- shiny::renderText({
-        
-        perf <-
-          performance_season()
-        
-        roster <-
-          as.character(
-            selected_season()
-          )
-        
-        if (
-          identical(
-            perf,
-            roster
-          )
-        ) {
-          paste0(
-            perf,
-            " • CURRENT"
-          )
-        } else {
-          paste0(
-            perf,
-            " • LATEST AVAILABLE"
-          )
-        }
+        performance_season_context()
       })
       
       
@@ -4669,18 +5000,11 @@ mod_player_manager_server <- function(
       
       output$player_subtitle <- shiny::renderText({
         p <- selected_player()
-        
-        number <- text_value(
-          p$jersey_number,
-          "—"
-        )
-        
+
         paste0(
           text_value(
             p$primary_position
           ),
-          "  •  #",
-          number,
           "  •  ",
           text_value(
             p$team_name
@@ -4753,6 +5077,10 @@ mod_player_manager_server <- function(
           selected_player()$player_age
         )
       })
+
+      output$jersey_number <- shiny::renderText({
+        "UNKNOWN"
+      })
       
       output$cap_hit <- shiny::renderText({
         money(
@@ -4803,56 +5131,50 @@ mod_player_manager_server <- function(
       # Stats outputs
       # ------------------------------------------------------
       
+      player_stat_text <- function(candidates, digits = 1, pct = FALSE) {
+        d <- player_stats()
+
+        if (is.null(d)) {
+          return("—")
+        }
+
+        value <- suppressWarnings(
+          as.numeric(
+            first_existing(d, candidates, NA_real_)
+          )
+        )
+
+        if (is.na(value)) {
+          return("—")
+        }
+
+        if (pct) {
+          if (abs(value) <= 1.5) {
+            value <- value * 100
+          }
+
+          return(
+            paste0(
+              format(
+                round(value, digits),
+                nsmall = digits,
+                trim = TRUE
+              ),
+              "%"
+            )
+          )
+        }
+
+        format(
+          round(value, digits),
+          nsmall = digits,
+          trim = TRUE
+        )
+      }
+
       stat_render <- function(output_id, candidates, digits = 1, pct = FALSE) {
         output[[output_id]] <- shiny::renderText({
-          d <- player_stats()
-          
-          if (is.null(d)) {
-            return("—")
-          }
-          
-          value <- first_existing(
-            d,
-            candidates,
-            NA_real_
-          )
-          
-          value <- suppressWarnings(
-            as.numeric(value)
-          )
-          
-          if (is.na(value)) {
-            return("—")
-          }
-          
-          if (pct) {
-            if (abs(value) <= 1.5) {
-              value <- value * 100
-            }
-            
-            return(
-              paste0(
-                format(
-                  round(
-                    value,
-                    digits
-                  ),
-                  nsmall = digits,
-                  trim = TRUE
-                ),
-                "%"
-              )
-            )
-          }
-          
-          format(
-            round(
-              value,
-              digits
-            ),
-            nsmall = digits,
-            trim = TRUE
-          )
+          player_stat_text(candidates, digits, pct)
         })
       }
       
@@ -5471,6 +5793,19 @@ mod_player_manager_server <- function(
           projection_1y_value()
         )
       })
+
+
+      output$projection_current <- shiny::renderText({
+        subtab_ready("development")
+
+        profile <- bie_player_profile()
+
+        if (is.null(profile)) {
+          return("UNRATED")
+        }
+
+        bie_score_text(profile$score)
+      })
       
       
       output$projection_3y <- shiny::renderText({
@@ -5482,9 +5817,7 @@ mod_player_manager_server <- function(
       })
       
       
-      output$trajectory <- shiny::renderText({
-        subtab_ready("development")
-        
+      trajectory_value <- shiny::reactive({
         d <- player_projection()
         
         if (is.null(d)) {
@@ -5587,6 +5920,11 @@ mod_player_manager_server <- function(
         } else {
           "STABLE"
         }
+      })
+
+      output$trajectory <- shiny::renderText({
+        subtab_ready("development")
+        trajectory_value()
       })
       
       
@@ -5702,8 +6040,16 @@ mod_player_manager_server <- function(
             )
           )
         )
+
+        option_known <- nzchar(option)
+        has_team_option <- option_known && grepl("team", option, fixed = TRUE)
+        has_player_option <- option_known && grepl("player", option, fixed = TRUE)
+        free_agency_known <- !is.na(fa_year) && !is.na(season_year)
+        near_free_agency <- free_agency_known && fa_year <= season_year + 1
         
-        extension_review <- if (
+        extension_review <- if (!nzchar(contract_type)) {
+          "Requires source verification"
+        } else if (
           grepl(
             "rookie",
             contract_type,
@@ -5719,13 +6065,13 @@ mod_player_manager_server <- function(
         } else {
           "Not flagged"
         }
-        
+
         trade_eligible <- if (
           context$two_way
         ) {
           "Review"
         } else {
-          "Screen"
+          "Requires source verification"
         }
         
         shiny::tagList(
@@ -5750,24 +6096,16 @@ mod_player_manager_server <- function(
           ),
           flag_row(
             "Team option",
-            if (
-              grepl(
-                "team",
-                option,
-                fixed = TRUE
-              )
-            ) {
+            if (!option_known) {
+              "Unknown"
+            } else if (has_team_option) {
               "Yes"
             } else {
               "No"
             },
-            if (
-              grepl(
-                "team",
-                option,
-                fixed = TRUE
-              )
-            ) {
+            if (!option_known) {
+              "review"
+            } else if (has_team_option) {
               "yes"
             } else {
               "no"
@@ -5776,24 +6114,16 @@ mod_player_manager_server <- function(
           ),
           flag_row(
             "Player option",
-            if (
-              grepl(
-                "player",
-                option,
-                fixed = TRUE
-              )
-            ) {
+            if (!option_known) {
+              "Unknown"
+            } else if (has_player_option) {
               "Yes"
             } else {
               "No"
             },
-            if (
-              grepl(
-                "player",
-                option,
-                fixed = TRUE
-              )
-            ) {
+            if (!option_known) {
+              "review"
+            } else if (has_player_option) {
               "yes"
             } else {
               "no"
@@ -5802,20 +6132,16 @@ mod_player_manager_server <- function(
           ),
           flag_row(
             "Free agency proximity",
-            if (
-              !is.na(fa_year) &&
-              !is.na(season_year) &&
-              fa_year <= season_year + 1
-            ) {
+            if (!free_agency_known) {
+              "Unknown"
+            } else if (near_free_agency) {
               "Near-term"
             } else {
               "No flag"
             },
-            if (
-              !is.na(fa_year) &&
-              !is.na(season_year) &&
-              fa_year <= season_year + 1
-            ) {
+            if (!free_agency_known) {
+              "review"
+            } else if (near_free_agency) {
               "review"
             } else {
               "yes"
@@ -5944,18 +6270,16 @@ mod_player_manager_server <- function(
       
       output$roster_category <- shiny::renderText({
         p <- selected_player()
+        contract_type <- tolower(text_value(p$contract_type, ""))
         
         if (derived_context()$two_way) {
           "Two-Way"
+        } else if (!nzchar(contract_type)) {
+          "UNKNOWN"
         } else if (
           grepl(
             "exhibit",
-            tolower(
-              text_value(
-                p$contract_type,
-                ""
-              )
-            ),
+            contract_type,
             fixed = TRUE
           )
         ) {
@@ -5971,7 +6295,7 @@ mod_player_manager_server <- function(
         )
       })
       
-      output$years_remaining <- shiny::renderText({
+      years_remaining_value <- shiny::reactive({
         p <- selected_player()
         
         fa <- num_value(
@@ -5992,7 +6316,7 @@ mod_player_manager_server <- function(
           is.na(fa) ||
           is.na(season_start)
         ) {
-          "—"
+          contract_unknown
         } else {
           as.character(
             max(
@@ -6002,14 +6326,18 @@ mod_player_manager_server <- function(
           )
         }
       })
+
+      output$years_remaining <- shiny::renderText({
+        years_remaining_value()
+      })
       
       output$total_value <- shiny::renderText({
         money(
           selected_player()$total_value
         )
       })
-      
-      output$guaranteed_value <- shiny::renderText({
+
+      contract_guarantee_value <- shiny::reactive({
         value <- num_value(
           selected_player()$guaranteed_value
         )
@@ -6019,32 +6347,39 @@ mod_player_manager_server <- function(
             selected_player()$guaranteed_amount
           )
         }
-        
-        money(value)
+
+        value
+      })
+
+      output$guaranteed_value <- shiny::renderText({
+        money(contract_guarantee_value())
       })
       
       output$contract_type <- shiny::renderText({
         text_value(
           selected_player()$contract_type,
-          "Not classified"
+          contract_unknown
         )
       })
       
       output$bird_rights <- shiny::renderText({
         text_value(
-          selected_player()$bird_rights
+          selected_player()$bird_rights,
+          contract_unknown
         )
       })
       
       output$option_type <- shiny::renderText({
         text_value(
-          selected_player()$option_type
+          selected_player()$option_type,
+          contract_unknown
         )
       })
       
       output$free_agent_year <- shiny::renderText({
         text_value(
-          selected_player()$free_agent_year
+          selected_player()$free_agent_year,
+          contract_unknown
         )
       })
       
@@ -6052,8 +6387,7 @@ mod_player_manager_server <- function(
       # Risk and opportunity
       # ------------------------------------------------------
       
-      output$key_risk <- shiny::renderText({
-        p <- selected_player()
+      key_risk_value <- shiny::reactive({
         context <- derived_context()
         
         if (
@@ -6083,12 +6417,15 @@ mod_player_manager_server <- function(
           )
         }
         
-        if (
-          num_value(
-            p$guaranteed_amount,
-            0
-          ) == 0
-        ) {
+        guarantee <- contract_guarantee_value()
+
+        if (is.na(guarantee)) {
+          return(
+            "Guarantee information is missing and requires source verification before a contract decision."
+          )
+        }
+
+        if (guarantee == 0) {
           return(
             "Loaded guarantee information should be verified before final contract decisions."
           )
@@ -6096,8 +6433,12 @@ mod_player_manager_server <- function(
         
         "No major structural risk is identified from the currently loaded player and contract inputs."
       })
-      
-      output$key_opportunity <- shiny::renderText({
+
+      output$key_risk <- shiny::renderText({
+        key_risk_value()
+      })
+
+      key_opportunity_value <- shiny::reactive({
         p <- selected_player()
         context <- derived_context()
         
@@ -6137,6 +6478,10 @@ mod_player_manager_server <- function(
         }
         
         "Preserve optionality while comparing development, extension, and transaction pathways."
+      })
+
+      output$key_opportunity <- shiny::renderText({
+        key_opportunity_value()
       })
       
       # ------------------------------------------------------
@@ -6212,39 +6557,165 @@ mod_player_manager_server <- function(
       output$recommendation_subtitle <- shiny::renderText({
         recommendation_context()$subtitle
       })
+
+      recommendation_performance_summary <- shiny::reactive({
+        if (is.null(player_stats())) {
+          return("UNKNOWN / CURRENT PRODUCTION UNAVAILABLE")
+        }
+
+        paste0(
+          performance_season_context(), ": PTS ",
+          player_stat_text(c("pts", "ppg", "points_per_game")),
+          " • REB ", player_stat_text(c("reb", "rpg", "rebounds_per_game")),
+          " • AST ", player_stat_text(c("ast", "apg", "assists_per_game"))
+        )
+      })
+
+      output$recommendation_evidence_state <- shiny::renderText({
+        p <- selected_player()
+        profile <- bie_player_profile()
+        guarantee <- contract_guarantee_value()
+        missing_contract_fact <- any(c(
+          !nzchar(text_value(p$contract_type, "")),
+          !nzchar(text_value(p$option_type, "")),
+          !nzchar(text_value(p$free_agent_year, "")),
+          is.na(guarantee),
+          isTRUE(guarantee == 0)
+        ))
+
+        if (
+          is.null(player_stats()) ||
+            is.null(profile) ||
+            !isTRUE(profile$performance_available)
+        ) {
+          return("REVIEW • PERFORMANCE / MODEL EVIDENCE INCOMPLETE")
+        }
+
+        if (missing_contract_fact) {
+          return("REVIEW • CONTRACT SOURCE VERIFICATION REQUIRED")
+        }
+
+        "LOADED FACTS + BIE MODEL OUTPUT AVAILABLE"
+      })
+
+      output$recommendation_value_brief <- shiny::renderUI({
+        subtab_ready("recommendation")
+        p <- selected_player()
+        context <- derived_context()
+        profile <- bie_player_profile()
+        bie_value <- if (is.null(profile)) {
+          "UNRATED / MODEL OUTPUT UNAVAILABLE"
+        } else {
+          paste(
+            bie_score_text(profile$score),
+            text_value(profile$grade, "UNRATED"),
+            sep = " • "
+          )
+        }
+
+        recommendation_fact_list(list(
+          list(label = "Current role", value = context$role),
+          list(label = "BIE value", value = bie_value),
+          list(label = "Latest available production", value = recommendation_performance_summary()),
+          list(
+            label = "Roster fit",
+            value = paste(
+              text_value(p$primary_position, "POSITION UNKNOWN"),
+              context$roster_status,
+              sep = " • "
+            )
+          )
+        ))
+      })
+
+      output$recommendation_control_brief <- shiny::renderUI({
+        subtab_ready("recommendation")
+        p <- selected_player()
+        years <- years_remaining_value()
+        years_label <- if (identical(years, contract_unknown)) {
+          years
+        } else {
+          paste(years, "years")
+        }
+
+        recommendation_fact_list(list(
+          list(
+            label = "Contract type",
+            value = text_value(p$contract_type, contract_unknown)
+          ),
+          list(label = "Team control", value = years_label),
+          list(label = "Contract timeline", value = derived_context()$timeline),
+          list(label = "Development outlook", value = trajectory_value())
+        ))
+      })
+
+      output$recommendation_contract_watch <- shiny::renderText({
+        p <- selected_player()
+        option <- text_value(p$option_type, "")
+        free_agency <- text_value(p$free_agent_year, "")
+
+        option_watch <- if (nzchar(option)) {
+          paste0("Option: ", option, ".")
+        } else {
+          "Option: UNKNOWN / REQUIRES SOURCE VERIFICATION."
+        }
+
+        free_agency_watch <- if (nzchar(free_agency)) {
+          paste0("Free agency: ", free_agency, ".")
+        } else {
+          "Free agency: UNKNOWN / REQUIRES SOURCE VERIFICATION."
+        }
+
+        paste(option_watch, free_agency_watch)
+      })
       
       output$recommendation_rationale <- shiny::renderUI({
         p <- selected_player()
         context <- derived_context()
-        
+        profile <- bie_player_profile()
+        bie_reason <- if (is.null(profile)) {
+          "BIE value remains UNRATED because model evidence is unavailable."
+        } else {
+          paste0(
+            "BIE model output: ",
+            bie_score_text(profile$score),
+            " • ",
+            text_value(profile$grade, "UNRATED"),
+            "."
+          )
+        }
+
         rationale <- c(
           paste0(
-            "Current role: ",
+            text_value(p$player_name, "Selected player"),
+            " is classified as ",
             context$role,
+            " at ",
+            text_value(p$primary_position, "an unknown position"),
+            "."
+          ),
+          bie_reason,
+          paste0(
+            "Latest available production: ",
+            recommendation_performance_summary(),
             "."
           ),
           paste0(
-            "Contract type: ",
-            text_value(
-              p$contract_type,
-              "not classified"
-            ),
+            "Contract: ",
+            text_value(p$contract_type, contract_unknown),
+            " • Control: ",
+            years_remaining_value(),
             "."
           ),
           paste0(
-            "Timeline: ",
+            "Outlook: ",
             context$timeline,
+            " • ",
+            trajectory_value(),
             "."
           )
         )
-        
-        if (is.null(player_stats())) {
-          rationale <- c(
-            rationale,
-            "Performance data is still pending."
-          )
-        }
-        
+
         shiny::tags$ul(
           class = "pi-rec-list",
           lapply(

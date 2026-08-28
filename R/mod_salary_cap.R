@@ -7,6 +7,137 @@
 # UI
 # ============================================================
 
+cap_market_default_year <- function(years, selected_season) {
+  years <- sort(unique(suppressWarnings(as.integer(years))))
+  years <- years[!is.na(years)]
+  if (!length(years)) return("")
+  start_year <- suppressWarnings(as.integer(substr(as.character(selected_season), 1L, 4L)))
+  upcoming <- years[years >= start_year + 1L]
+  as.character(if (length(upcoming)) upcoming[[1L]] else utils::tail(years, 1L))
+}
+
+cap_market_performance_season <- function(selected_season) {
+  start_year <- suppressWarnings(as.integer(substr(as.character(selected_season), 1L, 4L)))
+  if (is.na(start_year)) return(NA_character_)
+  paste0(start_year - 1L, "-", substr(as.character(start_year), 3L, 4L))
+}
+
+cap_financial_decision_state <- function(status) {
+  list(
+    decision = switch(
+      status,
+      "Above Second Apron" = "RESTRICTED",
+      "Above First Apron" = "CAUTION",
+      "Tax Team" = "MANAGE",
+      "Over Cap" = "MANAGE",
+      "Below Cap" = "FLEXIBLE",
+      "REVIEW"
+    ),
+    explanation = switch(
+      status,
+      "Above Second Apron" = paste("Operate defensively. Second-apron exposure materially", "reduces transaction flexibility and requires close CBA review."),
+      "Above First Apron" = paste("Preserve optionality. First-apron exposure creates", "meaningful roster-building restrictions."),
+      "Tax Team" = paste("Manage tax exposure while maintaining enough flexibility", "to respond to roster opportunities."),
+      "Over Cap" = paste("The team is operating above the salary cap but remains", "outside the tax and apron bands."),
+      "Below Cap" = paste("The organization currently retains meaningful cap flexibility", "for roster construction."),
+      "Verified threshold data is required for a final operating read."
+    )
+  )
+}
+
+cap_tpe_display_value <- function(count) {
+  value <- suppressWarnings(as.integer(count %||% NA_integer_))
+  if (!length(value) || is.na(value[[1L]])) return("TPE data not loaded")
+  as.character(value[[1L]])
+}
+
+cap_market_prepare <- function(data) {
+  stopifnot(is.data.frame(data))
+  if (!nrow(data)) return(data)
+  text <- function(name) {
+    value <- as.character(roster_column(data, name, NA_character_))
+    value[!is.na(value) & !nzchar(trimws(value))] <- NA_character_
+    value
+  }
+  numeric <- function(name) {
+    suppressWarnings(as.numeric(roster_column(data, name, NA_real_)))
+  }
+
+  data$free_agent_year <- suppressWarnings(as.integer(data$free_agent_year))
+  data$cap_hit <- numeric("cap_hit")
+  data$bie <- numeric("bie")
+  data$free_agent_status <- text("free_agent_status")
+  data$option_type <- text("option_type")
+  data$contract_end_season <- text("contract_end_season")
+  data$verified_at <- text("verified_at")
+
+  incomplete <- is.na(data$free_agent_year) | is.na(data$free_agent_status) |
+    is.na(data$contract_end_season) | is.na(data$verified_at)
+  conditional <- !is.na(data$option_type)
+  canonical_quality <- roster_contract_quality_status(data)
+  data$data_quality <- ifelse(
+    incomplete,
+    "UNKNOWN",
+    ifelse(conditional, "REQUIRES SOURCE VERIFICATION", canonical_quality)
+  )
+  data$loaded_window_fields <- !incomplete & !conditional
+  data$market_window_status <- ifelse(data$data_quality == "CURRENT", "CURRENT CONTRACT WINDOW", "REVIEW")
+  data$bie_grade <- ifelse(
+    is.finite(data$bie),
+    vapply(data$bie, function(value) if (is.finite(value)) bie_player_grade(value) else "UNKNOWN", character(1)),
+    text("bie_grade")
+  )
+  data$bie_grade[is.na(data$bie_grade)] <- "UNKNOWN"
+  data
+}
+
+cap_market_filter <- function(data,
+                              year = "",
+                              position = "",
+                              free_agent_type = "",
+                              bie_grade = "",
+                              search = "",
+                              current_team = "",
+                              sort_by = "BIE_DESC") {
+  stopifnot(is.data.frame(data))
+  if (!nrow(data)) return(data)
+  keep <- rep(TRUE, nrow(data))
+  exact <- function(values, selected) {
+    selected <- trimws(as.character(selected %||% ""))
+    if (!nzchar(selected)) return(rep(TRUE, length(values)))
+    !is.na(values) & as.character(values) == selected
+  }
+  keep <- keep & exact(data$free_agent_year, year)
+  keep <- keep & roster_position_matches(data$primary_position, position)
+  keep <- keep & exact(data$free_agent_status, free_agent_type)
+  keep <- keep & exact(data$bie_grade, bie_grade)
+  keep <- keep & exact(data$team_name, current_team)
+  search <- tolower(trimws(as.character(search %||% "")))
+  if (nzchar(search)) keep <- keep & grepl(search, tolower(data$player_name), fixed = TRUE)
+  result <- data[keep, , drop = FALSE]
+  if (!nrow(result)) return(result)
+  order_index <- switch(
+    sort_by,
+    SALARY_DESC = order(-result$cap_hit, result$player_name, na.last = TRUE, method = "radix"),
+    PLAYER_ASC = order(result$player_name, method = "radix"),
+    order(-result$bie, result$player_name, na.last = TRUE, method = "radix")
+  )
+  result[order_index, , drop = FALSE]
+}
+
+cap_market_display_status <- function(value) {
+  status <- toupper(trimws(as.character(value)))
+  status[is.na(value) | !nzchar(status)] <- "UNKNOWN"
+  mapped <- rep("UNKNOWN", length(status))
+  mapped[status %in% c("CURRENT", "CURRENT CONTRACT WINDOW")] <-
+    "CURRENT / VERIFIED"
+  mapped[status %in% c("REVIEW", "REQUIRES REVIEW", "REQUIRES SOURCE VERIFICATION")] <-
+    "REQUIRES REVIEW"
+  pass_through <- status %in% c("UNKNOWN", "STALE", "CONFLICT")
+  mapped[pass_through] <- status[pass_through]
+  unname(mapped)
+}
+
 #' Salary Cap Intelligence UI
 #'
 #' @param id Internal module ID.
@@ -129,6 +260,7 @@ mod_salary_cap_ui <- function(id) {
   
   shiny::div(
     class = "tbi-module-page tbi-v2-cap-page",
+    `data-tbi-subtab-input` = ns("active_subtab"),
     
     # --------------------------------------------------------
     # Page identity
@@ -165,8 +297,32 @@ mod_salary_cap_ui <- function(id) {
       )
     ),
     
-    shiny::uiOutput(
-      ns("scenario_banner")
+    shiny::div(
+      class = "tbi-cap-tab-target",
+      `data-tbi-cap-tab` = "overview",
+      shiny::uiOutput(
+        ns("scenario_banner")
+      )
+    ),
+
+    shiny::div(
+      class = "cap-v2-overview-grid tbi-cap-tab-target",
+      `data-tbi-cap-tab` = "overview",
+      shiny::tags$section(
+        class = "tbi-v2-context-panel cap-v2-overview-panel",
+        shiny::div(class = "tbi-v2-context-header", shiny::div(shiny::div(class = "tbi-page-eyebrow", "FINANCIAL POSITION"), shiny::h3("Current money position"))),
+        shiny::div(class = "cap-v2-overview-body", shiny::uiOutput(ns("overview_position")))
+      ),
+      shiny::tags$section(
+        class = "tbi-v2-context-panel cap-v2-overview-panel",
+        shiny::div(class = "tbi-v2-context-header", shiny::div(shiny::div(class = "tbi-page-eyebrow", "APRON / FLEXIBILITY"), shiny::h3("Operating room"))),
+        shiny::div(class = "cap-v2-overview-body", shiny::uiOutput(ns("overview_flexibility")))
+      ),
+      shiny::tags$section(
+        class = "tbi-v2-context-panel cap-v2-overview-panel",
+        shiny::div(class = "tbi-v2-context-header", shiny::div(shiny::div(class = "tbi-page-eyebrow", "TEAM-BUILDING WATCH"), shiny::h3("Next financial decision"))),
+        shiny::div(class = "cap-v2-overview-body", shiny::uiOutput(ns("overview_watch")))
+      )
     ),
     
     # --------------------------------------------------------
@@ -174,7 +330,8 @@ mod_salary_cap_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::tags$section(
-      class = "tbi-v2-exec-snapshot tbi-v2-cap-snapshot",
+      class = "tbi-v2-exec-snapshot tbi-v2-cap-snapshot tbi-cap-tab-target",
+      `data-tbi-cap-tab` = "overview",
       
       shiny::div(
         class = "tbi-v2-section-title-row",
@@ -247,7 +404,8 @@ mod_salary_cap_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-main-grid tbi-v2-cap-main-grid",
+      class = "tbi-v2-exec-main-grid tbi-v2-cap-main-grid tbi-cap-tab-target tbi-cap-hidden",
+      `data-tbi-cap-tab` = "decision",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card tbi-v2-cap-decision",
@@ -307,7 +465,8 @@ mod_salary_cap_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-bottom-grid tbi-v2-cap-alert-grid",
+      class = "tbi-v2-exec-bottom-grid tbi-v2-cap-alert-grid tbi-cap-tab-target tbi-cap-hidden",
+      `data-tbi-cap-tab` = "risk",
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
@@ -366,7 +525,8 @@ mod_salary_cap_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-cap-detail-grid",
+      class = "tbi-v2-cap-detail-grid tbi-cap-tab-target tbi-cap-hidden",
+      `data-tbi-cap-tab` = "contracts",
       
       shiny::tags$section(
         class = "tbi-v2-context-panel tbi-v2-cap-ledger",
@@ -421,6 +581,66 @@ mod_salary_cap_ui <- function(id) {
           shiny::uiOutput(
             ns("cap_signals")
           )
+        )
+      )
+    ),
+
+    shiny::tags$section(
+      class = "cap-v2-market tbi-v2-context-panel tbi-cap-tab-target tbi-cap-hidden",
+      `data-tbi-cap-tab` = "market",
+      shiny::div(
+        class = "tbi-v2-context-header",
+        shiny::div(
+          shiny::div(class = "tbi-page-eyebrow", "LEAGUE CONTRACT DATA"),
+          shiny::h3("Free Agent Market")
+        ),
+        shiny::span(class = "tbi-v2-context-tag", "LOADED DATA / REVIEW")
+      ),
+      shiny::div(
+        class = "cap-v2-market-body",
+        shiny::p(
+          class = "cap-v2-market-note",
+          paste(
+            "Loaded contract facts and same-season BIE outputs only.",
+            "REQUIRES REVIEW means contract dates, option status, or source reconciliation",
+            "leaves free-agency availability unverified."
+          )
+        ),
+        shiny::div(
+          class = "cap-v2-market-toolbar",
+          shiny::selectInput(ns("market_year"), "FA year", choices = character()),
+          shiny::selectInput(ns("market_position"), "Position", choices = c("All positions" = "", "PG", "SG", "SF", "PF", "C")),
+          shiny::selectInput(ns("market_type"), "FA type", choices = c("All types" = "")),
+          shiny::selectInput(ns("market_grade"), "BIE grade", choices = c("All grades" = "")),
+          shiny::selectInput(ns("market_team"), "Current team", choices = c("All teams" = "")),
+          shiny::selectInput(ns("market_sort"), "Sort", choices = c("BIE high to low" = "BIE_DESC", "Salary high to low" = "SALARY_DESC", "Player A-Z" = "PLAYER_ASC")),
+          shiny::textInput(ns("market_search"), "Player search", placeholder = "Search player"),
+          shiny::actionButton(ns("clear_market_filters"), "Clear filters", class = "cap-v2-clear-filters")
+        ),
+        shiny::div(class = "cap-v2-market-summary", shiny::uiOutput(ns("market_summary"))),
+        shiny::div(class = "tbi-v2-cap-table-wrap cap-v2-market-table", reactable::reactableOutput(ns("market_table")))
+      )
+    ),
+
+    shiny::tags$section(
+      class = "cap-v2-recommendation tbi-cap-tab-target tbi-cap-hidden",
+      `data-tbi-cap-tab` = "recommendation",
+      shiny::div(
+        class = "cap-v2-recommendation-posture",
+        shiny::div(class = "tbi-page-eyebrow", "FINANCIAL RECOMMENDATION"),
+        shiny::uiOutput(ns("cap_recommendation_posture"))
+      ),
+      shiny::div(
+        class = "cap-v2-recommendation-grid",
+        shiny::tags$section(
+          class = "tbi-v2-context-panel",
+          shiny::div(class = "tbi-v2-context-header", shiny::h3("Money position & flexibility")),
+          shiny::div(class = "cap-v2-recommendation-body", shiny::uiOutput(ns("cap_recommendation_money")))
+        ),
+        shiny::tags$section(
+          class = "tbi-v2-context-panel",
+          shiny::div(class = "tbi-v2-context-header", shiny::h3("Contract & market watch")),
+          shiny::div(class = "cap-v2-recommendation-body", shiny::uiOutput(ns("cap_recommendation_watch")))
         )
       )
     )
@@ -568,6 +788,8 @@ mod_salary_cap_server <- function(
             cy.base_salary,
             cy.cap_hit,
             cy.guaranteed_amount,
+            cy.option_type,
+            cy.verified_at,
             c.contract_type,
             c.contract_end_season,
             c.free_agent_year,
@@ -598,6 +820,118 @@ mod_salary_cap_server <- function(
         selected_season(),
         cache = "session"
       )
+
+      market_data <- shiny::reactive({
+        shiny::req(selected_season())
+        performance_season <- cap_market_performance_season(selected_season())
+        con <- connect_db(read_only = TRUE)
+        on.exit(disconnect_db(con), add = TRUE)
+        rows <- DBI::dbGetQuery(
+          con,
+          "
+          WITH canonical_impact AS (
+            SELECT *
+            FROM (
+              SELECT
+                player_id,
+                season,
+                bie_performance_rating,
+                impact_tier,
+                impact_confidence,
+                ROW_NUMBER() OVER (
+                  PARTITION BY player_id
+                  ORDER BY minutes DESC, games_played DESC, team_id ASC
+                ) AS impact_rank
+              FROM player_season_impact
+              WHERE season = ?
+            )
+            WHERE impact_rank = 1
+          ),
+          contract_options AS (
+            SELECT
+              contract_id,
+              GROUP_CONCAT(DISTINCT NULLIF(TRIM(option_type), '')) AS option_type
+            FROM contract_years
+            WHERE option_type IS NOT NULL
+              AND TRIM(option_type) <> ''
+            GROUP BY contract_id
+          )
+          SELECT
+            p.player_id,
+            p.player_name,
+            p.primary_position,
+            p.player_age,
+            t.team_name,
+            cy.cap_hit,
+            c.contract_type,
+            c.contract_end_season,
+            c.free_agent_year,
+            c.free_agent_status,
+            options.option_type,
+            cy.verified_at,
+            impact.bie_performance_rating AS bie,
+            impact.impact_tier AS bie_grade,
+            impact.season AS bie_season,
+            impact.impact_confidence AS bie_confidence
+          FROM contract_years cy
+          JOIN players p ON p.player_id = cy.player_id
+          JOIN teams t ON t.team_id = cy.team_id
+          LEFT JOIN contracts c ON c.contract_id = cy.contract_id
+          LEFT JOIN contract_options options ON options.contract_id = cy.contract_id
+          LEFT JOIN canonical_impact impact ON impact.player_id = p.player_id
+          WHERE cy.season = ?
+          ORDER BY p.player_name, t.team_name
+          ",
+          params = list(performance_season, selected_season())
+        )
+        rows <- rows[!duplicated(rows$player_id), , drop = FALSE]
+        cap_market_prepare(rows)
+      })
+
+      market_data <- shiny::bindCache(
+        market_data,
+        selected_season(),
+        cache = "session"
+      )
+
+      shiny::observeEvent(list(input$active_subtab, selected_season()), {
+        shiny::req(identical(input$active_subtab, "market"))
+        market <- market_data()
+        years <- sort(unique(market$free_agent_year[!is.na(market$free_agent_year)]))
+        types <- sort(unique(market$free_agent_status[!is.na(market$free_agent_status)]))
+        grades <- sort(unique(market$bie_grade[!is.na(market$bie_grade) & market$bie_grade != "UNKNOWN"]))
+        teams <- sort(unique(market$team_name[!is.na(market$team_name)]))
+        selected_year <- roster_filter_selection(as.character(years), input$market_year)
+        if (!nzchar(selected_year)) selected_year <- cap_market_default_year(years, selected_season())
+        shiny::updateSelectInput(session, "market_year", choices = stats::setNames(as.character(years), as.character(years)), selected = selected_year)
+        shiny::updateSelectInput(session, "market_type", choices = c("All types" = "", stats::setNames(types, types)), selected = roster_filter_selection(types, input$market_type))
+        shiny::updateSelectInput(session, "market_grade", choices = c("All grades" = "", stats::setNames(grades, grades)), selected = roster_filter_selection(grades, input$market_grade))
+        shiny::updateSelectInput(session, "market_team", choices = c("All teams" = "", stats::setNames(teams, teams)), selected = roster_filter_selection(teams, input$market_team))
+      }, ignoreInit = FALSE)
+
+      shiny::observeEvent(input$clear_market_filters, {
+        years <- sort(unique(market_data()$free_agent_year[!is.na(market_data()$free_agent_year)]))
+        shiny::updateSelectInput(session, "market_year", selected = cap_market_default_year(years, selected_season()))
+        shiny::updateSelectInput(session, "market_position", selected = "")
+        shiny::updateSelectInput(session, "market_type", selected = "")
+        shiny::updateSelectInput(session, "market_grade", selected = "")
+        shiny::updateSelectInput(session, "market_team", selected = "")
+        shiny::updateSelectInput(session, "market_sort", selected = "BIE_DESC")
+        shiny::updateTextInput(session, "market_search", value = "")
+      }, ignoreInit = TRUE)
+
+      filtered_market <- shiny::reactive({
+        cap_market_filter(
+          market_data(),
+          year = input$market_year %||% cap_market_default_year(market_data()$free_agent_year, selected_season()),
+          position = input$market_position %||% "",
+          free_agent_type = input$market_type %||% "",
+          bie_grade = input$market_grade %||% "",
+          search = input$market_search %||% "",
+          current_team = input$market_team %||% "",
+          sort_by = input$market_sort %||% "BIE_DESC"
+        )
+      })
 
       
       salary_data <- shiny::reactive({
@@ -1022,6 +1356,11 @@ mod_salary_cap_server <- function(
         
         nrow(rows)
       })
+
+      visible_tpe_count <- shiny::reactive({
+        if (!v2_trade_test_mode_enabled()) return(NA_integer_)
+        active_tpe_count()
+      })
       
       # ------------------------------------------------------
       # Executive snapshot outputs
@@ -1090,13 +1429,7 @@ mod_salary_cap_server <- function(
       })
       
       output$active_tpes <- shiny::renderText({
-        value <- active_tpe_count()
-        
-        if (is.na(value)) {
-          "Not loaded"
-        } else {
-          as.character(value)
-        }
+        cap_tpe_display_value(visible_tpe_count())
       })
       
       output$contract_count <- shiny::renderText({
@@ -1125,46 +1458,9 @@ mod_salary_cap_server <- function(
       output$financial_decision <- shiny::renderUI({
         status <- team_cap_status()
         flexibility <- flexibility_status()
-        
-        decision <- switch(
-          status,
-          "Above Second Apron" = "RESTRICTED",
-          "Above First Apron" = "CAUTION",
-          "Tax Team" = "MANAGE",
-          "Over Cap" = "MANAGE",
-          "Below Cap" = "FLEXIBLE",
-          "REVIEW"
-        )
-        
-        explanation <- switch(
-          status,
-          "Above Second Apron" =
-            paste(
-              "Operate defensively. Second-apron exposure materially",
-              "reduces transaction flexibility and requires close CBA review."
-            ),
-          "Above First Apron" =
-            paste(
-              "Preserve optionality. First-apron exposure creates",
-              "meaningful roster-building restrictions."
-            ),
-          "Tax Team" =
-            paste(
-              "Manage tax exposure while maintaining enough flexibility",
-              "to respond to roster opportunities."
-            ),
-          "Over Cap" =
-            paste(
-              "The team is operating above the salary cap but remains",
-              "outside the tax and apron bands."
-            ),
-          "Below Cap" =
-            paste(
-              "The organization currently retains meaningful cap flexibility",
-              "for roster construction."
-            ),
-          "Verified threshold data is required for a final operating read."
-        )
+        state <- cap_financial_decision_state(status)
+        decision <- state$decision
+        explanation <- state$explanation
         
         shiny::tagList(
           shiny::div(
@@ -1473,7 +1769,7 @@ mod_salary_cap_server <- function(
           )
         }
         
-        tpes <- active_tpe_count()
+        tpes <- visible_tpe_count()
         
         if (!is.na(tpes)) {
           alerts <- c(
@@ -1631,7 +1927,7 @@ mod_salary_cap_server <- function(
           )
         }
         
-        tpes <- active_tpe_count()
+        tpes <- visible_tpe_count()
         
         if (
           !is.na(tpes) &&
@@ -1706,7 +2002,198 @@ mod_salary_cap_server <- function(
           )
         )
       })
-      
+
+      cap_overview_rows <- function(rows) {
+        shiny::tagList(lapply(rows, function(row) {
+          shiny::div(
+            class = "cap-v2-overview-row",
+            shiny::span(row[[1L]]),
+            shiny::strong(row[[2L]])
+          )
+        }))
+      }
+
+      output$overview_position <- shiny::renderUI({
+        th <- threshold_data()
+        tax_position <- if (nrow(th)) {
+          difference <- as.numeric(th$luxury_tax[[1]]) - payroll_total()
+          paste(money(abs(difference)), if (difference >= 0) "below tax" else "over tax")
+        } else "UNKNOWN"
+        cap_overview_rows(list(
+          c("Payroll", money(payroll_total())),
+          c("Operating band", team_cap_status()),
+          c("Tax position", tax_position)
+        ))
+      })
+
+      output$overview_flexibility <- shiny::renderUI({
+        th <- threshold_data()
+        first <- if (nrow(th)) {
+          difference <- as.numeric(th$first_apron[[1]]) - payroll_total()
+          paste(money(abs(difference)), if (difference >= 0) "below first apron" else "over first apron")
+        } else "UNKNOWN"
+        tpes <- visible_tpe_count()
+        cap_overview_rows(list(
+          c("Flexibility", flexibility_status()),
+          c("First-apron distance", first),
+          c("Trade exceptions", cap_tpe_display_value(tpes))
+        ))
+      })
+
+      output$overview_watch <- shiny::renderUI({
+        d <- salary_data()
+        years <- suppressWarnings(as.integer(d$free_agent_year))
+        next_year <- if (any(!is.na(years))) min(years, na.rm = TRUE) else NA_integer_
+        next_count <- if (is.na(next_year)) 0L else sum(years == next_year, na.rm = TRUE)
+        cap_overview_rows(list(
+          c("Operating posture", cap_recommendation_decision()),
+          c("Next contract window", if (is.na(next_year)) "UNKNOWN" else paste(next_year, paste0("(", next_count, ")"))),
+          c("Current contracts", as.character(nrow(d)))
+        ))
+      })
+
+      output$market_summary <- shiny::renderUI({
+        filtered <- filtered_market()
+        loaded <- sum(filtered$loaded_window_fields, na.rm = TRUE)
+        review <- sum(filtered$market_window_status != "CURRENT CONTRACT WINDOW", na.rm = TRUE)
+        shiny::tagList(
+          shiny::strong(paste(nrow(filtered), "loaded market rows")),
+          shiny::span(paste(loaded, "rows with all loaded window fields")),
+          shiny::span(paste(review, "rows require review"))
+        )
+      })
+
+      output$market_table <- reactable::renderReactable({
+        d <- filtered_market()
+        shiny::validate(shiny::need(nrow(d) > 0, "No loaded free-agent rows match the active filters."))
+        money_or_unknown <- function(value) {
+          value <- suppressWarnings(as.numeric(value))
+          if (length(value) != 1L || is.na(value)) "UNKNOWN" else money(value)
+        }
+        display <- data.frame(
+          Player = d$player_name,
+          Position = ifelse(is.na(d$primary_position), "UNKNOWN", d$primary_position),
+          Age = d$player_age,
+          `Current Team` = d$team_name,
+          Salary = d$cap_hit,
+          Contract = ifelse(is.na(d$contract_type), "UNKNOWN", d$contract_type),
+          `FA Year` = d$free_agent_year,
+          `FA Type` = ifelse(is.na(d$free_agent_status), "UNKNOWN", d$free_agent_status),
+          Option = ifelse(is.na(d$option_type), "NONE LOADED", d$option_type),
+          BIE = d$bie,
+          `BIE Grade` = d$bie_grade,
+          `BIE Season` = ifelse(is.na(d$bie_season), "UNKNOWN", d$bie_season),
+          `BIE Confidence` = ifelse(is.na(d$bie_confidence), "UNKNOWN", d$bie_confidence),
+          `Free Agency Status` = cap_market_display_status(d$market_window_status),
+          `Verification Status` = cap_market_display_status(d$data_quality),
+          check.names = FALSE,
+          stringsAsFactors = FALSE
+        )
+        quality_token <- function(value) {
+          tone <- if (identical(value, "CURRENT / VERIFIED")) "current" else "review"
+          shiny::span(class = paste("cap-v2-status-token", paste0("cap-v2-status-token-", tone)), value)
+        }
+        reactable::reactable(
+          display,
+          searchable = FALSE,
+          pagination = TRUE,
+          defaultPageSize = 12,
+          compact = TRUE,
+          highlight = TRUE,
+          sortable = TRUE,
+          theme = reactable::reactableTheme(
+            backgroundColor = "transparent",
+            color = "#e6edf6",
+            borderColor = "rgba(148,163,184,.10)",
+            headerStyle = list(backgroundColor = "#111824", color = "#9cabbc", fontWeight = 800),
+            rowHighlightStyle = list(backgroundColor = "rgba(59,130,246,.045)")
+          ),
+          columns = list(
+            Player = reactable::colDef(minWidth = 140),
+            Position = reactable::colDef(minWidth = 76),
+            Age = reactable::colDef(format = reactable::colFormat(digits = 0), width = 58),
+            `Current Team` = reactable::colDef(minWidth = 145),
+            Salary = reactable::colDef(cell = money_or_unknown, minWidth = 100, sortNALast = TRUE),
+            Contract = reactable::colDef(minWidth = 130),
+            `FA Year` = reactable::colDef(width = 75),
+            `FA Type` = reactable::colDef(minWidth = 95),
+            Option = reactable::colDef(minWidth = 115),
+            BIE = reactable::colDef(format = reactable::colFormat(digits = 1), width = 72, sortNALast = TRUE),
+            `BIE Grade` = reactable::colDef(minWidth = 88),
+            `BIE Season` = reactable::colDef(minWidth = 95),
+            `BIE Confidence` = reactable::colDef(minWidth = 115),
+            `Free Agency Status` = reactable::colDef(cell = quality_token, minWidth = 150),
+            `Verification Status` = reactable::colDef(cell = quality_token, minWidth = 170)
+          )
+        )
+      })
+
+      cap_recommendation_decision <- shiny::reactive({
+        cap_financial_decision_state(team_cap_status())$decision
+      })
+
+      cap_recommendation_row <- function(label, value, evidence = "FACT") {
+        shiny::div(
+          class = "cap-v2-recommendation-row",
+          shiny::span(label),
+          shiny::strong(value),
+          shiny::tags$small(evidence)
+        )
+      }
+
+      output$cap_recommendation_posture <- shiny::renderUI({
+        shiny::tagList(
+          shiny::strong(class = "cap-v2-recommendation-decision", cap_recommendation_decision()),
+          shiny::p(paste(selected_team(), "is operating in the", team_cap_status(), "band with", tolower(flexibility_status()), "flexibility."))
+        )
+      })
+
+      output$cap_recommendation_money <- shiny::renderUI({
+        th <- threshold_data()
+        apron_distance <- if (nrow(th)) {
+          difference <- as.numeric(th$first_apron[[1]]) - payroll_total()
+          paste(money(abs(difference)), if (difference >= 0) "below first apron" else "over first apron")
+        } else {
+          "UNKNOWN"
+        }
+        shiny::tagList(
+          cap_recommendation_row("Team payroll", money(payroll_total())),
+          cap_recommendation_row("Operating band", team_cap_status(), "RULE RESULT"),
+          cap_recommendation_row("Cap room / overage", {
+            if (!nrow(th)) "UNKNOWN" else {
+              difference <- as.numeric(th$salary_cap[[1]]) - payroll_total()
+              paste(money(abs(difference)), if (difference >= 0) "available" else "over cap")
+            }
+          }, "RULE RESULT"),
+          cap_recommendation_row("First-apron distance", apron_distance, "RULE RESULT"),
+          cap_recommendation_row("Flexibility", flexibility_status(), "RULE RESULT")
+        )
+      })
+
+      output$cap_recommendation_watch <- shiny::renderUI({
+        d <- salary_data()
+        market <- market_data()
+        year <- cap_market_default_year(market$free_agent_year, selected_season())
+        window <- market[as.character(market$free_agent_year) == year, , drop = FALSE]
+        loaded <- sum(window$loaded_window_fields, na.rm = TRUE)
+        review <- sum(window$market_window_status != "CURRENT CONTRACT WINDOW", na.rm = TRUE)
+        cap_hits <- sort(numeric_or_zero(d$cap_hit), decreasing = TRUE)
+        total <- sum(cap_hits, na.rm = TRUE)
+        top3 <- if (total > 0) 100 * sum(utils::head(cap_hits, 3), na.rm = TRUE) / total else 0
+        next_action <- if (team_cap_status() %in% c("Above First Apron", "Above Second Apron")) {
+          "Run transaction-level CBA review before committing salary."
+        } else {
+          "Sequence contract decisions against the next loaded free-agent window."
+        }
+        shiny::tagList(
+          cap_recommendation_row("Contract concentration", sprintf("Top three: %.1f%% of payroll", top3)),
+          cap_recommendation_row("Free-agent window", paste(year, "—", loaded, "rows with all loaded fields,", review, "require review")),
+          cap_recommendation_row("Primary risk", if (team_cap_status() %in% c("Above First Apron", "Above Second Apron")) paste(team_cap_status(), "restricts flexibility") else "Contract concentration and timing require monitoring", "RULE RESULT"),
+          cap_recommendation_row("Primary opportunity", if (flexibility_status() == "Flexible") "Loaded cap room supports roster-building optionality" else "Exception and contract optionality require source verification", "RULE RESULT"),
+          cap_recommendation_row("Next action", next_action, "DECISION SUPPORT")
+        )
+      })
+
       # ------------------------------------------------------
       # Contract ledger
       # ------------------------------------------------------
@@ -1815,6 +2302,12 @@ mod_salary_cap_server <- function(
             "—",
             d$free_agent_year
           ),
+          `Selected-year Option` = ifelse(
+            is.na(d$option_type) | !nzchar(trimws(as.character(d$option_type))),
+            "UNKNOWN",
+            d$option_type
+          ),
+          `Data Quality` = roster_contract_quality_status(d),
           check.names = FALSE
         )
         
@@ -1945,13 +2438,7 @@ mod_salary_cap_server <- function(
           signal_row(
             "Trade exceptions",
             {
-              value <- active_tpe_count()
-              
-              if (is.na(value)) {
-                "Not loaded"
-              } else {
-                as.character(value)
-              }
+              cap_tpe_display_value(visible_tpe_count())
             }
           ),
           shiny::div(

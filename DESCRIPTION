@@ -12,6 +12,7 @@ Imports:
     dplyr,
     duckdb,
     golem,
+    htmltools,
     reactable,
     RSQLite,
     shiny

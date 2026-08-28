@@ -37,8 +37,22 @@ app_server <- function(input, output, session) {
   # ----------------------------------------------------------
   
   transaction_state <- tbi_transaction_state()
-  rotation_route <- tbi_rotation_route()
+  rotation_route <- tbi_rotation_route(
+    Sys.getenv("TBI_ROTATION_MODEL", unset = "v2_shadow")
+  )
   session$userData$rotation_model_route <- rotation_route
+
+  if (isTRUE(session$userData$tbi_feedback_mode)) {
+    shiny::observe({
+      session$sendCustomMessage(
+        "tbi-demo-scenario-vault-policy",
+        tbi_feedback_scenario_vault_policy(
+          transaction_state$snapshot(),
+          feedback_mode = TRUE
+        )
+      )
+    })
+  }
   
   
   
@@ -69,12 +83,10 @@ app_server <- function(input, output, session) {
   # from either team's perspective.
   
   shiny::observeEvent(
-    input$global_season,
+    selected_season(),
     {
-      if (
-        !is.null(transaction_state) &&
-        !is.null(transaction_state$clear)
-      ) {
+      scenario <- transaction_state$snapshot()
+      if (!tbi_scenario_matches_season(scenario, selected_season())) {
         transaction_state$clear()
       }
     },
@@ -86,20 +98,6 @@ app_server <- function(input, output, session) {
   # Application modules
   # ----------------------------------------------------------
   
-  mod_executive_dashboard_server(
-    "executive_dashboard",
-    selected_team = selected_team,
-    selected_season = selected_season,
-    transaction_state = transaction_state
-  )
-  
-  mod_team_overview_server(
-    "team_overview",
-    selected_team = selected_team,
-    selected_season = selected_season,
-    transaction_state = transaction_state
-  )
-  
   depth_chart_state <- mod_depth_chart_server(
     "depth_chart",
     selected_team = selected_team,
@@ -108,6 +106,32 @@ app_server <- function(input, output, session) {
     rotation_route = rotation_route
   )
   session$userData$v2_rotation_shadow <- depth_chart_state$v2_rotation_shadow
+
+  output$phase3_global_context <- shiny::renderUI({
+    scenario <- if (!is.null(transaction_state$snapshot)) {
+      transaction_state$snapshot()
+    } else NULL
+    v2_ui_global_context(
+      depth_chart_state$v2_rotation_shadow(),
+      scenario = scenario,
+      team = selected_team()
+    )
+  })
+
+  mod_executive_dashboard_server(
+    "executive_dashboard",
+    selected_team = selected_team,
+    selected_season = selected_season,
+    transaction_state = transaction_state,
+    v2_rotation_shadow = depth_chart_state$v2_rotation_shadow
+  )
+  
+  mod_team_overview_server(
+    "team_overview",
+    selected_team = selected_team,
+    selected_season = selected_season,
+    transaction_state = transaction_state
+  )
   
   mod_roster_contracts_server(
     "roster_contracts",
@@ -136,11 +160,20 @@ app_server <- function(input, output, session) {
     selected_season = selected_season
   )
   
-  mod_trade_analyzer_server(
+  trade_analyzer_state <- mod_trade_analyzer_server(
     "trade_analyzer",
     selected_team = selected_team,
     selected_season = selected_season,
-    transaction_state = transaction_state
+    transaction_state = transaction_state,
+    builder_only = TRUE
+  )
+
+  v2_trade_intelligence_server(
+    "trade_v2",
+    selected_team = selected_team,
+    selected_season = selected_season,
+    transaction_state = transaction_state,
+    reset_two_team_builder = trade_analyzer_state$reset_builder
   )
   
   mod_draft_assets_server(

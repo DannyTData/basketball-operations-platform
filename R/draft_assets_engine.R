@@ -1486,7 +1486,7 @@ get_draft_assets <- function(
     db_path = NULL) {
   con <- connect_db(
     db_path = db_path,
-    read_only = FALSE
+    read_only = TRUE
   )
 
   on.exit(
@@ -1494,7 +1494,14 @@ get_draft_assets <- function(
     add = TRUE
   )
 
-  ensure_draft_asset_tables(con)
+  required_tables <- c("teams", "draft_assets", "draft_asset_conditions")
+  missing_tables <- setdiff(required_tables, DBI::dbListTables(con))
+  if (length(missing_tables)) {
+    stop(
+      paste("Draft asset read requires existing tables:", paste(missing_tables, collapse = ", ")),
+      call. = FALSE
+    )
+  }
 
   get_draft_assets_from_connection(
     con = con,
@@ -1516,7 +1523,7 @@ get_draft_asset_detail <- function(draft_asset_id,
   
   con <- connect_db(
     db_path = db_path,
-    read_only = FALSE
+    read_only = TRUE
   )
   
   on.exit(
@@ -1524,7 +1531,14 @@ get_draft_asset_detail <- function(draft_asset_id,
     add = TRUE
   )
   
-  ensure_draft_asset_tables(con)
+  required_tables <- c("teams", "draft_assets", "draft_asset_conditions", "draft_asset_audit")
+  missing_tables <- setdiff(required_tables, DBI::dbListTables(con))
+  if (length(missing_tables)) {
+    stop(
+      paste("Draft asset detail requires existing tables:", paste(missing_tables, collapse = ", ")),
+      call. = FALSE
+    )
+  }
   
   asset <- DBI::dbGetQuery(
     con,

@@ -444,6 +444,56 @@ v2_role_record <- function(ledger, player_id, role) {
 }
 
 
+v2_role_position_assignment <- function(
+    player_ids,
+    position_index,
+    positions = v2_role_policy()$canonical_positions) {
+  ids <- suppressWarnings(as.integer(player_ids))
+  positions <- as.character(positions)
+  if (length(ids) != length(positions) || any(is.na(ids)) || anyDuplicated(ids)) {
+    return(NULL)
+  }
+
+  eligible <- position_index[as.character(ids)]
+  assign_one <- function(remaining_positions, remaining_ids, assigned) {
+    if (!length(remaining_positions)) return(assigned)
+    counts <- vapply(remaining_positions, function(position) {
+      sum(vapply(remaining_ids, function(id) {
+        position %in% eligible[[as.character(id)]]
+      }, logical(1)))
+    }, integer(1))
+    if (any(counts == 0L)) return(NULL)
+
+    position <- remaining_positions[
+      order(counts, match(remaining_positions, positions))
+    ][[1]]
+    candidates <- sort(remaining_ids[vapply(remaining_ids, function(id) {
+      position %in% eligible[[as.character(id)]]
+    }, logical(1))])
+    for (id in candidates) {
+      result <- assign_one(
+        setdiff(remaining_positions, position),
+        setdiff(remaining_ids, id),
+        c(assigned, stats::setNames(position, as.character(id)))
+      )
+      if (!is.null(result)) return(result)
+    }
+    NULL
+  }
+
+  assignment <- assign_one(positions, sort(ids), character())
+  if (is.null(assignment)) return(NULL)
+  assignment <- assignment[as.character(ids)]
+  if (exists("position_balance_evaluation", mode = "function")) {
+    protected <- position_balance_evaluation(unname(assignment))
+    if (!isTRUE(protected$balanced) || isTRUE(protected$review_required)) {
+      return(NULL)
+    }
+  }
+  assignment
+}
+
+
 v2_rotation_role_records <- function(ledger) {
   Filter(function(x) x$role %in% c("BACKUP_PG", "BACKUP_C"), ledger$records)
 }

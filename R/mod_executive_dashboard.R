@@ -603,95 +603,113 @@ mod_executive_dashboard_ui <- function(id) {
     ),
     
     shiny::uiOutput(ns("executive_decision"), class = "executive-intelligence-shell"),
+
+    shiny::div(
+      class = "command-v2-basketball tbi-command-tab-target",
+      `data-tbi-command-tab` = "decision",
+      shiny::uiOutput(ns("v2_command_intelligence"))
+    ),
     
-    shiny::uiOutput(
-      ns("bie_front_office_intelligence")
+    shiny::div(
+      class = "command-bie-priorities tbi-command-tab-target",
+      `data-tbi-command-tab` = "risks",
+      shiny::uiOutput(ns("bie_front_office_intelligence"))
     ),
     
     shiny::uiOutput(ns("executive_status")),
     
-    shiny::uiOutput(
-      ns("executive_scenario")
-    ),
-    
-    shiny::uiOutput(
-      ns("executive_cba_reference")
+    shiny::div(
+      class = "command-scenario-delta tbi-command-tab-target",
+      `data-tbi-command-tab` = "decision",
+      shiny::uiOutput(ns("executive_scenario"))
     ),
     
     shiny::div(
-      class = "terminal-kpi-grid terminal-kpi-grid-six",
-      kpi_tile(
-        "Team Payroll",
-        "team_payroll",
-        "currency-dollar",
-        cba_term = "Team Salary"
-      ),
-      kpi_tile("Payroll Rank", "payroll_rank", "list-ol"),
-      kpi_tile("Contracts", "contract_count", "person-vcard"),
-      kpi_tile("Conference Rank", "conference_rank", "list-ol"),
-      kpi_tile("Highest Paid Player", "highest_paid_player", "person-badge"),
-      kpi_tile("Scoring", "kpi_scoring", "bullseye")
+      class = "command-cba-reference tbi-command-tab-target",
+      `data-tbi-command-tab` = "decision",
+      shiny::uiOutput(ns("executive_cba_reference"))
     ),
-    
     shiny::div(
-      class = "terminal-main-grid",
-      shiny::tags$section(
-        class = "terminal-panel snapshot-panel",
-        shiny::div(
-          class = "terminal-panel-header",
-          shiny::div(
-            shiny::div(class = "terminal-panel-kicker", "TEAM PROFILE"),
-            shiny::h3("Team Snapshot")
-          ),
-          shiny::span(class = "terminal-panel-tag", "CURRENT")
+      class = "command-team-context tbi-command-tab-target",
+      `data-tbi-command-tab` = "context",
+      shiny::uiOutput(ns("command_context_summary")),
+      shiny::div(
+        class = "terminal-kpi-grid terminal-kpi-grid-six",
+        kpi_tile(
+          "Team Payroll",
+          "team_payroll",
+          "currency-dollar",
+          cba_term = "Team Salary"
         ),
-        shiny::div(
-          class = "metric-cell-grid",
-          metric_cell("Conference", "snapshot_conference"),
-          metric_cell("Conference Position", "snapshot_conference_rank"),
-          metric_cell("Division Position", "snapshot_division_rank"),
-          metric_cell("Scoring Average", "snapshot_scoring")
-        )
+        kpi_tile("Payroll Rank", "payroll_rank", "list-ol"),
+        kpi_tile("Contracts", "contract_count", "person-vcard"),
+        kpi_tile("Conference Rank", "conference_rank", "list-ol"),
+        kpi_tile("Highest Paid Player", "highest_paid_player", "person-badge"),
+        kpi_tile("Scoring", "kpi_scoring", "bullseye")
       ),
-      shiny::tags$section(
-        class = "terminal-panel outlook-panel",
-        shiny::div(
-          class = "terminal-panel-header",
+      shiny::div(
+        class = "terminal-main-grid",
+        shiny::tags$section(
+          class = "terminal-panel snapshot-panel",
           shiny::div(
-            shiny::div(class = "terminal-panel-kicker", "DECISION SUPPORT"),
-            shiny::h3(shiny::textOutput(ns("outlook_heading"), inline = TRUE))
+            class = "terminal-panel-header",
+            shiny::div(
+              shiny::div(class = "terminal-panel-kicker", "TEAM PROFILE"),
+              shiny::h3("Team Snapshot")
+            ),
+            shiny::span(class = "terminal-panel-tag", "CURRENT")
           ),
-          shiny::span(
-            class = "terminal-panel-tag terminal-panel-tag-accent",
-            "ASSESSMENT"
+          shiny::div(
+            class = "metric-cell-grid",
+            metric_cell("Conference", "snapshot_conference"),
+            metric_cell("Conference Position", "snapshot_conference_rank"),
+            metric_cell("Division Position", "snapshot_division_rank"),
+            metric_cell("Scoring Average", "snapshot_scoring")
           )
         ),
-        shiny::div(
-          class = "outlook-summary-terminal",
-          shiny::textOutput(ns("outlook_summary"), inline = TRUE)
-        ),
-        shiny::div(
-          class = "outlook-signal-grid",
-          metric_cell("Competitive Position", "competitive_position"),
-          metric_cell("Division Position", "division_position"),
-          metric_cell("Scoring Profile", "scoring_profile")
+        shiny::tags$section(
+          class = "terminal-panel outlook-panel",
+          shiny::div(
+            class = "terminal-panel-header",
+            shiny::div(
+              shiny::div(class = "terminal-panel-kicker", "DECISION SUPPORT"),
+              shiny::h3(shiny::textOutput(ns("outlook_heading"), inline = TRUE))
+            ),
+            shiny::span(
+              class = "terminal-panel-tag terminal-panel-tag-accent",
+              "ASSESSMENT"
+            )
+          ),
+          shiny::div(
+            class = "outlook-summary-terminal",
+            shiny::textOutput(ns("outlook_summary"), inline = TRUE)
+          ),
+          shiny::div(
+            class = "outlook-signal-grid",
+            metric_cell("Competitive Position", "competitive_position"),
+            metric_cell("Division Position", "division_position"),
+            metric_cell("Scoring Profile", "scoring_profile")
+          )
         )
-      )
-    ),
-    
-    shiny::tags$section(
-      class = "terminal-panel standings-panel",
-      shiny::div(
-        class = "terminal-panel-header",
-        shiny::div(
-          shiny::div(class = "terminal-panel-kicker", "LEAGUE CONTEXT"),
-          shiny::h3(shiny::textOutput(ns("standings_heading"), inline = TRUE))
-        ),
-        shiny::span(class = "terminal-panel-tag", "LIVE TABLE")
       ),
-      shiny::div(
-        class = "terminal-table-wrap",
-        reactable::reactableOutput(ns("conference_standings"))
+      shiny::tags$details(
+        class = "command-standings-details",
+        shiny::tags$summary("View standings"),
+        shiny::tags$section(
+          class = "terminal-panel standings-panel",
+          shiny::div(
+            class = "terminal-panel-header",
+            shiny::div(
+              shiny::div(class = "terminal-panel-kicker", "LEAGUE CONTEXT"),
+              shiny::h3(shiny::textOutput(ns("standings_heading"), inline = TRUE))
+            ),
+            shiny::span(class = "terminal-panel-tag", "LIVE TABLE")
+          ),
+          shiny::div(
+            class = "terminal-table-wrap",
+            reactable::reactableOutput(ns("conference_standings"))
+          )
+        )
       )
     )
   )
@@ -711,7 +729,8 @@ mod_executive_dashboard_server <- function(
     id,
     selected_team,
     selected_season = NULL,
-    transaction_state = NULL) {
+    transaction_state = NULL,
+    v2_rotation_shadow = NULL) {
   shiny::moduleServer(id, function(input, output, session) {
     subtab_seen <- shiny::reactiveValues(
       decision = TRUE,
@@ -744,6 +763,14 @@ mod_executive_dashboard_server <- function(
       shiny::req(isTRUE(subtab_seen[[tab]]))
       invisible(TRUE)
     }
+
+    output$v2_command_intelligence <- shiny::renderUI({
+      if (is.null(v2_rotation_shadow)) return(NULL)
+      scenario <- if (!is.null(transaction_state) && !is.null(transaction_state$snapshot)) {
+        transaction_state$snapshot()
+      } else NULL
+      v2_ui_command_intelligence(v2_rotation_shadow(), scenario)
+    })
     
     safe_value <- function(expr, default = NULL) {
       tryCatch(expr, error = function(e) default)
@@ -1816,7 +1843,13 @@ mod_executive_dashboard_server <- function(
         assumption_items = 2L,
         review_items = if (draft_available) 0L else 1L,
         unavailable_items = sum(!c(team_available, payroll_available, draft_available)),
-        updated_at = format(Sys.Date(), "%Y-%m-%d")
+        updated_at = format(Sys.Date(), "%Y-%m-%d"),
+        title = "Decision Evidence",
+        explanation = paste(
+          "Shows how much of this executive recommendation is supported by verified team,",
+          "payroll, and draft inputs versus assumptions, missing facts, or review-required evidence.",
+          "This is not a probability or a scouting-confidence score."
+        )
       )
     })
     
@@ -2958,6 +2991,43 @@ mod_executive_dashboard_server <- function(
         " in the ", team$conference[[1]], " Conference with a ",
         sprintf("%+.1f", team$point_diff[[1]]), " point differential. ",
         intelligence$executive_summary
+      )
+    })
+
+    output$command_context_summary <- shiny::renderUI({
+      subtab_ready("context")
+      team <- team_data()
+      if (is.null(team)) {
+        return(shiny::div(
+          class = "command-context-summary",
+          shiny::strong("Team context unavailable"),
+          shiny::span("Current standings facts are not loaded for the selected team.")
+        ))
+      }
+
+      rank_text <- function(value) {
+        value <- suppressWarnings(as.numeric(value))
+        if (!length(value) || is.na(value[[1]])) "Unavailable" else paste0("#", round(value[[1]]))
+      }
+      point_diff <- suppressWarnings(as.numeric(team$point_diff[[1]]))
+      context_item <- function(label, value) {
+        shiny::div(
+          class = "command-context-item",
+          shiny::span(label),
+          shiny::strong(value)
+        )
+      }
+
+      shiny::div(
+        class = "command-context-summary",
+        context_item("Record", paste0(team$wins[[1]], "-", team$losses[[1]])),
+        context_item("Conference", rank_text(team$conference_rank)),
+        context_item("Division", rank_text(team$division_rank)),
+        context_item(
+          "Point differential",
+          if (is.na(point_diff)) "Unavailable" else sprintf("%+.1f", point_diff)
+        ),
+        context_item("Competitive tier", competitive_tier())
       )
     })
     

@@ -217,7 +217,7 @@ testthat::test_that("real draft-capital profiles retain value, grade, control, a
   })
 })
 
-testthat::test_that("the frozen New York input path records its pre-optimization DB call pattern", {
+testthat::test_that("the frozen New York input path records its hardened read-only DB call pattern", {
   tbi_test_draft_with_read_only_db(function() {
     reference <- tbi_test_count_draft_db_calls(function() {
       tbi_test_get_draft_simulation_inputs_reference(
@@ -229,8 +229,8 @@ testthat::test_that("the frozen New York input path records its pre-optimization
       reference$counts,
       c(
         queries = 59L,
-        executes = 200L,
-        table_lists = 0L,
+        executes = 40L,
+        table_lists = 20L,
         field_lists = 0L
       )
     )

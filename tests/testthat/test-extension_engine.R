@@ -348,6 +348,40 @@ testthat::test_that("valid veteran proposal passes with manual review", {
     result$executive_summary,
     "passes the current financial and eligibility screen"
   )
+  testthat::expect_true(any(grepl("official signing dates and extension window", result$warnings, fixed = TRUE)))
+  testthat::expect_true(any(grepl("option, guarantee, bonus, and trade-kicker language", result$warnings, fixed = TRUE)))
+  testthat::expect_false(any(grepl("award-based qualification", result$warnings, fixed = TRUE)))
+})
+
+
+testthat::test_that("designated extension review includes designated-player verification", {
+  player <- list(
+    player_name = "Designated Veteran",
+    service_years = 8,
+    current_salary = 30000000,
+    next_season_salary = 31000000,
+    remaining_contract_years = 1,
+    contract_type = "Veteran",
+    has_bird_rights = TRUE,
+    timing_window_open = TRUE,
+    designated_veteran_qualified = TRUE,
+    original_team_requirement_met = TRUE,
+    eto_exercised = FALSE,
+    contract_allows_extension = TRUE
+  )
+  proposal <- list(
+    extension_type = "designated_veteran",
+    salary_cap = 140000000,
+    starting_salary = 35000000,
+    years = 4,
+    raise_percent = 0.08,
+    guarantee_structure = "Fully guaranteed"
+  )
+
+  result <- evaluate_extension_proposal(player, proposal)
+
+  testthat::expect_true(result$passes_screen)
+  testthat::expect_true(any(grepl("award-based qualification", result$warnings, fixed = TRUE)))
 })
 
 
@@ -457,4 +491,95 @@ testthat::test_that("rule overrides reject unknown settings", {
     result$veteran_prior_salary_multiplier,
     1.50
   )
+})
+
+
+testthat::test_that("service-year screening distinguishes early, veteran, and missing evidence", {
+  base_player <- list(
+    remaining_contract_years = 1,
+    timing_window_open = TRUE,
+    eto_exercised = FALSE,
+    contract_allows_extension = TRUE
+  )
+
+  early <- screen_extension_eligibility(
+    player = utils::modifyList(base_player, list(service_years = 1L)),
+    extension_type = "veteran"
+  )
+  veteran <- screen_extension_eligibility(
+    player = utils::modifyList(base_player, list(service_years = 11L)),
+    extension_type = "veteran"
+  )
+  missing <- screen_extension_eligibility(
+    player = utils::modifyList(base_player, list(service_years = NA_integer_)),
+    extension_type = "veteran"
+  )
+
+  testthat::expect_identical(early$status, "INELIGIBLE")
+  testthat::expect_false(early$eligible)
+  testthat::expect_identical(veteran$status, "ELIGIBLE")
+  testthat::expect_true(veteran$eligible)
+  testthat::expect_identical(missing$status, "REVIEW")
+  testthat::expect_true(is.na(missing$eligible))
+  testthat::expect_true(is.na(missing$service_years))
+  testthat::expect_true(any(grepl("NBA service years are unknown", missing$warnings, fixed = TRUE)))
+  testthat::expect_false(any(grepl("does not meet the veteran-extension service threshold", missing$failures, fixed = TRUE)))
+})
+
+
+testthat::test_that("proposal evaluation does not invent missing NBA service years", {
+  player <- list(
+    player_name = "Missing Service Player",
+    current_salary = 30000000,
+    next_season_salary = 30000000,
+    remaining_contract_years = 1,
+    contract_type = "Veteran",
+    timing_window_open = TRUE,
+    eto_exercised = FALSE,
+    contract_allows_extension = TRUE
+  )
+  proposal <- list(
+    extension_type = "veteran",
+    salary_cap = 140000000,
+    starting_salary = 40000000,
+    years = 4,
+    raise_percent = 0.08
+  )
+
+  results <- list(
+    evaluate_extension_proposal(player, proposal),
+    evaluate_extension_proposal(
+      utils::modifyList(player, list(service_years = NA_integer_)),
+      proposal
+    )
+  )
+
+  for (result in results) {
+    testthat::expect_s3_class(result, "tbi_extension_review")
+    testthat::expect_s3_class(result, "tbi_extension_error")
+    testthat::expect_identical(result$status, "REVIEW")
+    testthat::expect_true(is.na(result$passes_screen))
+    testthat::expect_identical(result$reason_code, "NBA_SERVICE_YEARS_UNKNOWN")
+    testthat::expect_identical(result$missing_fields, "service_years")
+    testthat::expect_identical(result$review_reasons, "NBA service years")
+    testthat::expect_null(result$starting_salary_screen)
+  }
+
+  blocked <- evaluate_extension_proposal(
+    utils::modifyList(
+      player,
+      list(
+        service_years = NA_integer_,
+        contract_allows_extension = FALSE
+      )
+    ),
+    proposal
+  )
+  testthat::expect_s3_class(blocked, "tbi_extension_failure")
+  testthat::expect_s3_class(blocked, "tbi_extension_error")
+  testthat::expect_identical(blocked$status, "FAIL")
+  testthat::expect_false(blocked$passes_screen)
+  testthat::expect_identical(blocked$reason_code, "MODELED_ELIGIBILITY_FAILURE")
+  testthat::expect_true(any(grepl("not extendable", blocked$failures, fixed = TRUE)))
+  testthat::expect_null(blocked$starting_salary_screen)
 })

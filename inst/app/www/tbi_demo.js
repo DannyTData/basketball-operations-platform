@@ -4,11 +4,105 @@
   var state = {
     demoId: 'tbi-private-demo',
     expiresAtClient: 0,
-    timer: null
+    timer: null,
+    expirationDisabled: window.TBI_DEMO_EXPIRATION_DISABLED === true,
+    feedbackMode: window.TBI_FEEDBACK_MODE === true,
+    vaultPolicyKnown: window.TBI_FEEDBACK_MODE !== true,
+    vaultSupported: window.TBI_FEEDBACK_MODE !== true,
+    scenarioScope: null,
+    scenarioType: null,
+    vaultMessage: '',
+    restoreGeneration: 0,
+    restoreTimers: []
   };
+
+  var tradeLocalVaultMessage =
+    'Multi-team scenario save/restore is not supported in V2 feedback.';
+
+  function isTradeLocalVaultItem(item) {
+    if (!item) return false;
+
+    return (
+      item.scenarioScope === 'TRADE_LOCAL' ||
+      item.scenario_scope === 'TRADE_LOCAL' ||
+      item.scenarioType === 'v2_multiteam_trade' ||
+      item.scenario_type === 'v2_multiteam_trade'
+    );
+  }
+
+  function vaultActionBlocked(item) {
+    if (!state.feedbackMode) return false;
+    if (!state.vaultPolicyKnown || !state.vaultSupported) return true;
+    return isTradeLocalVaultItem(item);
+  }
+
+  function vaultBlockMessage(item) {
+    if (
+      state.scenarioScope === 'TRADE_LOCAL' ||
+      isTradeLocalVaultItem(item)
+    ) {
+      return tradeLocalVaultMessage;
+    }
+
+    return (
+      state.vaultMessage ||
+      'Scenario Vault is unavailable until feedback scenario state is verified.'
+    );
+  }
+
+  function reportVaultBlocked(item) {
+    window.alert(vaultBlockMessage(item));
+  }
+
+  function cancelPendingRestores() {
+    state.restoreGeneration += 1;
+    state.restoreTimers.forEach(function (timer) {
+      window.clearTimeout(timer);
+    });
+    state.restoreTimers = [];
+  }
+
+  function updateVaultPolicyUi() {
+    var save = document.getElementById('tbi-demo-save');
+    var notice = document.getElementById('tbi-demo-vault-notice');
+    var blocked = vaultActionBlocked();
+
+    if (save) {
+      save.disabled = blocked;
+      save.setAttribute('aria-disabled', blocked ? 'true' : 'false');
+      save.title = blocked ? vaultBlockMessage() : '';
+    }
+
+    if (notice) {
+      var showNotice = (
+        state.feedbackMode &&
+        state.vaultPolicyKnown &&
+        !state.vaultSupported
+      );
+      notice.hidden = !showNotice;
+      notice.textContent = showNotice ? vaultBlockMessage() : '';
+    }
+  }
+
+  function applyVaultPolicy(message) {
+    message = message || {};
+    state.vaultPolicyKnown = true;
+    state.vaultSupported = message.supported === true;
+    state.scenarioScope = message.scenario_scope || null;
+    state.scenarioType = message.scenario_type || null;
+    state.vaultMessage = message.message || '';
+    if (vaultActionBlocked()) cancelPendingRestores();
+    renderVault();
+  }
 
   function storageKey() {
     return 'tbi_demo_vault::' + state.demoId;
+  }
+
+  function vaultStorage() {
+    return state.feedbackMode
+      ? window.sessionStorage
+      : window.localStorage;
   }
 
   function safeParse(value, fallback) {
@@ -20,20 +114,24 @@
   }
 
   function readVault() {
-    var raw = window.localStorage.getItem(storageKey());
+    var raw = vaultStorage().getItem(storageKey());
     var parsed = safeParse(raw, []);
     return Array.isArray(parsed) ? parsed : [];
   }
 
   function writeVault(items) {
-    window.localStorage.setItem(
+    vaultStorage().setItem(
       storageKey(),
       JSON.stringify(items)
     );
   }
 
   function clearVault() {
-    window.localStorage.removeItem(storageKey());
+    var key = storageKey();
+    vaultStorage().removeItem(key);
+    if (state.feedbackMode) {
+      window.localStorage.removeItem(key);
+    }
     renderVault();
   }
 
@@ -104,6 +202,11 @@
   }
 
   function saveCurrentScenario() {
+    if (vaultActionBlocked()) {
+      reportVaultBlocked();
+      return;
+    }
+
     var inputs = collectWorkspaceInputs();
     var keys = Object.keys(inputs);
 
@@ -118,6 +221,8 @@
       id: 'scenario-' + Date.now() + '-' + Math.floor(Math.random() * 100000),
       name: scenarioName(),
       savedAt: new Date().toISOString(),
+      scenarioScope: state.scenarioScope,
+      scenarioType: state.scenarioType,
       inputs: inputs
     });
 
@@ -185,6 +290,11 @@
   function restoreScenario(item) {
     if (!item || !item.inputs) return;
 
+    if (vaultActionBlocked(item)) {
+      reportVaultBlocked(item);
+      return;
+    }
+
     var entries = Object.keys(item.inputs).map(function (id) {
       return {
         id: id,
@@ -197,6 +307,8 @@
       return a.priority - b.priority;
     });
 
+    cancelPendingRestores();
+    var restoreGeneration = state.restoreGeneration;
     var groups = [1, 2, 3, 4, 5, 9];
     var delay = 0;
 
@@ -207,11 +319,20 @@
 
       if (!selected.length) return;
 
-      window.setTimeout(function () {
+      var timer = window.setTimeout(function () {
+        state.restoreTimers = state.restoreTimers.filter(function (candidate) {
+          return candidate !== timer;
+        });
+        if (
+          restoreGeneration !== state.restoreGeneration ||
+          vaultActionBlocked(item)
+        ) return;
+
         selected.forEach(function (entry) {
           applyInputValue(entry.id, entry.value);
         });
       }, delay);
+      state.restoreTimers.push(timer);
 
       delay += 700;
     });
@@ -240,6 +361,8 @@
   function renderVault() {
     var container = document.getElementById('tbi-demo-scenario-list');
 
+    updateVaultPolicyUi();
+
     if (!container) return;
 
     var items = readVault();
@@ -266,7 +389,17 @@
           '<button type="button" class="tbi-demo-delete">Delete</button>' +
         '</div>';
 
-      row.querySelector('.tbi-demo-load').addEventListener(
+      var loadButton = row.querySelector('.tbi-demo-load');
+      var loadBlocked = vaultActionBlocked(item);
+
+      loadButton.disabled = loadBlocked;
+      loadButton.setAttribute(
+        'aria-disabled',
+        loadBlocked ? 'true' : 'false'
+      );
+      loadButton.title = loadBlocked ? vaultBlockMessage(item) : '';
+
+      loadButton.addEventListener(
         'click',
         function () {
           restoreScenario(item);
@@ -312,6 +445,9 @@
   }
 
   function showExpired() {
+    if (state.expirationDisabled) return;
+
+    cancelPendingRestores();
     clearVault();
 
     var overlay = document.getElementById(
@@ -332,6 +468,8 @@
   }
 
   function startCountdown(remainingMs) {
+    if (state.expirationDisabled) return;
+
     if (state.timer) {
       window.clearInterval(state.timer);
     }
@@ -392,6 +530,33 @@
       'tbi-demo-config',
       function (message) {
         state.demoId = message.demo_id || 'tbi-private-demo';
+        state.feedbackMode =
+          state.feedbackMode || message.feedback_mode === true;
+        if (!state.feedbackMode) {
+          state.vaultPolicyKnown = true;
+          state.vaultSupported = true;
+        }
+        if (message.scenario_vault) {
+          applyVaultPolicy(message.scenario_vault);
+        }
+        state.expirationDisabled =
+          state.expirationDisabled || message.expiration_disabled === true;
+
+        if (state.expirationDisabled) {
+          if (state.timer) {
+            window.clearInterval(state.timer);
+            state.timer = null;
+          }
+          state.expiresAtClient = 0;
+
+          var countdown = document.getElementById('tbi-demo-countdown');
+          if (countdown) {
+            countdown.textContent = 'Expiration disabled for local development';
+          }
+
+          renderVault();
+          return;
+        }
 
         startCountdown(
           Number(message.remaining_ms || 0)
@@ -402,8 +567,15 @@
     );
 
     Shiny.addCustomMessageHandler(
+      'tbi-demo-scenario-vault-policy',
+      function (message) {
+        applyVaultPolicy(message);
+      }
+    );
+
+    Shiny.addCustomMessageHandler(
       'tbi-demo-expired',
-      function () {
+      function (message) {
         showExpired();
       }
     );
@@ -420,6 +592,12 @@
 
     bindControls();
   }
+
+  document.addEventListener('shiny:disconnected', function () {
+    if (!state.feedbackMode) return;
+    cancelPendingRestores();
+    clearVault();
+  });
 
   registerShinyHandlers();
 }());

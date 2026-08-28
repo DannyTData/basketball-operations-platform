@@ -301,9 +301,10 @@ screen_extension_eligibility <- function(player,
   extension_type <- normalize_extension_type(extension_type)
   
   service_years <- extension_integer(
-    extension_value(player, "service_years", 0L),
-    0L
+    extension_value(player, "service_years", NA_integer_),
+    NA_integer_
   )
+  service_years_known <- !is.na(service_years)
   
   contract_type <- tolower(
     trimws(
@@ -353,8 +354,18 @@ screen_extension_eligibility <- function(player,
   
   failures <- character(0)
   warnings <- character(0)
+
+  if (!service_years_known) {
+    warnings <- c(
+      warnings,
+      paste(
+        "NBA service years are unknown; verify the official service calculation",
+        "before applying service-based extension rules."
+      )
+    )
+  }
   
-  if (service_years < 0L) {
+  if (service_years_known && service_years < 0L) {
     failures <- c(failures, "Service years cannot be negative.")
   }
   
@@ -385,6 +396,7 @@ screen_extension_eligibility <- function(player,
     }
     
     if (
+      service_years_known &&
       service_years !=
       extension_integer(rules$rookie_extension_service_year, 3L)
     ) {
@@ -416,6 +428,7 @@ screen_extension_eligibility <- function(player,
   
   if (extension_type %in% c("veteran", "designated_veteran")) {
     if (
+      service_years_known &&
       service_years <
       extension_integer(rules$veteran_minimum_service_years, 4L)
     ) {
@@ -466,14 +479,22 @@ screen_extension_eligibility <- function(player,
     )
   }
   
-  eligible <- !length(failures)
+  eligible <- if (length(failures)) {
+    FALSE
+  } else if (!service_years_known) {
+    NA
+  } else {
+    TRUE
+  }
   
-  status <- if (eligible && !length(warnings)) {
+  status <- if (identical(eligible, FALSE)) {
+    "INELIGIBLE"
+  } else if (is.na(eligible)) {
+    "REVIEW"
+  } else if (eligible && !length(warnings)) {
     "ELIGIBLE"
   } else if (eligible) {
     "ELIGIBLE_WITH_REVIEW"
-  } else {
-    "INELIGIBLE"
   }
   
   list(
@@ -484,7 +505,7 @@ screen_extension_eligibility <- function(player,
     remaining_contract_years = remaining_years,
     failures = unique(failures),
     warnings = unique(warnings),
-    requires_manual_review = length(warnings) > 0L,
+    requires_manual_review = is.na(eligible) || length(warnings) > 0L,
     scope_note = paste(
       "This is an extension eligibility screen.",
       "Official eligibility still depends on verified contract language, dates,",
@@ -828,9 +849,53 @@ evaluate_extension_proposal <- function(player,
   )
   
   service_years <- extension_integer(
-    extension_value(player, "service_years", 0L),
-    0L
+    extension_value(player, "service_years", NA_integer_),
+    NA_integer_
   )
+
+  if (is.na(service_years)) {
+    blocked <- length(eligibility$failures) > 0L
+    status <- if (blocked) "FAIL" else "REVIEW"
+    message <- if (blocked) {
+      paste(
+        "The proposal fails the modeled eligibility screen.",
+        paste(eligibility$failures, collapse = " "),
+        "NBA service years remain unknown, so service-based salary limits were not calculated."
+      )
+    } else {
+      paste(
+        "Review required before the modeled extension screen can run.",
+        "Verify the unresolved source facts listed below."
+      )
+    }
+
+    return(
+      structure(
+        list(
+          status = status,
+          passes_screen = if (blocked) FALSE else NA,
+          requires_manual_review = TRUE,
+          reason_code = if (blocked) {
+            "MODELED_ELIGIBILITY_FAILURE"
+          } else {
+            "NBA_SERVICE_YEARS_UNKNOWN"
+          },
+          missing_fields = "service_years",
+          review_reasons = "NBA service years",
+          extension_type = extension_type,
+          eligibility = eligibility,
+          failures = eligibility$failures,
+          warnings = eligibility$warnings,
+          message = message
+        ),
+        class = if (blocked) {
+          c("tbi_extension_failure", "tbi_extension_error")
+        } else {
+          c("tbi_extension_review", "tbi_extension_error")
+        }
+      )
+    )
+  }
   
   current_salary <- extension_number(
     extension_value(player, "current_salary", NA_real_),
@@ -983,7 +1048,9 @@ evaluate_extension_proposal <- function(player,
     c(
       eligibility$warnings,
       "Confirm official signing dates and extension window.",
-      "Confirm award-based qualification when a designated extension is used.",
+      if (extension_type %in% c("designated_rookie", "designated_veteran")) {
+        "Confirm award-based qualification when a designated extension is used."
+      },
       "Confirm option, guarantee, bonus, and trade-kicker language before approval."
     )
   )

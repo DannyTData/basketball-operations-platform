@@ -1671,7 +1671,7 @@ mod_depth_chart_ui <- function(id) {
     shiny::uiOutput(
       ns("shared_trade_scenario_banner")
     ),
-    
+
     shiny::div(
       class = "depth-v21-shell",
       
@@ -1719,9 +1719,19 @@ mod_depth_chart_ui <- function(id) {
       # ------------------------------------------------------
       
       shiny::div(
-        class = "depth-v23-court-panel",
-        `data-lineup-input` = ns("lineup_drop"),
-        
+        class = "depth-v21-right-workspace",
+
+        shiny::div(
+          class = "depth-v23-court-panel",
+          `data-lineup-input` = ns("lineup_drop"),
+
+          shiny::tags$details(
+            class = "depth-lineup-editor-disclosure",
+            open = NA,
+            shiny::tags$summary(
+              "Edit Working Lineup"
+            ),
+
         shiny::div(
           class = "depth-v23-court-head",
           
@@ -1733,7 +1743,7 @@ mod_depth_chart_ui <- function(id) {
             ),
             shiny::strong(
               class = "depth-v21-court-title",
-              "Starting Five 2.0"
+              "Current Starting Five"
             )
           ),
           
@@ -1853,8 +1863,8 @@ mod_depth_chart_ui <- function(id) {
           )
         ),
         
-        shiny::div(
-          class = "depth-v23-controls",
+          shiny::div(
+            class = "depth-v23-controls",
           
           shiny::div(
             class = "depth-v23-control-copy",
@@ -1881,23 +1891,31 @@ mod_depth_chart_ui <- function(id) {
               "Apply Lineup",
               class = "btn-primary"
             )
+            )
           )
-        )
-      ),
+          )
+        ),
       
       # ------------------------------------------------------
       # Player intelligence rail
       # ------------------------------------------------------
       
-      shiny::div(
-        class = "depth-v21-rail",
+        shiny::div(
+          class = "depth-v21-rail",
         
         shiny::div(
           class = "depth-v21-rail-head",
-          
           shiny::div(
-            class = "depth-v21-eyebrow",
-            "PLAYER INTELLIGENCE"
+            class = "depth-v21-rail-toolbar",
+            shiny::div(
+              class = "depth-v21-eyebrow",
+              "PLAYER DETAIL"
+            ),
+            shiny::actionLink(
+              ns("clear_player_detail"),
+              "Clear player detail",
+              class = "depth-v21-clear-player"
+            )
           ),
           
           shiny::uiOutput(
@@ -1917,10 +1935,17 @@ mod_depth_chart_ui <- function(id) {
           ns("save_message")
         ),
         
-        shiny::uiOutput(
-          ns("contract_panel")
+          shiny::uiOutput(
+            ns("contract_panel"),
+            class = "depth-v21-contract-output"
+          )
         )
       )
+    ),
+
+    shiny::uiOutput(
+      ns("v2_development_intelligence"),
+      class = "tbi-depth-v2-workspace"
     )
   )
 }
@@ -2737,6 +2762,71 @@ depth_chart_build_phase11_lineup_result <- function(
 }
 
 
+#' Resolve the canonical trade preview for the active Depth Chart context.
+#'
+#' This is intentionally pure so scenario publication/reset behavior can be
+#' regression-tested without mounting the full module. Only the protected V1
+#' two-team preview is supported here; V2 organizational impact remains
+#' development-visible through its own governed presentation contracts.
+#'
+#' @noRd
+depth_chart_active_trade_scenario <- function(
+    scenario,
+    selected_team,
+    selected_season) {
+  if (
+    !is.list(scenario) ||
+    !isTRUE(scenario$active) ||
+    !tbi_scenario_is_shared_supported(scenario) ||
+    !identical(as.character(scenario$scenario_type), "trade") ||
+    !identical(as.character(scenario$season), as.character(selected_season))
+  ) {
+    return(NULL)
+  }
+
+  selected <- as.character(selected_team)
+  primary_team <- as.character(scenario$team)
+  partner_team_name <- as.character(scenario$partner_team)
+
+  if (!selected %in% c(primary_team, partner_team_name)) {
+    return(NULL)
+  }
+
+  # Normalize the same pending transaction to whichever organization is open.
+  if (identical(selected, partner_team_name)) {
+    tmp_team <- scenario$team
+    tmp_outgoing <- scenario$outgoing_players
+    tmp_incoming <- scenario$incoming_players
+    tmp_outgoing_salary <- scenario$outgoing_salary
+    tmp_incoming_salary <- scenario$incoming_salary
+
+    scenario$team <- scenario$partner_team
+    scenario$partner_team <- tmp_team
+    scenario$outgoing_players <- tmp_incoming
+    scenario$incoming_players <- tmp_outgoing
+    scenario$outgoing_salary <- tmp_incoming_salary
+    scenario$incoming_salary <- tmp_outgoing_salary
+    scenario$salary_delta <- scenario$incoming_salary - scenario$outgoing_salary
+  }
+
+  scenario
+}
+
+
+#' Resolve one canonical team context for the V2 shadow evaluator.
+#'
+#' @noRd
+depth_chart_v2_shadow_team <- function(roster, selected_team) {
+  fallback <- as.character(selected_team)
+  if (!is.data.frame(roster) || !nrow(roster) || !"team_id" %in% names(roster)) {
+    return(fallback)
+  }
+  values <- unique(as.character(roster$team_id))
+  values <- values[!is.na(values) & nzchar(trimws(values))]
+  if (length(values) == 1L) values[[1L]] else fallback
+}
+
+
 # ============================================================
 # SERVER
 # ============================================================
@@ -2981,6 +3071,7 @@ mod_depth_chart_server <- function(
       # ------------------------------------------------------
       
       refresh_key <- shiny::reactiveVal(0L)
+      save_message_value <- shiny::reactiveVal(NULL)
       
       base_depth_data <- shiny::reactive({
         refresh_key()
@@ -3002,78 +3093,61 @@ mod_depth_chart_server <- function(
       })
       
       
+      current_transaction_scenario <- function() {
+        if (is.null(transaction_state)) {
+          return(list(active = FALSE))
+        }
+
+        if (!is.function(transaction_state$snapshot)) {
+          return(list(
+            active = TRUE,
+            state_unavailable = TRUE
+          ))
+        }
+
+        scenario <- tryCatch(
+          transaction_state$snapshot(),
+          error = function(e) list(
+            active = TRUE,
+            state_unavailable = TRUE
+          )
+        )
+
+        if (is.list(scenario)) {
+          scenario
+        } else {
+          list(
+            active = TRUE,
+            state_unavailable = TRUE
+          )
+        }
+      }
+
       active_trade_scenario <- shiny::reactive({
-        
-        if (
-          is.null(transaction_state) ||
-          is.null(transaction_state$snapshot)
-        ) {
-          return(NULL)
-        }
-        
-        scenario <- transaction_state$snapshot()
-        
-        if (
-          !isTRUE(scenario$active) ||
-          !identical(
-            as.character(scenario$scenario_type),
-            "trade"
-          ) ||
-          !identical(
-            as.character(scenario$season),
-            as.character(selected_season())
-          )
-        ) {
-          return(NULL)
-        }
-        
-        selected <- as.character(
-          selected_team()
+        depth_chart_active_trade_scenario(
+          current_transaction_scenario(),
+          selected_team(),
+          selected_season()
         )
-        
-        primary_team <- as.character(
-          scenario$team
-        )
-        
-        partner_team_name <- as.character(
-          scenario$partner_team
-        )
-        
-        if (
-          !selected %in%
-          c(
-            primary_team,
-            partner_team_name
-          )
-        ) {
-          return(NULL)
-        }
-        
-        # Normalize the same pending transaction to whichever
-        # organization is currently being viewed.
-        if (identical(selected, partner_team_name)) {
-          
-          tmp_team <- scenario$team
-          tmp_outgoing <- scenario$outgoing_players
-          tmp_incoming <- scenario$incoming_players
-          tmp_outgoing_salary <- scenario$outgoing_salary
-          tmp_incoming_salary <- scenario$incoming_salary
-          
-          scenario$team <- scenario$partner_team
-          scenario$partner_team <- tmp_team
-          
-          scenario$outgoing_players <- tmp_incoming
-          scenario$incoming_players <- tmp_outgoing
-          
-          scenario$outgoing_salary <- tmp_incoming_salary
-          scenario$incoming_salary <- tmp_outgoing_salary
-          scenario$salary_delta <-
-            scenario$incoming_salary -
-            scenario$outgoing_salary
-        }
-        
-        scenario
       })
+
+      official_write_decision <- function(operation) {
+        tbi_authorize_official_write(
+          current_transaction_scenario(),
+          operation = operation
+        )
+      }
+
+      block_official_write <- function(operation) {
+        decision <- official_write_decision(operation)
+
+        if (isTRUE(decision$allowed)) {
+          return(FALSE)
+        }
+
+        save_message_value(decision)
+        TRUE
+      }
       
       
       trade_incoming_ids <- shiny::reactive({
@@ -3450,6 +3524,14 @@ mod_depth_chart_server <- function(
           }
           
           if (nrow(incoming_rows)) {
+            current_team_ids <- unique(as.character(current$team_id))
+            current_team_ids <- current_team_ids[!is.na(current_team_ids) & nzchar(current_team_ids)]
+            if (length(current_team_ids) == 1L && "team_id" %in% names(incoming_rows)) {
+              # Scenario previews model the incoming player as a member of the
+              # selected organization. Retaining the source team's identifier
+              # would create a mixed-team roster and correctly block V2.
+              incoming_rows$team_id <- current_team_ids[[1L]]
+            }
             
             incoming_rows$trade_source_starter <-
               suppressWarnings(
@@ -3652,6 +3734,12 @@ mod_depth_chart_server <- function(
             selected_player_id(id)
           }
         },
+        ignoreInit = TRUE
+      )
+
+      shiny::observeEvent(
+        input$clear_player_detail,
+        selected_player_id(NULL),
         ignoreInit = TRUE
       )
       
@@ -3894,6 +3982,7 @@ mod_depth_chart_server <- function(
           {
             roster <- bie_roster()
             if (is.null(roster) || !nrow(roster)) roster <- depth_data()
+            shadow_team <- depth_chart_v2_shadow_team(roster, selected_team())
             v1_reference <- list(
               baseline_lineup = baseline_lineup(),
               active_lineup = active_lineup(),
@@ -3901,7 +3990,7 @@ mod_depth_chart_server <- function(
             )
             v2_shadow_diagnostic(run_v2_rotation_shadow(
               rotation_model = "v2_shadow",
-              team = selected_team(),
+              team = shadow_team,
               season = selected_season(),
               roster = roster,
               approved_lineup = active_lineup(),
@@ -3912,6 +4001,16 @@ mod_depth_chart_server <- function(
           ignoreInit = FALSE
         )
       }
+
+      output$v2_development_intelligence <- shiny::renderUI({
+        v2_ui_depth_intelligence(
+          v2_shadow_diagnostic(),
+          lineup_working_ui = shiny::uiOutput(
+            ns("compact_working_lineup_card"),
+            class = "tbi-p3-working-lineup-slot"
+          )
+        )
+      })
       
       bie_starting_five_cache <- shiny::reactiveVal(
         list(
@@ -4235,6 +4334,73 @@ mod_depth_chart_server <- function(
           recommended_score = recommended_score,
           delta = recommended_score - current_score,
           confidence = recommended$confidence %||% "FOUNDATION"
+        )
+      })
+
+      output$compact_working_lineup_card <- shiny::renderUI({
+        positions <- c("PG", "SG", "SF", "PF", "C")
+        lineup <- displayed_lineup()
+        roster <- depth_data()
+        ids <- suppressWarnings(as.integer(lineup[positions]))
+        indices <- match(ids, suppressWarnings(as.integer(roster$player_id)))
+        names <- rep("Unassigned", length(positions))
+        resolved <- !is.na(indices)
+        names[resolved] <- as.character(roster$player_name[indices[resolved]])
+
+        recommended_mode <- identical(lineup_view_mode(), "recommended")
+        recommended <- bie_recommended_result()
+        comparison <- bie_lineup_comparison()
+        complete <- all(!is.na(ids)) && length(unique(ids)) == length(positions)
+        status <- if (complete) "PASS" else "REVIEW"
+
+        note <- if (
+          is.null(recommended) ||
+          !identical(recommended$status, "OK")
+        ) {
+          v2_ui_text(
+            recommended$explanation %||% NULL,
+            "BIE recommendation is unavailable until all five positions can be covered."
+          )
+        } else if (recommended_mode) {
+          v2_ui_text(
+            recommended$explanation,
+            "Showing the governed BIE-recommended five."
+          )
+        } else if (!is.null(comparison)) {
+          sprintf(
+            "Working BIE %.1f · recommended %.1f · change %+.1f.",
+            comparison$current_score,
+            comparison$recommended_score,
+            comparison$delta
+          )
+        } else {
+          "Working lineup is active; a comparable BIE recommendation is unavailable."
+        }
+
+        shiny::div(
+          class = "tbi-p3-lineup-card tbi-p3-working-lineup-card",
+          `data-lineup-type` = "BIE_WORKING",
+          shiny::div(
+            class = "tbi-p3-lineup-head",
+            shiny::div(
+              shiny::strong("BIE Recommended / Working Lineup"),
+              shiny::span(
+                class = "tbi-p3-working-lineup-mode",
+                if (recommended_mode) "Showing BIE Recommended" else "Showing Working Lineup"
+              )
+            ),
+            v2_ui_status_chip(status)
+          ),
+          shiny::div(
+            class = "tbi-p3-lineup-members",
+            lapply(seq_along(names), function(i) {
+              shiny::span(paste0(positions[[i]], " · ", names[[i]]))
+            })
+          ),
+          shiny::tags$small(
+            class = "tbi-p3-lineup-note",
+            v2_ui_concise_note(note, "Working-lineup summary is unavailable.")
+          )
         )
       })
       
@@ -5557,33 +5723,7 @@ mod_depth_chart_server <- function(
                       i
                     )
                   
-                  role_text <- if (
-                    starter
-                  ) {
-                    "Starter"
-                  } else {
-                    paste0(
-                      "Depth ",
-                      depth_number
-                    )
-                  }
-                  
-                  age <-
-                    safe_num(
-                      row$player_age,
-                      NA_real_
-                    )
-                  
-                  age_label <- if (
-                    is.na(age)
-                  ) {
-                    "Age —"
-                  } else {
-                    paste0(
-                      round(age),
-                      " yrs"
-                    )
-                  }
+                  depth_label <- if (starter) "S" else as.character(depth_number)
                   
                   click_js <- sprintf(
                     "Shiny.setInputValue('%s', %d, {priority:'event'});",
@@ -5621,21 +5761,16 @@ mod_depth_chart_server <- function(
                       }
                     ),
                     onclick = click_js,
-                    
-                    shiny::div(
-                      class = "depth-v21-player-top",
-                      
-                      shiny::span(
-                        class = "depth-v21-role",
-                        role_text
-                      ),
-                      
-                      shiny::span(
-                        class = "depth-v21-mini-pos",
-                        position
-                      )
+                    role = "button",
+                    tabindex = "0",
+                    onkeydown = "if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}",
+
+                    shiny::span(
+                      class = "depth-v21-player-depth",
+                      title = if (starter) "Starter" else paste("Depth", depth_number),
+                      depth_label
                     ),
-                    
+
                     shiny::span(
                       class = "depth-v21-player-name",
                       title =
@@ -5646,20 +5781,16 @@ mod_depth_chart_server <- function(
                         row$player_name
                       )
                     ),
-                    
-                    shiny::div(
-                      class = "depth-v21-player-meta",
-                      
-                      shiny::span(
-                        class = "depth-v21-player-age",
-                        age_label
-                      ),
-                      
-                      shiny::span(
-                        class = "depth-v21-player-salary",
-                        money(
-                          row$salary
-                        )
+
+                    shiny::span(
+                      class = "depth-v21-mini-pos",
+                      position
+                    ),
+
+                    shiny::span(
+                      class = "depth-v21-player-salary",
+                      money(
+                        row$salary
                       )
                     )
                   )
@@ -6252,7 +6383,7 @@ mod_depth_chart_server <- function(
           return(
             shiny::div(
               class = "depth-v21-empty",
-              "Select a player."
+              "Select a player to inspect or edit their depth-chart assignment."
             )
           )
         }
@@ -6394,13 +6525,6 @@ mod_depth_chart_server <- function(
           ),
           
           metric(
-            "SALARY",
-            money(
-              row$salary
-            )
-          ),
-          
-          metric(
             "WEIGHT",
             if (
               is.na(weight)
@@ -6412,6 +6536,18 @@ mod_depth_chart_server <- function(
                 " lbs"
               )
             }
+          ),
+
+          metric(
+            "SALARY",
+            money(
+              row$salary
+            )
+          ),
+
+          metric(
+            "CONTRACT",
+            control_value
           )
         )
       })
@@ -6532,8 +6668,11 @@ mod_depth_chart_server <- function(
             value =
               override_active
           ),
-          
-          shiny::selectInput(
+
+          shiny::div(
+            class = "depth-v21-assignment-fields",
+
+            shiny::selectInput(
             ns(
               "assignment_position"
             ),
@@ -6549,9 +6688,9 @@ mod_depth_chart_server <- function(
             selected =
               current_position,
             width = "100%"
-          ),
-          
-          shiny::numericInput(
+            ),
+
+            shiny::numericInput(
             ns(
               "assignment_depth"
             ),
@@ -6568,19 +6707,20 @@ mod_depth_chart_server <- function(
             max = 20,
             step = 1,
             width = "100%"
-          ),
-          
-          shiny::checkboxInput(
+            ),
+
+            shiny::checkboxInput(
             ns(
               "assignment_starter"
             ),
-            "Mark as starter",
+            "Starter",
             value =
               safe_num(
                 row$is_starter,
                 0
               ) ==
               1
+            )
           ),
           
           shiny::conditionalPanel(
@@ -6697,6 +6837,13 @@ mod_depth_chart_server <- function(
           trade_preview <- !is.null(
             active_trade_scenario()
           )
+
+          if (
+            !trade_preview &&
+            block_official_write("Apply Starting Five")
+          ) {
+            return()
+          }
           
           lineup <- active_lineup()
           
@@ -6809,11 +6956,6 @@ mod_depth_chart_server <- function(
       # Save / reset
       # ------------------------------------------------------
       
-      save_message_value <-
-        shiny::reactiveVal(
-          NULL
-        )
-      
       save_assignment_to_db <- function(
     row,
     position,
@@ -6821,6 +6963,13 @@ mod_depth_chart_server <- function(
     is_starter,
     allow_override,
     override_reason) {
+        authorization <- official_write_decision(
+          "Save depth-chart assignment"
+        )
+
+        if (!isTRUE(authorization$allowed)) {
+          stop(authorization$message, call. = FALSE)
+        }
         
         eligible <-
           official_positions(
@@ -7085,16 +7234,21 @@ mod_depth_chart_server <- function(
         {
           
           if (!is.null(active_trade_scenario())) {
-            save_message_value(
-              list(
-                ok = FALSE,
-                message = paste(
-                  "Trade preview is active.",
-                  "Incoming players can be used and the proposed Starting Five can be adjusted,",
-                  "but individual assignments cannot be written to the official depth chart until the trade is cleared or completed."
-                )
-              )
+            decision <- official_write_decision(
+              "Save depth-chart assignment"
             )
+            decision$message <- paste(
+              "Trade preview is active.",
+              "Incoming players can be used and the proposed Starting Five can be adjusted,",
+              "but individual assignments cannot be written to the official depth chart until the trade is cleared or completed."
+            )
+            save_message_value(
+              decision
+            )
+            return()
+          }
+
+          if (block_official_write("Save depth-chart assignment")) {
             return()
           }
           
@@ -7174,6 +7328,10 @@ mod_depth_chart_server <- function(
       shiny::observeEvent(
         input$reset_assignment,
         {
+          if (block_official_write("Reset depth-chart assignment")) {
+            return()
+          }
+
           row <- selected_player()
           
           shiny::req(

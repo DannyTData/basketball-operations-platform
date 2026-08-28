@@ -1,12 +1,26 @@
 # ============================================================
 # Thompson's Basketball Intelligence
-# Private Web Demo Entry Point
+# Local Development Demo Entry Point
+# Feedback candidates must use run_tbi_feedback(); this file is not the
+# feedback deployment contract.
 # ============================================================
 
 
 Sys.setenv(
   TBI_DEMO_MODE = "true"
 )
+
+if (!nzchar(Sys.getenv("TBI_DISABLE_DEMO_EXPIRATION", ""))) {
+  Sys.setenv(
+    TBI_DISABLE_DEMO_EXPIRATION = "false"
+  )
+}
+
+# Explicit local-only transaction fixture switch for V2 manual QA. Developers
+# may opt in through the environment; feedback and production default off.
+if (!nzchar(Sys.getenv("TBI_ENABLE_TPE_TEST_MODE", ""))) {
+  Sys.setenv(TBI_ENABLE_TPE_TEST_MODE = "false")
+}
 
 
 if (!nzchar(Sys.getenv("TBI_DEMO_ID", ""))) {

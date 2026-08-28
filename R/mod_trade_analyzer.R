@@ -33,7 +33,7 @@
 #'
 #' @param id Internal module ID.
 #' @noRd
-mod_trade_analyzer_ui <- function(id) {
+mod_trade_analyzer_ui <- function(id, builder_only = FALSE) {
   ns <- shiny::NS(id)
   
   snapshot_item <- function(label, output_id, icon, tone = "blue") {
@@ -63,7 +63,7 @@ mod_trade_analyzer_ui <- function(id) {
     )
   }
   
-  shiny::div(
+  ui <- shiny::div(
     class = "tbi-module-page tbi-v2-trade-page",
     
     shiny::tags$style(
@@ -929,7 +929,20 @@ mod_trade_analyzer_ui <- function(id) {
               )
             )
           )
-        )
+        ),
+
+        if (isTRUE(builder_only)) {
+          shiny::div(
+            class = "tbi-trade-evaluate-action",
+            style = "margin-top:14px; display:grid; gap:8px;",
+            shiny::actionButton(
+              ns("evaluate_trade"),
+              "Evaluate Trade",
+              class = "btn-primary"
+            ),
+            shiny::uiOutput(ns("evaluate_trade_status"))
+          )
+        }
       ),
       
       # ------------------------------------------------------
@@ -1261,6 +1274,16 @@ mod_trade_analyzer_ui <- function(id) {
       )
     )
   )
+
+  if (isTRUE(builder_only)) {
+    keep <- vapply(ui$children, function(child) {
+      if (!inherits(child, "shiny.tag")) return(FALSE)
+      identical(child$name, "style") || grepl("tbi-trade-workspace-grid", htmltools::tagGetAttribute(child, "class") %||% "", fixed = TRUE)
+    }, logical(1))
+    ui$children <- ui$children[keep]
+  }
+
+  ui
 }
 
 
@@ -1289,12 +1312,14 @@ bind_trade_text_output_mirror <- function(
 #' @param id Internal module ID.
 #' @param selected_team Reactive selected organization.
 #' @param selected_season Reactive selected season.
+#' @param builder_only Whether the module is mounted as the V2 builder-only route.
 #' @noRd
 mod_trade_analyzer_server <- function(
     id,
     selected_team,
     selected_season,
-    transaction_state = NULL) {
+    transaction_state = NULL,
+    builder_only = FALSE) {
   
   shiny::moduleServer(
     id,
@@ -1634,13 +1659,15 @@ mod_trade_analyzer_server <- function(
           partner_names,
           partner_names
         )
+
+        choices <- c("Select organization" = "", choices)
         
         selected_value <- if (
           length(
             choices
           )
         ) {
-          choices[[1]]
+          choices[[2]]
         } else {
           character()
         }
@@ -2642,7 +2669,10 @@ mod_trade_analyzer_server <- function(
           !nrow(a_selected) ||
           !nrow(b_selected)
         ) {
-          return(invisible(NULL))
+          return(structure(
+            list(message = "Select at least one outgoing and one incoming player before evaluating."),
+            class = "tbi_trade_error"
+          ))
         }
         
         screen <- trade_screen()
@@ -2653,7 +2683,14 @@ mod_trade_analyzer_server <- function(
             "tbi_trade_error"
           )
         ) {
-          screen <- NULL
+          return(screen)
+        }
+
+        if (is.null(screen)) {
+          return(structure(
+            list(message = "The protected two-team evaluator did not return a result."),
+            class = "tbi_trade_error"
+          ))
         }
         
         transaction_state$publish_trade(
@@ -2674,38 +2711,214 @@ mod_trade_analyzer_server <- function(
         
         invisible(TRUE)
       }
-      
-      
-      shiny::observeEvent(
-        list(
-          input$outgoing_players,
-          input$incoming_players,
-          input$outgoing_draft_assets,
-          input$incoming_draft_assets,
-          input$partner_team,
-          selected_team(),
-          selected_season()
-        ),
-        {
-          
-          if (
-            length(
-              selected_ids(
-                input$outgoing_players
+
+      two_team_builder_signature <- shiny::reactive({
+        v2_input_signature(list(
+          team = as.character(selected_team() %||% ""),
+          partner_team = as.character(input$partner_team %||% ""),
+          season = as.character(selected_season() %||% ""),
+          outgoing_players = sort(selected_ids(input$outgoing_players)),
+          incoming_players = sort(selected_ids(input$incoming_players)),
+          outgoing_draft_assets = sort(selected_ids(input$outgoing_draft_assets)),
+          incoming_draft_assets = sort(selected_ids(input$incoming_draft_assets))
+        ))
+      })
+
+      two_team_evaluation_error <- shiny::reactiveVal(NULL)
+      evaluated_builder_signature <- shiny::reactiveVal(NULL)
+      evaluated_scenario_id <- shiny::reactiveVal(NULL)
+      evaluated_team <- shiny::reactiveVal(NULL)
+      organization_rebind_pending <- shiny::reactiveVal(FALSE)
+      pending_organization_team <- shiny::reactiveVal(NULL)
+
+      reset_evaluated_owner <- function() {
+        evaluated_builder_signature(NULL)
+        evaluated_scenario_id(NULL)
+        evaluated_team(NULL)
+        organization_rebind_pending(FALSE)
+        pending_organization_team(NULL)
+        invisible(TRUE)
+      }
+
+      builder_inputs_match_context <- function() {
+        tryCatch(
+          {
+            team <- as.character(selected_team() %||% "")
+            partner <- as.character(input$partner_team %||% "")
+            if (!nzchar(team) || !nzchar(partner) || identical(team, partner)) {
+              return(FALSE)
+            }
+
+            selection_is_valid <- function(selected, pool, id_column) {
+              ids <- selected_ids(selected)
+              !length(ids) || (
+                is.data.frame(pool) &&
+                  id_column %in% names(pool) &&
+                  all(ids %in% as.character(pool[[id_column]]))
               )
+            }
+
+            selection_is_valid(
+              input$outgoing_players,
+              team_a_pool(),
+              "player_id"
             ) &&
-            length(
-              selected_ids(
-                input$incoming_players
+              selection_is_valid(
+                input$incoming_players,
+                team_b_pool(),
+                "player_id"
+              ) &&
+              selection_is_valid(
+                input$outgoing_draft_assets,
+                team_a_draft_pool(),
+                "draft_asset_id"
+              ) &&
+              selection_is_valid(
+                input$incoming_draft_assets,
+                team_b_draft_pool(),
+                "draft_asset_id"
               )
-            )
-          ) {
-            publish_current_trade_scenario()
+          },
+          error = function(...) FALSE
+        )
+      }
+
+      owns_evaluated_scenario <- function(scenario) {
+        isTRUE(scenario$active) &&
+          identical(as.character(scenario$scenario_type), "trade") &&
+          identical(
+            as.character(scenario$scenario_id %||% ""),
+            evaluated_scenario_id() %||% ""
+          )
+      }
+
+      if (isTRUE(builder_only)) {
+        shiny::observeEvent(input$evaluate_trade, {
+          if (!is.null(transaction_state) && !is.null(transaction_state$clear)) {
+            transaction_state$clear()
           }
-          
-        },
-        ignoreInit = TRUE
-      )
+          reset_evaluated_owner()
+          two_team_evaluation_error(NULL)
+
+          result <- tryCatch(
+            publish_current_trade_scenario(),
+            error = function(e) structure(
+              list(message = conditionMessage(e)),
+              class = "tbi_trade_error"
+            )
+          )
+
+          if (inherits(result, "tbi_trade_error") || !isTRUE(result)) {
+            message <- as.character(result$message %||% "The trade could not be evaluated.")
+            two_team_evaluation_error(message[[1]])
+            return(invisible(NULL))
+          }
+
+          scenario <- transaction_state$snapshot()
+          evaluated_builder_signature(two_team_builder_signature())
+          evaluated_scenario_id(as.character(scenario$scenario_id %||% ""))
+          evaluated_team(as.character(selected_team() %||% ""))
+          invisible(NULL)
+        }, ignoreInit = TRUE)
+
+        shiny::observeEvent(two_team_builder_signature(), {
+          evaluated_signature <- evaluated_builder_signature()
+          if (is.null(evaluated_signature)) {
+            if (!is.null(two_team_evaluation_error())) two_team_evaluation_error(NULL)
+            return(invisible(NULL))
+          }
+
+          scenario <- transaction_state$snapshot()
+          owns_result <- owns_evaluated_scenario(scenario)
+          builder_changed <- !identical(two_team_builder_signature(), evaluated_signature)
+
+          if (owns_result && builder_changed) {
+            organization_changed <- !identical(
+              as.character(selected_team() %||% ""),
+              evaluated_team()
+            )
+
+            if (organization_changed || isTRUE(organization_rebind_pending())) {
+              current_team <- as.character(selected_team() %||% "")
+              if (
+                !isTRUE(organization_rebind_pending()) ||
+                  !identical(pending_organization_team(), current_team)
+              ) {
+                organization_rebind_pending(TRUE)
+                pending_organization_team(current_team)
+              }
+
+              if (
+                identical(pending_organization_team(), current_team) &&
+                  builder_inputs_match_context()
+              ) {
+                evaluated_builder_signature(two_team_builder_signature())
+                evaluated_team(current_team)
+                organization_rebind_pending(FALSE)
+                pending_organization_team(NULL)
+              }
+            } else if (!is.null(transaction_state$clear)) {
+              transaction_state$clear()
+              reset_evaluated_owner()
+            }
+          }
+          if (!is.null(two_team_evaluation_error())) two_team_evaluation_error(NULL)
+          invisible(NULL)
+        }, ignoreInit = TRUE)
+
+        shiny::observeEvent(
+          list(
+            transaction_state$snapshot()$active,
+            transaction_state$snapshot()$scenario_id
+          ),
+          {
+            scenario <- transaction_state$snapshot()
+            owns_result <- owns_evaluated_scenario(scenario)
+            if (!owns_result) reset_evaluated_owner()
+          },
+          ignoreInit = TRUE
+        )
+
+        output$evaluate_trade_status <- shiny::renderUI({
+          error <- two_team_evaluation_error()
+          if (!is.null(error)) {
+            return(shiny::div(
+              class = "tbi-trade-error",
+              shiny::strong("Not evaluated yet"),
+              shiny::p(error)
+            ))
+          }
+          scenario <- transaction_state$snapshot()
+          evaluated <- owns_evaluated_scenario(scenario)
+          if (!evaluated) {
+            return(shiny::div(class = "tbi-trade-evaluate-status", "Not evaluated yet"))
+          }
+          shiny::div(class = "tbi-trade-evaluate-status", "Evaluated current trade")
+        })
+      }
+
+      if (!isTRUE(builder_only)) {
+        shiny::observeEvent(
+          list(
+            input$outgoing_players,
+            input$incoming_players,
+            input$outgoing_draft_assets,
+            input$incoming_draft_assets,
+            input$partner_team,
+            selected_team(),
+            selected_season()
+          ),
+          {
+            if (
+              length(selected_ids(input$outgoing_players)) &&
+              length(selected_ids(input$incoming_players))
+            ) {
+              publish_current_trade_scenario()
+            }
+          },
+          ignoreInit = TRUE
+        )
+      }
       
       
       # ------------------------------------------------------
@@ -3002,6 +3215,18 @@ mod_trade_analyzer_server <- function(
           selected_team()
         )
       })
+
+      reset_builder <- function() {
+        shiny::updateSelectInput(session, "partner_team", selected = "")
+        shiny::updateCheckboxGroupInput(session, "outgoing_players", selected = character())
+        shiny::updateCheckboxGroupInput(session, "incoming_players", selected = character())
+        shiny::updateCheckboxGroupInput(session, "outgoing_draft_assets", selected = character())
+        shiny::updateCheckboxGroupInput(session, "incoming_draft_assets", selected = character())
+        if (!is.null(transaction_state) && !is.null(transaction_state$clear)) transaction_state$clear()
+        reset_evaluated_owner()
+        two_team_evaluation_error(NULL)
+        invisible(TRUE)
+      }
       
       output$team_b_abbr <- shiny::renderText({
         phase13_team_abbreviation(
@@ -4240,6 +4465,8 @@ mod_trade_analyzer_server <- function(
           )
         )
       })
+
+      list(reset_builder = reset_builder)
     }
   )
 }

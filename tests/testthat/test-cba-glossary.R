@@ -207,6 +207,38 @@ testthat::test_that("CBA search includes aliases and metadata", {
 })
 
 
+testthat::test_that("CBA browsing is alphabetical within every visible category", {
+  glossary <- tbi_cba_glossary_data()
+  reversed <- glossary[rev(seq_len(nrow(glossary))), , drop = FALSE]
+
+  all_results <- tbi_cba_filter_glossary(reversed)
+  category_names <- unique(all_results$category)
+  testthat::expect_identical(category_names, sort(category_names, method = "radix"))
+  for (category_name in category_names) {
+    terms <- all_results$term[all_results$category == category_name]
+    testthat::expect_identical(terms, sort(terms, method = "radix"))
+  }
+
+  trade_results <- tbi_cba_filter_glossary(
+    reversed,
+    category = "Trades"
+  )
+  testthat::expect_identical(
+    trade_results$term,
+    sort(trade_results$term, method = "radix")
+  )
+
+  search_results <- tbi_cba_filter_glossary(
+    reversed,
+    search_value = "salary"
+  )
+  for (category_name in unique(search_results$category)) {
+    terms <- search_results$term[search_results$category == category_name]
+    testthat::expect_identical(terms, sort(terms, method = "radix"))
+  }
+})
+
+
 testthat::test_that("CBA UI preserves IDs and exposes the responsive index workspace", {
   module_id <- "cba_glossary_contract"
   ui <- mod_cba_glossary_ui(module_id)
@@ -235,7 +267,7 @@ testthat::test_that("CBA UI preserves IDs and exposes the responsive index works
   testthat::expect_match(rendered, "data-cba-index-toggle", fixed = TRUE)
   testthat::expect_match(rendered, "data-cba-index-close", fixed = TRUE)
   testthat::expect_match(rendered, "aria-expanded", fixed = TRUE)
-  testthat::expect_match(rendered, "@media(max-width:1000px)", fixed = TRUE)
+  testthat::expect_match(rendered, "@media(max-width:1180px)", fixed = TRUE)
   testthat::expect_match(rendered, "translateX", fixed = TRUE)
   testthat::expect_match(rendered, "Search terminology", fixed = TRUE)
   testthat::expect_match(rendered, "Category", fixed = TRUE)
@@ -246,7 +278,20 @@ testthat::test_that("CBA UI preserves IDs and exposes the responsive index works
     ".tbi-v2-page-content:has(> .cba-kb-page)",
     fixed = TRUE
   )
-  testthat::expect_match(rendered, "@media(min-width:1001px)", fixed = TRUE)
+  testthat::expect_match(rendered, "@media(min-width:1181px)", fixed = TRUE)
+  desktop_rule_start <- regexpr("@media(min-width:1181px) {", rendered, fixed = TRUE)
+  collapsed_rule_start <- regexpr(
+    ".cba-kb-page.cba-index-collapsed .cba-kb-layout",
+    rendered,
+    fixed = TRUE
+  )
+  testthat::expect_gt(unname(desktop_rule_start), 0L)
+  testthat::expect_gt(unname(collapsed_rule_start), unname(desktop_rule_start))
+  testthat::expect_match(
+    rendered,
+    "compactIndexMedia.addEventListener('change', handleIndexModeChange)",
+    fixed = TRUE
+  )
   testthat::expect_match(rendered, "font-size:13px !important", fixed = TRUE)
   testthat::expect_match(rendered, "font-size:15px", fixed = TRUE)
   testthat::expect_match(rendered, "line-height:1.58", fixed = TRUE)

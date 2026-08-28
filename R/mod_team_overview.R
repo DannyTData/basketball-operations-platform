@@ -99,6 +99,56 @@ mod_team_overview_ui <- function(id) {
           gap:12px;
         }
 
+        .team-v2-overview-grid {
+          display:grid;
+          grid-template-columns:minmax(280px,1fr) minmax(320px,1.08fr) minmax(360px,1.12fr);
+          gap:12px;
+          align-items:start;
+        }
+
+        .team-v2-overview-grid > * {
+          min-width:0;
+        }
+
+        .team-v2-overview-grid .team-v2-profile-hero {
+          min-height:100%;
+          padding:16px;
+          grid-template-columns:76px minmax(0,1fr);
+          gap:12px;
+        }
+
+        .team-v2-overview-grid .team-v2-mark {
+          width:72px;
+          height:72px;
+          border-radius:14px;
+          font-size:1.2rem;
+        }
+
+        .team-v2-overview-grid .team-v2-name {
+          font-size:1.28rem;
+        }
+
+        .team-v2-overview-readout {
+          padding:8px 16px 12px;
+        }
+
+        .team-v2-overview-grid .team-v2-signal-row {
+          min-height:32px;
+          padding:4px 0;
+        }
+
+        .team-v2-overview-grid .tbi-v2-exec-snapshot {
+          align-self:start;
+        }
+
+        .team-v2-overview-grid .tbi-v2-snapshot-grid {
+          grid-template-columns:repeat(2,minmax(0,1fr));
+        }
+
+        .team-v2-overview-grid .tbi-v2-snapshot-item {
+          min-height:56px;
+        }
+
         .team-v2-profile-hero {
           padding:18px;
           display:grid;
@@ -198,20 +248,39 @@ mod_team_overview_ui <- function(id) {
           display:block;
           margin-top:6px;
           color:#edf3f8;
-          font-size:1rem;
+          font-size:1.2rem;
         }
 
         .team-v2-score-card small {
           display:block;
           margin-top:4px;
           color:#7f8fa4;
-          font-size:.56rem;
+          font-size:.68rem;
           line-height:1.35;
         }
 
         .team-v2-table-wrap {
           max-height:455px;
           overflow:auto;
+        }
+
+        .team-v2-context-summary {
+          padding:12px 16px;
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:0 16px;
+        }
+
+        .team-v2-standings-details {
+          border-top:1px solid rgba(148,163,184,.09);
+        }
+
+        .team-v2-standings-details summary {
+          padding:12px 16px;
+          color:#9fb0c4;
+          font-size:.72rem;
+          font-weight:800;
+          cursor:pointer;
         }
 
         .team-v2-core-grid {
@@ -259,6 +328,45 @@ mod_team_overview_ui <- function(id) {
           grid-template-columns:minmax(220px,.42fr) minmax(0,1.58fr);
           gap:18px;
           align-items:center;
+        }
+
+        .team-v2-rec-brief {
+          display:grid;
+          grid-template-columns:minmax(220px,.8fr) minmax(0,1.15fr) minmax(0,1.05fr);
+          gap:12px;
+          padding:16px;
+        }
+
+        .team-v2-rec-column {
+          min-width:0;
+          padding:0 4px;
+        }
+
+        .team-v2-rec-column + .team-v2-rec-column {
+          padding-left:16px;
+          border-left:1px solid rgba(148,163,184,.10);
+        }
+
+        .team-v2-rec-column h4 {
+          margin:0 0 8px;
+          color:#dce6f2;
+          font-size:.74rem;
+        }
+
+        .team-v2-rec-column p,
+        .team-v2-rec-column li {
+          color:#9eacbd;
+          font-size:.72rem;
+          line-height:1.45;
+        }
+
+        .team-v2-rec-list {
+          margin:0;
+          padding-left:16px;
+        }
+
+        .team-v2-rec-list li + li {
+          margin-top:8px;
         }
 
         .team-v2-rec-box {
@@ -346,6 +454,18 @@ mod_team_overview_ui <- function(id) {
         }
 
         @media(max-width:1050px) {
+          .team-v2-overview-grid {
+            grid-template-columns:repeat(2,minmax(0,1fr));
+          }
+
+          .team-v2-overview-grid .tbi-v2-exec-snapshot {
+            grid-column:1 / -1;
+          }
+
+          .team-v2-overview-grid .tbi-v2-snapshot-grid {
+            grid-template-columns:repeat(3,minmax(0,1fr));
+          }
+
           .team-v2-profile-grid {
             grid-template-columns:1fr;
           }
@@ -356,9 +476,26 @@ mod_team_overview_ui <- function(id) {
         }
 
         @media(max-width:700px) {
+          .team-v2-overview-grid,
           .team-v2-profile-hero,
-          .team-v2-rec-grid {
+          .team-v2-rec-grid,
+          .team-v2-rec-brief {
             grid-template-columns:1fr;
+          }
+
+          .team-v2-overview-grid .tbi-v2-exec-snapshot {
+            grid-column:auto;
+          }
+
+          .team-v2-overview-grid .tbi-v2-snapshot-grid,
+          .team-v2-context-summary {
+            grid-template-columns:1fr;
+          }
+
+          .team-v2-rec-column + .team-v2-rec-column {
+            padding:12px 4px 0;
+            border-top:1px solid rgba(148,163,184,.10);
+            border-left:0;
           }
 
           .team-v2-score-grid,
@@ -414,7 +551,8 @@ mod_team_overview_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "team-v2-profile-grid",
+      class = "team-v2-overview-grid",
+      `data-tbi-team-tab` = "overview",
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
@@ -486,13 +624,12 @@ mod_team_overview_ui <- function(id) {
         ),
         
         shiny::div(
-          style = "padding:12px 16px;",
+          class = "team-v2-overview-readout",
           shiny::uiOutput(
             ns("organization_readout")
           )
         )
-      )
-    ),
+      ),
     
     # --------------------------------------------------------
     # Snapshot
@@ -566,6 +703,7 @@ mod_team_overview_ui <- function(id) {
           "purple"
         )
       )
+    )
     ),
     
     # --------------------------------------------------------
@@ -574,6 +712,7 @@ mod_team_overview_ui <- function(id) {
     
     shiny::div(
       class = "tbi-v2-exec-main-grid",
+      `data-tbi-team-tab` = "decision",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card",
@@ -634,6 +773,7 @@ mod_team_overview_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-context-panel",
+      `data-tbi-team-tab` = "profile",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -731,6 +871,7 @@ mod_team_overview_ui <- function(id) {
     
     shiny::div(
       class = "tbi-v2-exec-bottom-grid",
+      `data-tbi-team-tab` = "risk",
       
       shiny::tags$section(
         class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
@@ -790,6 +931,7 @@ mod_team_overview_ui <- function(id) {
     
     shiny::div(
       class = "team-v2-profile-grid",
+      `data-tbi-team-tab` = "personnel",
       
       shiny::tags$section(
         class = "tbi-v2-context-panel",
@@ -843,10 +985,16 @@ mod_team_overview_ui <- function(id) {
           )
         ),
         
-        shiny::div(
-          class = "team-v2-table-wrap",
-          reactable::reactableOutput(
-            ns("conference_standings")
+        shiny::uiOutput(ns("team_context_summary")),
+
+        shiny::tags$details(
+          class = "team-v2-standings-details",
+          shiny::tags$summary("View full conference standings"),
+          shiny::div(
+            class = "team-v2-table-wrap",
+            reactable::reactableOutput(
+              ns("conference_standings")
+            )
           )
         )
       )
@@ -858,6 +1006,7 @@ mod_team_overview_ui <- function(id) {
     
     shiny::tags$section(
       class = "tbi-v2-context-panel",
+      `data-tbi-team-tab` = "recommendation",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -3053,6 +3202,44 @@ mod_team_overview_server <- function(
           )
         }
       })
+
+      output$team_context_summary <- shiny::renderUI({
+        subtab_ready("personnel")
+        team <- team_data()
+
+        if (is.null(team)) {
+          return(
+            shiny::div(
+              class = "team-v2-context-summary",
+              signal_row("Team context", "UNKNOWN")
+            )
+          )
+        }
+
+        rank_text <- function(value) {
+          value <- safe_num(value, NA_real_)
+          if (is.na(value)) "—" else paste0("#", round(value))
+        }
+
+        record <- paste0(
+          safe_num(team$wins, 0),
+          "-",
+          safe_num(team$losses, 0)
+        )
+
+        diff <- safe_num(team$point_diff, NA_real_)
+
+        shiny::div(
+          class = "team-v2-context-summary",
+          signal_row("Record", record),
+          signal_row("Conference rank", rank_text(team$conference_rank)),
+          signal_row("Division rank", rank_text(team$division_rank)),
+          signal_row(
+            "Point differential",
+            if (is.na(diff)) "—" else sprintf("%+.1f", diff)
+          )
+        )
+      })
       
       output$conference_standings <- reactable::renderReactable({
         subtab_ready("personnel")
@@ -3204,33 +3391,110 @@ mod_team_overview_server <- function(
             "Near-term free-agency exposure should also be addressed before major long-range commitments."
           )
         }
+
+        record <- if (is.null(team)) {
+          "Record unavailable"
+        } else {
+          conference_rank <- safe_num(team$conference_rank, NA_real_)
+          paste0(
+            safe_num(team$wins, 0),
+            "-",
+            safe_num(team$losses, 0),
+            " record; conference rank ",
+            if (is.na(conference_rank)) "unavailable" else paste0("#", round(conference_rank))
+          )
+        }
+
+        primary_watch <- if (metrics$continuity < metrics$roster_balance) {
+          paste0(near_term_free_agents(), " near-term free agents")
+        } else {
+          concentration <- top_three_concentration()
+          if (is.na(concentration)) {
+            "Salary concentration unavailable"
+          } else {
+            sprintf("Top-three salary concentration %.1f%%", concentration * 100)
+          }
+        }
+
+        control_watch <- paste0(
+          money(payroll()),
+          " payroll; ",
+          team_options(),
+          " team-option year",
+          if (team_options() == 1) "" else "s"
+        )
+
+        primary_risk <- if (metrics$continuity < 50) {
+          "Near-term free-agency exposure reduces roster continuity."
+        } else if (metrics$competitive < 45) {
+          "Current competitive position does not support aggressive short-term asset spending."
+        } else {
+          "Protect future flexibility while testing any major commitment."
+        }
+
+        primary_opportunity <- if (metrics$competitive >= 70) {
+          "Current competitive position supports targeted win-now evaluation."
+        } else if (team_options() > 0) {
+          paste0(team_options(), " team-option year", if (team_options() == 1) "" else "s", " preserve roster control.")
+        } else {
+          "Preserve flexibility while comparing development and transaction pathways."
+        }
+
+        next_action <- switch(
+          label,
+          "CONTEND WITH DISCIPLINE" = "Evaluate only moves that materially improve playoff outcomes.",
+          "UPGRADE THE ROTATION" = "Target a specific rotation upgrade without broad roster churn.",
+          "IMPROVE WITHOUT OVERCOMMITTING" = "Seek controllable-cost upgrades while retaining premium assets.",
+          "Prioritize development, controllable contracts, draft capital, and flexibility."
+        )
+
+        reasons <- c(
+          paste(selected_team(), "—", rationale),
+          paste(competitive_status(), "with", record),
+          paste("Current organizational score:", sprintf("%.0f/100", metrics$composite)),
+          paste("Personnel watch:", primary_watch),
+          paste("Financial/control watch:", control_watch)
+        )
         
         shiny::div(
-          class = "team-v2-rec-grid",
+          class = "team-v2-rec-brief",
           
           shiny::div(
-            class = "team-v2-rec-box",
+            class = "team-v2-rec-box team-v2-rec-column",
             shiny::span(
-              "RECOMMENDATION"
+              "ORGANIZATIONAL POSTURE"
             ),
             shiny::strong(
               label
-            )
+            ),
+            shiny::h4("Next action"),
+            shiny::p(next_action)
           ),
           
           shiny::div(
-            shiny::h3(
-              style = "margin:0 0 7px;",
-              rationale
+            class = "team-v2-rec-column",
+            shiny::h4("Why"),
+            shiny::tags$ul(
+              class = "team-v2-rec-list",
+              lapply(reasons, shiny::tags$li)
             ),
-            
+            shiny::h4("Competitive position"),
+            shiny::p(record),
+            shiny::h4("Roster / personnel watch"),
+            shiny::p(primary_watch)
+          ),
+
+          shiny::div(
+            class = "team-v2-rec-column",
+            shiny::h4("Financial / control watch"),
+            shiny::p(control_watch),
+            shiny::h4("Primary risk"),
+            shiny::p(primary_risk),
+            shiny::h4("Primary opportunity"),
+            shiny::p(primary_opportunity),
             shiny::p(
               class = "team-v2-note",
-              style = "margin:0;",
-              paste(
-                "Team Overview combines current standings with loaded roster and contract information.",
-                "It is a decision-support summary rather than a substitute for scouting, medical, cap, or transaction review."
-              )
+              "Decision support only; scouting, medical, cap, and transaction review remain separate."
             )
           )
         )

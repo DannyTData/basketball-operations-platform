@@ -56,12 +56,7 @@ app_ui <- function(request) {
   team_choices <- sort(
     unique(teams_master$team_name)
   )
-  
-  default_team <- if ("Boston Celtics" %in% team_choices) {
-    "Boston Celtics"
-  } else {
-    team_choices[[1]]
-  }
+  team_choices <- c("Select Team" = "", stats::setNames(team_choices, team_choices))
   
   # ----------------------------------------------------------
   # Theme
@@ -76,8 +71,8 @@ app_ui <- function(request) {
     success = "#22c55e",
     danger = "#ef4444",
     warning = "#f59e0b",
-    base_font = bslib::font_google("Inter"),
-    heading_font = bslib::font_google("Inter")
+    base_font = bslib::font_collection("Inter", "Segoe UI", "Arial", "sans-serif"),
+    heading_font = bslib::font_collection("Inter", "Segoe UI", "Arial", "sans-serif")
   )
   
   # ----------------------------------------------------------
@@ -143,6 +138,10 @@ app_ui <- function(request) {
       
       shiny::includeCSS(
         app_sys("app/www/tbi_phase14.css")
+      ),
+
+      shiny::includeCSS(
+        app_sys("app/www/tbi_phase3.css")
       ),
       
       shiny::tags$script(
@@ -381,7 +380,8 @@ app_ui <- function(request) {
             
             shiny::div(
               class = "tbi-v2-filter",
-              shiny::span(
+              shiny::tags$label(
+                `for` = "selected_team",
                 class = "tbi-v2-filter-label",
                 "ORGANIZATION"
               ),
@@ -389,14 +389,15 @@ app_ui <- function(request) {
                 inputId = "selected_team",
                 label = NULL,
                 choices = team_choices,
-                selected = default_team,
+                selected = "",
                 width = "230px"
               )
             ),
             
             shiny::div(
               class = "tbi-v2-filter",
-              shiny::span(
+              shiny::tags$label(
+                `for` = "selected_season",
                 class = "tbi-v2-filter-label",
                 "SEASON"
               ),
@@ -419,6 +420,8 @@ app_ui <- function(request) {
             )
           )
         ),
+
+        shiny::uiOutput("phase3_global_context"),
         
         # ----------------------------------------------------
         # Workspace
@@ -442,6 +445,7 @@ app_ui <- function(request) {
               value = "executive",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Executive posture", "Basketball, financial, roster, asset, and evidence confidence in one decision hierarchy.", list(c("FACT", "fact"), c("MODEL OUTPUT", "model"), c("CBA RULES CONTROL", "unknown"))),
                 mod_executive_dashboard_ui(
                   "executive_dashboard"
                 )
@@ -453,6 +457,7 @@ app_ui <- function(request) {
               value = "team",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Organization profile", "Current team construction, continuity, flexibility, and supported scenario context.", list(c("FACT", "fact"), c("SCENARIO DELTA", "override"))),
                 mod_team_overview_ui(
                   "team_overview"
                 )
@@ -464,6 +469,7 @@ app_ui <- function(request) {
               value = "roster",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Roster construction", "Contracts and roster facts paired with development-visible rotation and evidence posture.", list(c("FACT", "fact"), c("UNKNOWN ROLES", "unknown"))),
                 mod_roster_contracts_ui(
                   "roster_contracts"
                 )
@@ -475,6 +481,7 @@ app_ui <- function(request) {
               value = "depth",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content tbi-depth-page",
+                v2_ui_page_lens("Rotation command", "Approved starters remain authoritative while V2 rotation, minutes, staggering, and lineups render read-only.", list(c("V1 AUTHORITY", "fact"), c("V2 SHADOW", "model"))),
                 mod_depth_chart_ui(
                   "depth_chart"
                 )
@@ -486,6 +493,7 @@ app_ui <- function(request) {
               value = "player_manager",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Player decision context", "Player impact, contract context, governed role evidence, and current scenario implications.", list(c("FACT", "fact"), c("MODEL OUTPUT", "model"), c("UNKNOWN", "unknown"))),
                 mod_player_manager_ui(
                   "player_manager"
                 )
@@ -497,6 +505,7 @@ app_ui <- function(request) {
               value = "salary",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Financial operating range", "Payroll, apron state, restrictions, and transaction consequences remain governed by verified CBA logic.", list(c("FACT", "fact"), c("RULE", "unknown"))),
                 mod_salary_cap_ui(
                   "salary_cap"
                 )
@@ -508,8 +517,10 @@ app_ui <- function(request) {
               value = "trade",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
-                mod_trade_analyzer_ui(
-                  "trade_analyzer"
+                v2_ui_page_lens("Transaction consequence", "Read-only roster, basketball, cap, CBA, asset, and multi-year consequences for the active proposal.", list(c("USER SCENARIO", "override"), c("CBA RULES CONTROL", "unknown"))),
+                v2_trade_intelligence_ui(
+                  "trade_v2",
+                  mod_trade_analyzer_ui("trade_analyzer", builder_only = TRUE)
                 )
               )
             ),
@@ -519,6 +530,7 @@ app_ui <- function(request) {
               value = "outlook",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Multi-year control", "Contract control, cap posture, draft control, continuity, risk, and flexibility across the planning horizon.", list(c("FACT", "fact"), c("MODEL OUTPUT", "model"))),
                 mod_five_year_outlook_ui(
                   "five_year_outlook"
                 )
@@ -530,6 +542,7 @@ app_ui <- function(request) {
               value = "draft",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Future asset control", "Current draft assets and simulations are framed by roster, cap, and evidence context without unsupported decision-lab logic.", list(c("FACT", "fact"), c("MODEL OUTPUT", "model"))),
                 mod_draft_assets_ui(
                   "draft_assets"
                 )
@@ -541,6 +554,7 @@ app_ui <- function(request) {
               value = "extension",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Extension decision", "Eligibility, current cap posture, multi-year impact, CBA findings, and scenario comparison stay visibly separated.", list(c("FACT", "fact"), c("RULE", "unknown"), c("USER INPUT", "override"))),
                 mod_extension_simulator_ui(
                   "extension_simulator"
                 )
@@ -552,6 +566,7 @@ app_ui <- function(request) {
               value = "cba_glossary",
               shiny::div(
                 class = "tbi-page-content tbi-v2-page-content",
+                v2_ui_page_lens("Governed reference", "Verified definitions and provenance remain the controlling source layer for CBA interpretation.", list(c("RULE", "unknown"), c("SOURCE VERIFIED", "fact"))),
                 mod_cba_glossary_ui(
                   "cba_glossary"
                 )

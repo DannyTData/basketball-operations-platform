@@ -1,7 +1,7 @@
 # ============================================================
 # PHASE 2 STEP 13 — FINAL INTEGRATION / QA
 # Roster Intelligence
-# Stable checkpoint: no visual redesign in this pass.
+# Roster Intelligence stabilization workspace.
 # ============================================================
 
 # ------------------------------------------------------------
@@ -12,6 +12,228 @@
 # ============================================================
 # UI
 # ============================================================
+
+roster_column <- function(data, name, default = NA) {
+  if (is.data.frame(data) && name %in% names(data)) data[[name]] else rep(default, nrow(data))
+}
+
+roster_contract_quality_status <- function(data) {
+  allowed <- c("CURRENT", "STALE", "CONFLICT", "UNKNOWN", "REQUIRES REVIEW")
+  if ("contract_reconciliation_status" %in% names(data)) {
+    status <- toupper(trimws(as.character(data$contract_reconciliation_status)))
+    status[is.na(status) | !status %in% allowed] <- "REQUIRES REVIEW"
+    return(status)
+  }
+
+  known_contract <-
+    !is.na(roster_column(data, "contract_id")) |
+    (!is.na(roster_column(data, "contract_type")) & nzchar(trimws(as.character(roster_column(data, "contract_type"))))) |
+    !is.na(suppressWarnings(as.numeric(roster_column(data, "cap_hit")))) |
+    (!is.na(roster_column(data, "contract_end_season")) & nzchar(trimws(as.character(roster_column(data, "contract_end_season"))))) |
+    !is.na(suppressWarnings(as.numeric(roster_column(data, "free_agent_year"))))
+
+  ifelse(known_contract, "REQUIRES REVIEW", "UNKNOWN")
+}
+
+roster_position_matches <- function(values, position) {
+  target <- toupper(trimws(as.character(position %||% "")))
+  if (!nzchar(target)) return(rep(TRUE, length(values)))
+  tokens <- lapply(strsplit(toupper(as.character(values)), "[,/]", fixed = FALSE), trimws)
+  available <- unique(unlist(tokens, use.names = FALSE))
+  if (!target %in% available) return(rep(FALSE, length(values)))
+  vapply(tokens, function(x) target %in% x, logical(1))
+}
+
+roster_filter_selection <- function(values, selected) {
+  selected <- trimws(as.character(selected %||% ""))
+  if (!nzchar(selected)) return("")
+  values <- trimws(as.character(values))
+  values <- unique(values[!is.na(values) & nzchar(values)])
+  if (selected %in% values) selected else ""
+}
+
+roster_filter_records <- function(data,
+                                  player_search = "",
+                                  position = "",
+                                  contract_type = "",
+                                  roster_status = "",
+                                  free_agent_year = "",
+                                  bird_rights = "") {
+  stopifnot(is.data.frame(data))
+  if (!nrow(data)) return(data)
+  keep <- rep(TRUE, nrow(data))
+
+  search <- tolower(trimws(as.character(player_search %||% "")))
+  if (nzchar(search)) {
+    keep <- keep & grepl(
+      search,
+      tolower(as.character(roster_column(data, "player_name", ""))),
+      fixed = TRUE
+    )
+  }
+
+  keep <- keep & roster_position_matches(roster_column(data, "primary_position", ""), position)
+
+  apply_exact <- function(values, selected) {
+    selected <- trimws(as.character(selected %||% ""))
+    if (!nzchar(selected)) return(rep(TRUE, length(values)))
+    values <- ifelse(is.na(values), "", trimws(as.character(values)))
+    if (!selected %in% unique(values)) return(rep(FALSE, length(values)))
+    values == selected
+  }
+
+  keep <- keep & apply_exact(roster_column(data, "contract_type", ""), contract_type)
+  keep <- keep & apply_exact(roster_column(data, "roster_status", ""), roster_status)
+  keep <- keep & apply_exact(roster_column(data, "free_agent_year", ""), free_agent_year)
+  keep <- keep & apply_exact(roster_column(data, "bird_rights", ""), bird_rights)
+  data[keep, , drop = FALSE]
+}
+
+roster_complete_table_data <- function(data) {
+  stopifnot(is.data.frame(data))
+  numeric_value <- function(name) suppressWarnings(as.numeric(roster_column(data, name)))
+  text_value <- function(name, fallback = "—") {
+    value <- roster_column(data, name)
+    value <- as.character(value)
+    value[is.na(value) | !nzchar(trimws(value))] <- fallback
+    value
+  }
+
+  contract_type_raw <- roster_column(data, "contract_type")
+  contract_type_known <- !is.na(contract_type_raw) & nzchar(trimws(as.character(contract_type_raw)))
+  contract_type <- text_value("contract_type", "Not classified")
+  two_way <- (!is.na(numeric_value("two_way_flag")) & numeric_value("two_way_flag") == 1) |
+    grepl("two-way", tolower(contract_type), fixed = TRUE)
+  exhibit <- contract_type_known & grepl("exhibit", tolower(contract_type), fixed = TRUE)
+  category <- ifelse(
+    two_way,
+    "Two-Way",
+    ifelse(exhibit, "Exhibit 10", ifelse(contract_type_known, "Standard", "UNKNOWN"))
+  )
+  total_value <- numeric_value("total_value")
+  base_salary <- numeric_value("base_salary")
+  remaining_money <- ifelse(
+    is.na(total_value) | is.na(base_salary),
+    NA_real_,
+    pmax(0, total_value - base_salary)
+  )
+
+  data.frame(
+    Player = text_value("player_name", "UNKNOWN"),
+    Position = text_value("primary_position"),
+    Age = numeric_value("player_age"),
+    `Cap Hit` = numeric_value("cap_hit"),
+    `Remaining Money` = remaining_money,
+    `Contract Through` = text_value("contract_end_season"),
+    Contract = contract_type,
+    Category = category,
+    `Roster Status` = text_value("roster_status", "UNKNOWN"),
+    `Bird Rights` = text_value("bird_rights"),
+    Option = text_value("option_type"),
+    `FA Year` = text_value("free_agent_year"),
+    `Data Quality` = roster_contract_quality_status(data),
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+}
+
+roster_money_label <- function(value) {
+  value <- suppressWarnings(as.numeric(value))
+  if (length(value) != 1L || is.na(value)) return("—")
+  paste0("$", format(round(value), big.mark = ",", scientific = FALSE, trim = TRUE))
+}
+
+roster_complete_reactable <- function(display,
+                                      money_formatter = roster_money_label,
+                                      link_formatter = function(value, type) shiny::span(value)) {
+  token <- function(value, tone = "neutral") {
+    shiny::span(class = paste("roster-data-token", paste0("roster-data-token-", tone)), value)
+  }
+  linked <- function(value, type) {
+    shiny::span(class = "roster-data-token roster-data-token-neutral", link_formatter(value, type))
+  }
+  quality_token <- function(value) {
+    tone <- if (identical(value, "CURRENT")) "current" else if (value %in% c("STALE", "CONFLICT")) "warning" else "review"
+    token(value, tone)
+  }
+
+  reactable::reactable(
+    display,
+    searchable = FALSE,
+    highlight = TRUE,
+    striped = FALSE,
+    compact = TRUE,
+    pagination = TRUE,
+    defaultPageSize = 15,
+    showPageSizeOptions = TRUE,
+    pageSizeOptions = c(10, 15, 25),
+    defaultSorted = "Cap Hit",
+    defaultSortOrder = "desc",
+    showSortIcon = TRUE,
+    showSortable = TRUE,
+    theme = reactable::reactableTheme(
+      backgroundColor = "transparent",
+      color = "#e6edf6",
+      borderColor = "rgba(148,163,184,.10)",
+      headerStyle = list(backgroundColor = "#111824", color = "#9cabbc", fontWeight = 800),
+      rowHighlightStyle = list(backgroundColor = "rgba(59,130,246,.045)")
+    ),
+    columns = list(
+      Player = reactable::colDef(minWidth = 150),
+      Position = reactable::colDef(minWidth = 78),
+      Age = reactable::colDef(format = reactable::colFormat(digits = 0), sortNALast = TRUE, width = 62),
+      `Cap Hit` = reactable::colDef(cell = function(value) money_formatter(value), sortNALast = TRUE, minWidth = 105),
+      `Remaining Money` = reactable::colDef(cell = function(value) money_formatter(value), sortNALast = TRUE, minWidth = 125),
+      Contract = reactable::colDef(cell = function(value) linked(value, "contract"), minWidth = 145),
+      Category = reactable::colDef(cell = function(value) linked(value, "category"), minWidth = 90),
+      `Roster Status` = reactable::colDef(cell = function(value) token(value), minWidth = 105),
+      `Bird Rights` = reactable::colDef(cell = function(value) linked(value, "bird"), minWidth = 100),
+      Option = reactable::colDef(cell = function(value) linked(value, "option"), minWidth = 100),
+      `Data Quality` = reactable::colDef(cell = quality_token, minWidth = 128)
+    )
+  )
+}
+
+roster_assessment_readout <- function(construction_assessment, control_assessment) {
+  stopifnot(length(construction_assessment) >= 3L, length(control_assessment) >= 2L)
+
+  assessment_item <- function(label, value, tone = NULL) {
+    classes <- "roster-assessment-item"
+    if (!is.null(tone)) classes <- paste(classes, paste0("roster-assessment-item-", tone))
+
+    shiny::div(
+      class = classes,
+      shiny::tags$dt(label),
+      shiny::tags$dd(value)
+    )
+  }
+
+  shiny::tags$dl(
+    class = "roster-assessment-readout",
+    assessment_item("Current state", construction_assessment[[1]]),
+    assessment_item("Strength", construction_assessment[[2]]),
+    assessment_item("Primary concern", construction_assessment[[3]], "watch"),
+    assessment_item("Control / flexibility", control_assessment[[1]]),
+    assessment_item("Decision watch", control_assessment[[2]])
+  )
+}
+
+roster_assessment_control <- function(guarantee_share) {
+  if (!is.na(guarantee_share)) {
+    return(c(
+      sprintf(
+        "%.1f%% of current roster cap hits are represented as guaranteed in the loaded contract-year data.",
+        100 * guarantee_share
+      ),
+      "Use the loaded guarantee and option facts when comparing near-term flexibility."
+    ))
+  }
+
+  c(
+    "Guaranteed-money share is UNKNOWN because the loaded roster does not support a complete calculation.",
+    "Verify contract guarantees before treating financial flexibility as decision-ready."
+  )
+}
 
 #' Roster Intelligence UI
 #'
@@ -162,8 +384,12 @@ mod_roster_contracts_ui <- function(id) {
       )
     ),
     
-    shiny::uiOutput(
-      ns("roster_trade_scenario_banner")
+    shiny::div(
+      class = "tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "overview",
+      shiny::uiOutput(
+        ns("roster_trade_scenario_banner")
+      )
     ),
     
     # --------------------------------------------------------
@@ -171,7 +397,8 @@ mod_roster_contracts_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::tags$section(
-      class = "tbi-v2-exec-snapshot",
+      class = "tbi-v2-exec-snapshot tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "overview",
       
       shiny::div(
         class = "tbi-v2-section-title-row",
@@ -188,7 +415,7 @@ mod_roster_contracts_ui <- function(id) {
         shiny::span(
           class = "tbi-v2-section-status",
           shiny::span(class = "tbi-v2-live-dot"),
-          "CURRENT"
+          "DATABASE VIEW"
         )
       ),
       
@@ -241,11 +468,12 @@ mod_roster_contracts_ui <- function(id) {
     ),
     
     # --------------------------------------------------------
-    # Roster decision + Position Value 2.0
+    # Overview decision + headlines
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-main-grid",
+      class = "roster-overview-decision-grid tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "overview",
       
       shiny::tags$section(
         class = "tbi-v2-decision-card",
@@ -265,9 +493,36 @@ mod_roster_contracts_ui <- function(id) {
           ns("roster_decision")
         )
       ),
+
+      shiny::tags$section(
+        class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
+
+        shiny::div(
+          class = "tbi-v2-section-title",
+          shiny::span(
+            class = "tbi-v2-section-icon",
+            bsicons::bs_icon("people")
+          ),
+          shiny::span("ROSTER HEADLINES")
+        ),
+
+        shiny::uiOutput(
+          ns("roster_headlines")
+        )
+      )
+    ),
+
+    # --------------------------------------------------------
+    # Roster Construction
+    # --------------------------------------------------------
+
+    shiny::div(
+      class = "tbi-v2-exec-main-grid tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "construction",
       
       shiny::tags$section(
-        class = "tbi-v2-scorecard-panel",
+        class = "tbi-v2-scorecard-panel tbi-roster-tab-target",
+        `data-tbi-roster-tab` = "construction",
         
         shiny::div(
           class = "tbi-v2-scorecard-header",
@@ -301,31 +556,16 @@ mod_roster_contracts_ui <- function(id) {
     ),
     
     # --------------------------------------------------------
-    # Headlines / risks / opportunities
+    # Risks / opportunities
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-exec-bottom-grid",
+      class = "tbi-v2-exec-bottom-grid tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "risk",
       
       shiny::tags$section(
-        class = "tbi-v2-exec-list-panel tbi-v2-headlines-panel",
-        
-        shiny::div(
-          class = "tbi-v2-section-title",
-          shiny::span(
-            class = "tbi-v2-section-icon",
-            bsicons::bs_icon("people")
-          ),
-          shiny::span("ROSTER HEADLINES")
-        ),
-        
-        shiny::uiOutput(
-          ns("roster_headlines")
-        )
-      ),
-      
-      shiny::tags$section(
-        class = "tbi-v2-exec-list-panel tbi-v2-risks-panel",
+        class = "tbi-v2-exec-list-panel tbi-v2-risks-panel tbi-roster-tab-target",
+        `data-tbi-roster-tab` = "risk",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -342,7 +582,8 @@ mod_roster_contracts_ui <- function(id) {
       ),
       
       shiny::tags$section(
-        class = "tbi-v2-exec-list-panel tbi-v2-opportunities-panel",
+        class = "tbi-v2-exec-list-panel tbi-v2-opportunities-panel tbi-roster-tab-target",
+        `data-tbi-roster-tab` = "risk",
         
         shiny::div(
           class = "tbi-v2-section-title",
@@ -364,10 +605,12 @@ mod_roster_contracts_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::div(
-      class = "tbi-v2-cap-detail-grid",
+      class = "tbi-v2-cap-detail-grid tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "construction assessment",
       
       shiny::tags$section(
-        class = "tbi-v2-context-panel",
+        class = "tbi-v2-context-panel tbi-roster-tab-target",
+        `data-tbi-roster-tab` = "construction assessment",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -382,7 +625,7 @@ mod_roster_contracts_ui <- function(id) {
           
           shiny::span(
             class = "tbi-v2-context-tag",
-            "CURRENT"
+            "DATABASE FACTS"
           )
         ),
         
@@ -395,7 +638,8 @@ mod_roster_contracts_ui <- function(id) {
       ),
       
       shiny::tags$section(
-        class = "tbi-v2-context-panel",
+          class = "tbi-v2-context-panel tbi-roster-tab-target",
+        `data-tbi-roster-tab` = "assessment",
         
         shiny::div(
           class = "tbi-v2-context-header",
@@ -415,7 +659,7 @@ mod_roster_contracts_ui <- function(id) {
         ),
         
         shiny::div(
-          style = "padding:14px 16px;",
+          class = "roster-assessment-body",
           shiny::uiOutput(
             ns("roster_assessment")
           )
@@ -428,7 +672,8 @@ mod_roster_contracts_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::tags$section(
-      class = "tbi-v2-context-panel",
+      class = "tbi-v2-context-panel tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "legacy-hidden",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -447,6 +692,12 @@ mod_roster_contracts_ui <- function(id) {
           class = "tbi-v2-context-tag",
           "BIE ROSTER"
         )
+      ),
+
+      shiny::div(
+        class = "tbi-data-status",
+        shiny::strong("Current-data status: Requires Source Verification"),
+        shiny::span("Roster and contract rows remain database-authoritative. No approved current external snapshot is loaded, so extensions, transactions, and contract changes may be stale or conflicting.")
       ),
       
       shiny::div(
@@ -473,7 +724,8 @@ mod_roster_contracts_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::tags$section(
-      class = "tbi-v2-context-panel",
+      class = "tbi-v2-context-panel tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "legacy-hidden",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -518,7 +770,8 @@ mod_roster_contracts_ui <- function(id) {
     # --------------------------------------------------------
     
     shiny::tags$section(
-      class = "tbi-v2-context-panel",
+      class = "tbi-v2-context-panel tbi-roster-tab-target",
+      `data-tbi-roster-tab` = "roster",
       
       shiny::div(
         class = "tbi-v2-context-header",
@@ -533,12 +786,41 @@ mod_roster_contracts_ui <- function(id) {
         
         shiny::span(
           class = "tbi-v2-context-tag",
-          "LIVE DATA"
+          "DATABASE FACTS"
         )
       ),
       
       shiny::div(
-        style = "max-height:520px; overflow:auto;",
+        class = "tbi-data-status roster-contract-quality-banner",
+        shiny::strong("Contract-data status: Requires Review"),
+        shiny::span(
+          paste(
+            "Known database facts are shown without an approved current external reconciliation.",
+            "Missing contract facts remain UNKNOWN; other rows require source verification."
+          )
+        )
+      ),
+
+      shiny::div(
+        class = "roster-filter-bar",
+        shiny::div(
+          class = "roster-filter-search",
+          shiny::textInput(
+            ns("roster_player_search"),
+            "Player search",
+            placeholder = "Search loaded roster"
+          )
+        ),
+        shiny::selectInput(ns("roster_position_filter"), "Position", choices = c("All positions" = ""), selectize = FALSE),
+        shiny::selectInput(ns("roster_contract_filter"), "Contract", choices = c("All contracts" = ""), selectize = FALSE),
+        shiny::selectInput(ns("roster_status_filter"), "Roster status", choices = c("All statuses" = ""), selectize = FALSE),
+        shiny::selectInput(ns("roster_fa_filter"), "FA year", choices = c("All FA years" = ""), selectize = FALSE),
+        shiny::selectInput(ns("roster_rights_filter"), "Rights", choices = c("All rights" = ""), selectize = FALSE),
+        shiny::actionButton(ns("clear_roster_filters"), "Clear filters", class = "roster-clear-filters")
+      ),
+
+      shiny::div(
+        class = "roster-table-wrap",
         reactable::reactableOutput(
           ns("roster_table")
         )
@@ -569,8 +851,9 @@ mod_roster_contracts_server <- function(
     function(input, output, session) {
       subtab_seen <- shiny::reactiveValues(
         overview = TRUE,
-        decision = FALSE,
-        needs = FALSE,
+        construction = FALSE,
+        assessment = FALSE,
+        risk = FALSE,
         roster = FALSE,
         `legacy-hidden` = FALSE
       )
@@ -581,8 +864,9 @@ mod_roster_contracts_server <- function(
           tab <- as.character(input$active_subtab)
           valid_tabs <- c(
             "overview",
-            "decision",
-            "needs",
+            "construction",
+            "assessment",
+            "risk",
             "roster"
           )
 
@@ -774,6 +1058,30 @@ mod_roster_contracts_server <- function(
           shiny::strong(value)
         )
       }
+
+      roster_finding_field <- function(label, value) {
+        shiny::div(
+          class = "roster-finding-field",
+          shiny::span(class = "roster-finding-label", label),
+          shiny::p(value)
+        )
+      }
+
+      roster_finding_card <- function(finding, kind = c("risk", "opportunity")) {
+        kind <- match.arg(kind)
+        icon <- if (identical(kind, "risk")) "exclamation-triangle" else "graph-up-arrow"
+        shiny::div(
+          class = paste("roster-finding-card", paste0("roster-finding-card-", kind)),
+          shiny::div(
+            class = "roster-finding-heading",
+            bsicons::bs_icon(icon),
+            shiny::strong(if (identical(kind, "risk")) "Risk" else "Opportunity")
+          ),
+          roster_finding_field(finding$evidence_label %||% "Fact", finding$fact),
+          roster_finding_field("Impact", finding$impact),
+          roster_finding_field("Decision consequence", finding$decision)
+        )
+      }
       
       roster_cba_term <- function(value, type = "contract") {
         
@@ -855,7 +1163,7 @@ mod_roster_contracts_server <- function(
           selected_season()
         )
         
-        con <- connect_db()
+        con <- connect_db(read_only = TRUE)
         
         on.exit(
           disconnect_db(con),
@@ -1061,6 +1369,103 @@ mod_roster_contracts_server <- function(
         }
         
         preview
+      })
+
+      roster_filter_choices <- function(values) {
+        values <- trimws(as.character(values))
+        sort(unique(values[!is.na(values) & nzchar(values)]), method = "radix")
+      }
+
+      roster_position_filter_choices <- function(data) {
+        roster_filter_choices(unlist(
+          strsplit(as.character(roster_column(data, "primary_position", "")), "[,/]"),
+          use.names = FALSE
+        ))
+      }
+
+      reset_roster_filters <- function() {
+        shiny::updateTextInput(session, "roster_player_search", value = "")
+        for (id in c(
+          "roster_position_filter", "roster_contract_filter", "roster_status_filter",
+          "roster_fa_filter", "roster_rights_filter"
+        )) {
+          shiny::updateSelectInput(session, id, selected = "")
+        }
+      }
+
+      shiny::observeEvent(
+        list(selected_team(), selected_season()),
+        reset_roster_filters(),
+        ignoreInit = TRUE
+      )
+
+      shiny::observeEvent(
+        selected_roster(),
+        {
+          d <- selected_roster()
+          position_tokens <- roster_position_filter_choices(d)
+
+          shiny::updateSelectInput(
+            session, "roster_position_filter",
+            choices = c("All positions" = "", stats::setNames(position_tokens, position_tokens))
+          )
+          shiny::updateSelectInput(
+            session, "roster_contract_filter",
+            choices = {
+              values <- roster_filter_choices(roster_column(d, "contract_type", ""))
+              c("All contracts" = "", stats::setNames(values, values))
+            }
+          )
+          shiny::updateSelectInput(
+            session, "roster_status_filter",
+            choices = {
+              values <- roster_filter_choices(roster_column(d, "roster_status", ""))
+              c("All statuses" = "", stats::setNames(values, values))
+            }
+          )
+          shiny::updateSelectInput(
+            session, "roster_fa_filter",
+            choices = {
+              values <- roster_filter_choices(roster_column(d, "free_agent_year", ""))
+              c("All FA years" = "", stats::setNames(values, values))
+            }
+          )
+          shiny::updateSelectInput(
+            session, "roster_rights_filter",
+            choices = {
+              values <- roster_filter_choices(roster_column(d, "bird_rights", ""))
+              c("All rights" = "", stats::setNames(values, values))
+            }
+          )
+        },
+        ignoreInit = FALSE
+      )
+
+      shiny::observeEvent(input$clear_roster_filters, {
+        reset_roster_filters()
+      })
+
+      filtered_roster <- shiny::reactive({
+        d <- selected_roster()
+        roster_filter_records(
+          d,
+          player_search = input$roster_player_search %||% "",
+          position = roster_filter_selection(
+            roster_position_filter_choices(d), input$roster_position_filter
+          ),
+          contract_type = roster_filter_selection(
+            roster_column(d, "contract_type", ""), input$roster_contract_filter
+          ),
+          roster_status = roster_filter_selection(
+            roster_column(d, "roster_status", ""), input$roster_status_filter
+          ),
+          free_agent_year = roster_filter_selection(
+            roster_column(d, "free_agent_year", ""), input$roster_fa_filter
+          ),
+          bird_rights = roster_filter_selection(
+            roster_column(d, "bird_rights", ""), input$roster_rights_filter
+          )
+        )
       })
       
       
@@ -2629,11 +3034,11 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_risks <- shiny::renderUI({
-        subtab_ready("needs")
+        subtab_ready("risk")
         d <- selected_roster()
         scores <- position_scores()
         
-        risks <- character()
+        risks <- list()
         
         weak <- scores[
           scores$score < 60,
@@ -2642,15 +3047,18 @@ mod_roster_contracts_server <- function(
         ]
         
         if (nrow(weak)) {
-          risks <- c(
-            risks,
-            paste0(
+          risks[[length(risks) + 1L]] <- list(
+            evidence_label = "MODEL OUTPUT",
+            fact = paste0(
+              "Position Value 2.0 indicates ",
               paste(
                 weak$position,
                 collapse = ", "
               ),
-              " currently grades below 60 in Position Value 2.0."
-            )
+              " grades below 60."
+            ),
+            impact = "Model-indicated position-value pressure is concentrated in the identified groups.",
+            decision = "Prioritize those positions when comparing development, roster, or transaction alternatives."
           )
         }
         
@@ -2676,13 +3084,14 @@ mod_roster_contracts_server <- function(
             payroll
           
           if (concentration >= .55) {
-            risks <- c(
-              risks,
-              sprintf(
+            risks[[length(risks) + 1L]] <- list(
+              fact = sprintf(
                 "Top-three contracts account for %.1f%% of current payroll.",
                 100 *
                   concentration
-              )
+              ),
+              impact = "A large share of the loaded payroll is concentrated in three roster spots.",
+              decision = "Test depth-retention and upgrade options against the remaining payroll flexibility."
             )
           }
         }
@@ -2697,46 +3106,29 @@ mod_roster_contracts_server <- function(
         )
         
         if (expiring >= 6) {
-          risks <- c(
-            risks,
-            paste0(
+          risks[[length(risks) + 1L]] <- list(
+            fact = paste0(
               expiring,
               " contracts reach free agency by 2028, creating meaningful near-term turnover."
-            )
+            ),
+            impact = "Several roster decisions may require sequencing in the same planning window.",
+            decision = "Review retention priorities before committing flexibility to secondary needs."
           )
         }
         
         if (!length(risks)) {
-          risks <- "No major structural roster risk is identified by the loaded contract and depth inputs."
+          risks[[1L]] <- list(
+            fact = "No major structural roster risk is identified by the loaded contract and depth inputs.",
+            impact = "The current database view does not surface a controlling roster imbalance.",
+            decision = "Preserve flexibility and verify current source facts before making a roster move."
+          )
         }
         
         shiny::tagList(
           lapply(
-            unique(
-              risks
-            ),
-            function(risk) {
-              
-              shiny::div(
-                class = "tbi-v2-risk-card",
-                
-                shiny::span(
-                  class = "tbi-v2-risk-icon",
-                  bsicons::bs_icon(
-                    "exclamation-triangle"
-                  )
-                ),
-                
-                shiny::div(
-                  shiny::strong(
-                    "Risk"
-                  ),
-                  shiny::p(
-                    risk
-                  )
-                )
-              )
-            }
+            risks,
+            roster_finding_card,
+            kind = "risk"
           )
         )
       })
@@ -2746,11 +3138,11 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_opportunities <- shiny::renderUI({
-        subtab_ready("needs")
+        subtab_ready("risk")
         d <- selected_roster()
         scores <- position_scores()
         
-        opportunities <- character()
+        opportunities <- list()
         
         open_spots <- max(
           0,
@@ -2761,14 +3153,15 @@ mod_roster_contracts_server <- function(
         )
         
         if (open_spots > 0) {
-          opportunities <- c(
-            opportunities,
-            paste0(
+          opportunities[[length(opportunities) + 1L]] <- list(
+            fact = paste0(
               open_spots,
               " standard roster spot",
               if (open_spots == 1) "" else "s",
               " remain available in the current roster view."
-            )
+            ),
+            impact = "The loaded roster has room for an additional standard-contract player.",
+            decision = "Compare position need and financial fit before using the available roster spot."
           )
         }
         
@@ -2779,15 +3172,18 @@ mod_roster_contracts_server <- function(
         ]
         
         if (nrow(strong)) {
-          opportunities <- c(
-            opportunities,
-            paste0(
+          opportunities[[length(opportunities) + 1L]] <- list(
+            evidence_label = "MODEL OUTPUT",
+            fact = paste0(
+              "Position Value 2.0 indicates ",
               paste(
                 strong$position,
                 collapse = ", "
               ),
-              " currently provides strong positional depth and optionality."
-            )
+              " provides strong positional depth and optionality."
+            ),
+            impact = "Strength in those groups can support internal role coverage or transaction flexibility.",
+            decision = "Protect essential depth while evaluating whether surplus value can address weaker positions."
           )
         }
         
@@ -2809,51 +3205,31 @@ mod_roster_contracts_server <- function(
         )
         
         if (team_options > 0) {
-          opportunities <- c(
-            opportunities,
-            paste0(
+          opportunities[[length(opportunities) + 1L]] <- list(
+            fact = paste0(
               team_options,
               " team-controlled option",
               if (team_options == 1) "" else "s",
               " can support future roster flexibility."
-            )
+            ),
+            impact = "The loaded contracts include team-controlled decision points.",
+            decision = "Sequence option decisions with retention, cap, and roster-slot planning."
           )
         }
         
         if (!length(opportunities)) {
-          opportunities <- paste(
-            "Preserve flexibility while comparing targeted upgrades",
-            "against development and transaction alternatives."
+          opportunities[[1L]] <- list(
+            fact = "No specific roster-control opportunity is identified by the loaded inputs.",
+            impact = "The database view does not support a stronger opportunity claim.",
+            decision = "Preserve flexibility while comparing targeted upgrades with development alternatives."
           )
         }
         
         shiny::tagList(
           lapply(
-            unique(
-              opportunities
-            ),
-            function(opportunity) {
-              
-              shiny::div(
-                class = "tbi-v2-opportunity-card",
-                
-                shiny::span(
-                  class = "tbi-v2-opportunity-icon",
-                  bsicons::bs_icon(
-                    "graph-up-arrow"
-                  )
-                ),
-                
-                shiny::div(
-                  shiny::strong(
-                    "Opportunity"
-                  ),
-                  shiny::p(
-                    opportunity
-                  )
-                )
-              )
-            }
+            opportunities,
+            roster_finding_card,
+            kind = "opportunity"
           )
         )
       })
@@ -2968,7 +3344,7 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_assessment <- shiny::renderUI({
-        subtab_ready("decision")
+        subtab_ready("assessment")
         d <- selected_roster()
         scores <- position_scores()
         
@@ -2988,17 +3364,13 @@ mod_roster_contracts_server <- function(
           drop = FALSE
         ]
         
-        guaranteed <- sum(
-          numeric_or_zero(
-            d$guaranteed_amount
-          ),
-          na.rm = TRUE
-        )
+        guarantee_values <- suppressWarnings(as.numeric(d$guaranteed_amount))
+        guaranteed <- sum(guarantee_values, na.rm = TRUE)
         
         total <- roster_payroll()
         
         guarantee_share <- if (
-          total > 0
+          total > 0 && length(guarantee_values) && all(!is.na(guarantee_values))
         ) {
           guaranteed /
             total
@@ -3006,7 +3378,7 @@ mod_roster_contracts_server <- function(
           NA_real_
         }
         
-        assessment <- c(
+        construction_assessment <- c(
           paste0(
             nrow(d),
             " players are represented in the selected roster view."
@@ -3028,25 +3400,10 @@ mod_roster_contracts_server <- function(
             " / 100 and merits roster review."
           )
         )
-        
-        if (!is.na(guarantee_share)) {
-          assessment <- c(
-            assessment,
-            sprintf(
-              "%.1f%% of current roster cap hits are represented as guaranteed in the loaded contract-year data.",
-              100 *
-                guarantee_share
-            )
-          )
-        }
-        
-        shiny::tags$ul(
-          class = "roster-assessment-list",
-          lapply(
-            assessment,
-            shiny::tags$li
-          )
-        )
+
+        control_assessment <- roster_assessment_control(guarantee_share)
+
+        roster_assessment_readout(construction_assessment, control_assessment)
       })
       
       # ------------------------------------------------------
@@ -3054,13 +3411,13 @@ mod_roster_contracts_server <- function(
       # ------------------------------------------------------
       
       output$roster_table <- reactable::renderReactable({
-        d <- selected_roster()
+        d <- filtered_roster()
         
         shiny::validate(
           shiny::need(
             nrow(d) > 0,
             paste(
-              "No roster data is currently available for",
+              "No roster rows match the active filters for",
               selected_team(),
               "during",
               selected_season()
@@ -3068,210 +3425,14 @@ mod_roster_contracts_server <- function(
           )
         )
         
-        cap_hits <- numeric_or_zero(
-          d$cap_hit
-        )
-        
-        total_values <- suppressWarnings(
-          as.numeric(
-            d$total_value
-          )
-        )
-        
-        remaining_money <- ifelse(
-          is.na(
-            total_values
-          ),
-          NA_real_,
-          pmax(
-            0,
-            total_values -
-              numeric_or_zero(
-                d$base_salary
-              )
-          )
-        )
-        
-        roster_category <- ifelse(
-          numeric_or_zero(
-            d$two_way_flag
-          ) == 1 |
-            grepl(
-              "two-way",
-              tolower(
-                ifelse(
-                  is.na(
-                    d$contract_type
-                  ),
-                  "",
-                  d$contract_type
-                )
-              ),
-              fixed = TRUE
-            ),
-          "Two-Way",
-          ifelse(
-            grepl(
-              "exhibit",
-              tolower(
-                ifelse(
-                  is.na(
-                    d$contract_type
-                  ),
-                  "",
-                  d$contract_type
-                )
-              ),
-              fixed = TRUE
-            ),
-            "Exhibit 10",
-            "Standard"
-          )
-        )
-        
-        display <- data.frame(
-          Player = d$player_name,
-          Position = ifelse(
-            is.na(
-              d$primary_position
-            ),
-            "—",
-            d$primary_position
-          ),
-          Age = ifelse(
-            is.na(
-              d$player_age
-            ),
-            "—",
-            as.character(
-              d$player_age
-            )
-          ),
-          `Cap Hit` = vapply(
-            cap_hits,
-            money,
-            character(1)
-          ),
-          `Remaining Money` = vapply(
-            remaining_money,
-            money,
-            character(1)
-          ),
-          `Contract Through` = ifelse(
-            is.na(
-              d$contract_end_season
-            ),
-            "—",
-            d$contract_end_season
-          ),
-          Contract = ifelse(
-            is.na(
-              d$contract_type
-            ),
-            "Not classified",
-            d$contract_type
-          ),
-          Category = roster_category,
-          `Bird Rights` = ifelse(
-            is.na(
-              d$bird_rights
-            ),
-            "—",
-            d$bird_rights
-          ),
-          Option = ifelse(
-            is.na(
-              d$option_type
-            ) |
-              !nzchar(
-                trimws(
-                  as.character(
-                    d$option_type
-                  )
-                )
-              ),
-            "—",
-            d$option_type
-          ),
-          `FA Year` = ifelse(
-            is.na(
-              d$free_agent_year
-            ),
-            "—",
-            d$free_agent_year
-          ),
-          check.names = FALSE,
-          stringsAsFactors = FALSE
-        )
-        
-        reactable::reactable(
+        display <- roster_complete_table_data(d)
+
+        roster_complete_reactable(
           display,
-          searchable = TRUE,
-          highlight = TRUE,
-          striped = FALSE,
-          compact = TRUE,
-          pagination = TRUE,
-          defaultPageSize = 12,
-          defaultSorted = "Cap Hit",
-          theme = reactable::reactableTheme(
-            backgroundColor = "transparent",
-            color = "#e6edf6",
-            borderColor = "rgba(148,163,184,.10)",
-            headerStyle = list(
-              backgroundColor = "#111824",
-              color = "#7f8da0",
-              fontWeight = 800
-            ),
-            rowHighlightStyle = list(
-              backgroundColor = "rgba(59,130,246,.045)"
-            )
-          ),
-          columns = list(
-            Contract = reactable::colDef(
-              cell = function(value) {
-                roster_table_link(
-                  value,
-                  roster_cba_term(
-                    value,
-                    "contract"
-                  )
-                )
-              }
-            ),
-            Category = reactable::colDef(
-              cell = function(value) {
-                roster_table_link(
-                  value,
-                  roster_cba_term(
-                    value,
-                    "category"
-                  )
-                )
-              }
-            ),
-            `Bird Rights` = reactable::colDef(
-              cell = function(value) {
-                roster_table_link(
-                  value,
-                  roster_cba_term(
-                    value,
-                    "bird"
-                  )
-                )
-              }
-            ),
-            Option = reactable::colDef(
-              cell = function(value) {
-                roster_table_link(
-                  value,
-                  roster_cba_term(
-                    value,
-                    "option"
-                  )
-                )
-              }
-            )
-          )
+          money_formatter = money,
+          link_formatter = function(value, type) {
+            roster_table_link(value, roster_cba_term(value, type))
+          }
         )
       })
     }

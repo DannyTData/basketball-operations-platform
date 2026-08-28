@@ -944,7 +944,9 @@ executive_data_quality_panel <- function(
     assumption_items = 0L,
     review_items = 0L,
     unavailable_items = 0L,
-    updated_at = NULL) {
+    updated_at = NULL,
+    title = "Data Confidence",
+    explanation = NULL) {
   
   verified_items <- max(
     as.integer(verified_items %||% 0L),
@@ -972,7 +974,7 @@ executive_data_quality_panel <- function(
       class = "tbi-exec-section-header",
       shiny::tags$h3(
         class = "tbi-exec-section-header__title",
-        "Data Confidence"
+        executive_text(title, "Data Confidence")
       ),
       if (!is.null(updated_at)) {
         shiny::tags$span(
@@ -986,11 +988,18 @@ executive_data_quality_panel <- function(
         NULL
       }
     ),
+    if (!is.null(explanation)) {
+      shiny::tags$p(
+        class = "command-evidence-explanation",
+        executive_text(explanation)
+      )
+    },
     shiny::tags$div(
       class = "tbi-exec-data-quality__grid",
       executive_metric_card(
         label = "Verified",
         value = verified_items,
+        subtitle = "Loaded facts with verified/current evidence.",
         status = "Verified",
         severity = "positive",
         icon = "circle-check"
@@ -998,6 +1007,7 @@ executive_data_quality_panel <- function(
       executive_metric_card(
         label = "Assumption-Based",
         value = assumption_items,
+        subtitle = "Outputs that depend on explicit modeled assumptions.",
         status = "Assumption-Based",
         severity = "caution",
         icon = "triangle-exclamation"
@@ -1005,6 +1015,7 @@ executive_data_quality_panel <- function(
       executive_metric_card(
         label = "Needs Review",
         value = review_items,
+        subtitle = "Loaded evidence that requires source or rule verification.",
         status = "Needs Review",
         severity = "warning",
         icon = "magnifying-glass"
@@ -1012,6 +1023,7 @@ executive_data_quality_panel <- function(
       executive_metric_card(
         label = "Unavailable",
         value = unavailable_items,
+        subtitle = "Required information not currently loaded.",
         status = "Unavailable",
         severity = "neutral",
         icon = "circle-minus"
