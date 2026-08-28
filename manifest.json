@@ -9,6 +9,11 @@
     "content_category": null,
     "has_parameters": false
   },
+  "environment": {
+    "r": {
+      "requires": "~=4.5.0"
+    }
+  },
   "packages": {
     "DBI": {
       "Source": "CRAN",
@@ -155,79 +160,6 @@
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "x86_64-w64-mingw32",
         "RemoteSha": "1.1.2"
-      }
-    },
-    "RcppParallel": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "RcppParallel",
-        "Type": "Package",
-        "Title": "Parallel Programming Tools for 'Rcpp'",
-        "Version": "6.2.0",
-        "Authors@R": "c(\n    person(\"Kevin\", \"Ushey\", role = c(\"aut\", \"cre\"), email = \"kevin@rstudio.com\",\n        comment = c(ORCID = \"0000-0003-2880-7407\")),\n    person(\"JJ\", \"Allaire\", role = c(\"aut\"), email = \"jj@rstudio.com\"),\n    person(\"Romain\", \"Francois\", role = c(\"aut\", \"cph\")),\n    person(\"Gregory\", \"Vandenbrouck\", role = \"aut\"),\n    person(\"Marcus\", \"Geelnard\", role = c(\"aut\", \"cph\"),\n       comment = \"TinyThread library, https://tinythreadpp.bitsnbites.eu/\"),\n    person(\"Hamada S.\", \"Badr\", email = \"badr@jhu.edu\", role = c(\"ctb\"),\n       comment = c(ORCID = \"0000-0002-9808-2344\")),\n    person(\"Dirk\", \"Eddelbuettel\", role = c(\"aut\"), email = \"edd@debian.org\",\n        comment = c(ORCID = \"0000-0001-6419-907X\")),\n    person(family = \"Intel\", role = c(\"aut\", \"cph\"), comment = \"oneTBB library\"),\n    person(family = \"UXL Foundation\", role = c(\"aut\", \"cph\"), comment = \"oneTBB library\"),\n    person(family = \"Microsoft\", role = \"cph\"),\n    person(family = \"Posit, PBC\", role = \"cph\")\n    )",
-        "Description": "High level functions for parallel programming with 'Rcpp'.\n    For example, the 'parallelFor()' function can be used to convert the work of\n    a standard serial \"for\" loop into a parallel one and the 'parallelReduce()'\n    function can be used for accumulating aggregate or other values.",
-        "Depends": "R (>= 3.6.0)",
-        "Suggests": "Rcpp, knitr, rmarkdown",
-        "SystemRequirements": "CMake (>= 3.5)",
-        "License": "GPL (>= 3)",
-        "URL": "https://rcppcore.github.io/RcppParallel/,\nhttps://github.com/RcppCore/RcppParallel",
-        "BugReports": "https://github.com/RcppCore/RcppParallel/issues",
-        "Biarch": "TRUE",
-        "RoxygenNote": "7.3.3",
-        "Encoding": "UTF-8",
-        "NeedsCompilation": "yes",
-        "Packaged": "2026-07-29 19:00:05 UTC; kevin",
-        "Author": "Kevin Ushey [aut, cre] (ORCID: <https://orcid.org/0000-0003-2880-7407>),\n  JJ Allaire [aut],\n  Romain Francois [aut, cph],\n  Gregory Vandenbrouck [aut],\n  Marcus Geelnard [aut, cph] (TinyThread library,\n    https://tinythreadpp.bitsnbites.eu/),\n  Hamada S. Badr [ctb] (ORCID: <https://orcid.org/0000-0002-9808-2344>),\n  Dirk Eddelbuettel [aut] (ORCID:\n    <https://orcid.org/0000-0001-6419-907X>),\n  Intel [aut, cph] (oneTBB library),\n  UXL Foundation [aut, cph] (oneTBB library),\n  Microsoft [cph],\n  Posit, PBC [cph]",
-        "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-07-30 05:50:02 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-07-31 07:21:20 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "RcppParallel",
-        "RemotePkgRef": "RcppParallel",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "6.2.0"
-      }
-    },
-    "RcppTOML": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "RcppTOML",
-        "Type": "Package",
-        "Title": "'Rcpp' Bindings to Parser for \"Tom's Obvious Markup Language\"",
-        "Version": "0.2.3",
-        "Date": "2025-03-08",
-        "Authors@R": "c(person(\"Dirk\", \"Eddelbuettel\", role = c(\"aut\", \"cre\"), email = \"edd@debian.org\",\n                    comment = c(ORCID = \"0000-0001-6419-907X\")),\n             person(\"Mark\", \"Gillard\", role = \"aut\",\n                    comment = \"Author of 'toml++' header library\"))",
-        "Description": "The configuration format defined by 'TOML' (which expands to\n \"Tom's Obvious Markup Language\") specifies an excellent format\n (described at <https://toml.io/en/>) suitable for both human editing\n as well as the common uses of a machine-readable format. This package\n uses 'Rcpp' to connect to the 'toml++' parser written by Mark Gillard\n to R.",
-        "SystemRequirements": "A C++17 compiler",
-        "BugReports": "https://github.com/eddelbuettel/rcpptoml/issues",
-        "URL": "http://dirk.eddelbuettel.com/code/rcpp.toml.html",
-        "Imports": "Rcpp (>= 1.0.8)",
-        "Depends": "R (>= 3.3.0)",
-        "LinkingTo": "Rcpp",
-        "Suggests": "tinytest",
-        "License": "GPL (>= 2)",
-        "NeedsCompilation": "yes",
-        "Packaged": "2025-03-08 13:54:57 UTC; edd",
-        "Author": "Dirk Eddelbuettel [aut, cre] (<https://orcid.org/0000-0001-6419-907X>),\n  Mark Gillard [aut] (Author of 'toml++' header library)",
-        "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-03-08 14:30:06 UTC",
-        "Encoding": "UTF-8",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-07-06 12:55:08 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "RcppTOML",
-        "RemotePkgRef": "RcppTOML",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.2.3"
       }
     },
     "askpass": {
@@ -539,7 +471,7 @@
       "description": {
         "Package": "bslib",
         "Title": "Custom 'Bootstrap' 'Sass' Themes for 'shiny' and 'rmarkdown'",
-        "Version": "0.12.0",
+        "Version": "0.11.0",
         "Authors@R": "c(\n    person(\"Carson\", \"Sievert\", , \"carson@posit.co\", role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"0000-0002-4958-2844\")),\n    person(\"Joe\", \"Cheng\", , \"joe@posit.co\", role = \"aut\"),\n    person(\"Garrick\", \"Aden-Buie\", , \"garrick@posit.co\", role = \"aut\",\n           comment = c(ORCID = \"0000-0002-7111-0077\")),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")),\n    person(, \"Bootstrap contributors\", role = \"ctb\",\n           comment = \"Bootstrap library\"),\n    person(, \"Twitter, Inc\", role = \"cph\",\n           comment = \"Bootstrap library\"),\n    person(\"Javi\", \"Aguilar\", role = c(\"ctb\", \"cph\"),\n           comment = \"Bootstrap colorpicker library\"),\n    person(\"Thomas\", \"Park\", role = c(\"ctb\", \"cph\"),\n           comment = \"Bootswatch library\"),\n    person(, \"PayPal\", role = c(\"ctb\", \"cph\"),\n           comment = \"Bootstrap accessibility plugin\")\n  )",
         "Description": "Simplifies custom 'CSS' styling of both 'shiny' and\n    'rmarkdown' via 'Bootstrap' 'Sass'. Supports 'Bootstrap' 3, 4 and 5 as\n    well as their various 'Bootswatch' themes. An interactive widget is\n    also provided for previewing themes in real time.",
         "License": "MIT + file LICENSE",
@@ -556,21 +488,21 @@
         "Config/testthat/parallel": "true",
         "Config/testthat/start-first": "zzzz-bs-sass, fonts, zzz-precompile,\ntheme-*, rmd-*",
         "Encoding": "UTF-8",
-        "Collate": "'accordion.R' 'breakpoints.R' 'bs-current-theme.R'\n'bs-dependencies.R' 'bs-global.R' 'bs-remove.R'\n'bs-theme-layers.R' 'bs-theme-preset-bootswatch.R'\n'bs-theme-preset-brand.R' 'bs-theme-preset-builtin.R'\n'bs-theme-preset.R' 'utils.R' 'bs-theme-preview.R'\n'bs-theme-update.R' 'bs-theme.R' 'bslib-package.R' 'buttons.R'\n'card.R' 'deprecated.R' 'files.R' 'fill.R' 'imports.R'\n'input-code-editor.R' 'input-dark-mode.R' 'input-submit.R'\n'input-switch.R' 'layout.R' 'nav-items.R' 'nav-update.R'\n'navbar_options.R' 'navs-legacy.R' 'navs.R' 'offcanvas.R'\n'onLoad.R' 'page.R' 'popover.R' 'precompiled.R' 'print.R'\n'shiny-devmode.R' 'sidebar.R' 'staticimports.R' 'toast.R'\n'toolbar.R' 'tooltip.R' 'utils-deps.R' 'utils-shiny.R'\n'utils-tags.R' 'value-box.R' 'version-default.R' 'versions.R'",
+        "Collate": "'accordion.R' 'breakpoints.R' 'bs-current-theme.R'\n'bs-dependencies.R' 'bs-global.R' 'bs-remove.R'\n'bs-theme-layers.R' 'bs-theme-preset-bootswatch.R'\n'bs-theme-preset-brand.R' 'bs-theme-preset-builtin.R'\n'bs-theme-preset.R' 'utils.R' 'bs-theme-preview.R'\n'bs-theme-update.R' 'bs-theme.R' 'bslib-package.R' 'buttons.R'\n'card.R' 'deprecated.R' 'files.R' 'fill.R' 'imports.R'\n'input-code-editor.R' 'input-dark-mode.R' 'input-submit.R'\n'input-switch.R' 'layout.R' 'nav-items.R' 'nav-update.R'\n'navbar_options.R' 'navs-legacy.R' 'navs.R' 'onLoad.R' 'page.R'\n'popover.R' 'precompiled.R' 'print.R' 'shiny-devmode.R'\n'sidebar.R' 'staticimports.R' 'toast.R' 'toolbar.R' 'tooltip.R'\n'utils-deps.R' 'utils-shiny.R' 'utils-tags.R' 'value-box.R'\n'version-default.R' 'versions.R'",
         "NeedsCompilation": "no",
-        "Packaged": "2026-08-03 22:55:38 UTC; cpsievert",
+        "Packaged": "2026-05-15 15:16:19 UTC; cpsievert",
         "Author": "Carson Sievert [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-4958-2844>),\n  Joe Cheng [aut],\n  Garrick Aden-Buie [aut] (ORCID:\n    <https://orcid.org/0000-0002-7111-0077>),\n  Posit Software, PBC [cph, fnd],\n  Bootstrap contributors [ctb] (Bootstrap library),\n  Twitter, Inc [cph] (Bootstrap library),\n  Javi Aguilar [ctb, cph] (Bootstrap colorpicker library),\n  Thomas Park [ctb, cph] (Bootswatch library),\n  PayPal [ctb, cph] (Bootstrap accessibility plugin)",
         "Maintainer": "Carson Sievert <carson@posit.co>",
         "Repository": "RSPM",
-        "Date/Publication": "2026-08-04 00:40:02 UTC",
-        "Built": "R 4.5.0; ; 2026-08-04 05:10:08 UTC; windows",
+        "Date/Publication": "2026-05-16 08:10:07 UTC",
+        "Built": "R 4.5.0; ; 2026-05-17 05:32:49 UTC; windows",
         "RemoteType": "standard",
         "RemoteRef": "bslib",
         "RemotePkgRef": "bslib",
         "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.12.0"
+        "RemoteSha": "0.11.0"
       }
     },
     "cachem": {
@@ -945,41 +877,6 @@
         "RemoteSha": "7.1.0"
       }
     },
-    "data.table": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "data.table",
-        "Version": "1.18.4",
-        "Title": "Extension of `data.frame`",
-        "Depends": "R (>= 3.4.0)",
-        "Imports": "methods",
-        "Suggests": "bit64 (>= 4.0.0), bit (>= 4.0.4), R.utils (>= 2.13.0), xts,\nzoo (>= 1.8-1), yaml, knitr, markdown",
-        "Description": "Fast aggregation of large data (e.g. 100GB in RAM), fast ordered joins, fast add/modify/delete of columns by group using no copies at all, list columns, friendly and fast character-separated-value read/write. Offers a natural and flexible syntax, for faster development.",
-        "License": "MPL-2.0 | file LICENSE",
-        "URL": "https://r-datatable.com, https://Rdatatable.gitlab.io/data.table,\nhttps://github.com/Rdatatable/data.table",
-        "BugReports": "https://github.com/Rdatatable/data.table/issues",
-        "VignetteBuilder": "knitr",
-        "Encoding": "UTF-8",
-        "ByteCompile": "TRUE",
-        "Authors@R": "c(\n  person(\"Tyson\",\"Barrett\",        role=c(\"aut\",\"cre\"), email=\"t.barrett88@gmail.com\", comment = c(ORCID=\"0000-0002-2137-1391\")),\n  person(\"Matt\",\"Dowle\",           role=\"aut\",          email=\"mattjdowle@gmail.com\"),\n  person(\"Arun\",\"Srinivasan\",      role=\"aut\",          email=\"asrini@pm.me\"),\n  person(\"Jan\",\"Gorecki\",          role=\"aut\",          email=\"j.gorecki@wit.edu.pl\"),\n  person(\"Michael\",\"Chirico\",      role=\"aut\",          email=\"michaelchirico4@gmail.com\", comment = c(ORCID=\"0000-0003-0787-087X\")),\n  person(\"Toby\",\"Hocking\",         role=\"aut\",          email=\"toby.hocking@r-project.org\", comment = c(ORCID=\"0000-0002-3146-0865\")),\n  person(\"Benjamin\",\"Schwendinger\",role=\"aut\", comment = c(ORCID=\"0000-0003-3315-8114\")),\n  person(\"Ivan\", \"Krylov\",         role=\"aut\",          email=\"ikrylov@disroot.org\",   comment = c(ORCID=\"0000-0002-0172-3812\")),\n  person(\"Pasha\",\"Stetsenko\",      role=\"ctb\"),\n  person(\"Tom\",\"Short\",            role=\"ctb\"),\n  person(\"Steve\",\"Lianoglou\",      role=\"ctb\"),\n  person(\"Eduard\",\"Antonyan\",      role=\"ctb\"),\n  person(\"Markus\",\"Bonsch\",        role=\"ctb\"),\n  person(\"Hugh\",\"Parsonage\",       role=\"ctb\"),\n  person(\"Scott\",\"Ritchie\",        role=\"ctb\"),\n  person(\"Kun\",\"Ren\",              role=\"ctb\"),\n  person(\"Xianying\",\"Tan\",         role=\"ctb\"),\n  person(\"Rick\",\"Saporta\",         role=\"ctb\"),\n  person(\"Otto\",\"Seiskari\",        role=\"ctb\"),\n  person(\"Xianghui\",\"Dong\",        role=\"ctb\"),\n  person(\"Michel\",\"Lang\",          role=\"ctb\"),\n  person(\"Watal\",\"Iwasaki\",        role=\"ctb\"),\n  person(\"Seth\",\"Wenchel\",         role=\"ctb\"),\n  person(\"Karl\",\"Broman\",          role=\"ctb\"),\n  person(\"Tobias\",\"Schmidt\",       role=\"ctb\"),\n  person(\"David\",\"Arenburg\",       role=\"ctb\"),\n  person(\"Ethan\",\"Smith\",          role=\"ctb\"),\n  person(\"Francois\",\"Cocquemas\",   role=\"ctb\"),\n  person(\"Matthieu\",\"Gomez\",       role=\"ctb\"),\n  person(\"Philippe\",\"Chataignon\",  role=\"ctb\"),\n  person(\"Nello\",\"Blaser\",         role=\"ctb\"),\n  person(\"Dmitry\",\"Selivanov\",     role=\"ctb\"),\n  person(\"Andrey\",\"Riabushenko\",   role=\"ctb\"),\n  person(\"Cheng\",\"Lee\",            role=\"ctb\"),\n  person(\"Declan\",\"Groves\",        role=\"ctb\"),\n  person(\"Daniel\",\"Possenriede\",   role=\"ctb\"),\n  person(\"Felipe\",\"Parages\",       role=\"ctb\"),\n  person(\"Denes\",\"Toth\",           role=\"ctb\"),\n  person(\"Mus\",\"Yaramaz-David\",    role=\"ctb\"),\n  person(\"Ayappan\",\"Perumal\",      role=\"ctb\"),\n  person(\"James\",\"Sams\",           role=\"ctb\"),\n  person(\"Martin\",\"Morgan\",        role=\"ctb\"),\n  person(\"Michael\",\"Quinn\",        role=\"ctb\"),\n  person(given=\"@javrucebo\",       role=\"ctb\", comment=\"GitHub user\"),\n  person(\"Marc\",\"Halperin\",        role=\"ctb\"),\n  person(\"Roy\",\"Storey\",           role=\"ctb\"),\n  person(\"Manish\",\"Saraswat\",      role=\"ctb\"),\n  person(\"Morgan\",\"Jacob\",         role=\"ctb\"),\n  person(\"Michael\",\"Schubmehl\",    role=\"ctb\"),\n  person(\"Davis\",\"Vaughan\",        role=\"ctb\"),\n  person(\"Leonardo\",\"Silvestri\",   role=\"ctb\"),\n  person(\"Jim\",\"Hester\",           role=\"ctb\"),\n  person(\"Anthony\",\"Damico\",       role=\"ctb\"),\n  person(\"Sebastian\",\"Freundt\",    role=\"ctb\"),\n  person(\"David\",\"Simons\",         role=\"ctb\"),\n  person(\"Elliott\",\"Sales de Andrade\", role=\"ctb\"),\n  person(\"Cole\",\"Miller\",          role=\"ctb\"),\n  person(\"Jens Peder\",\"Meldgaard\", role=\"ctb\"),\n  person(\"Vaclav\",\"Tlapak\",        role=\"ctb\"),\n  person(\"Kevin\",\"Ushey\",          role=\"ctb\"),\n  person(\"Dirk\",\"Eddelbuettel\",    role=\"ctb\"),\n  person(\"Tony\",\"Fischetti\",       role=\"ctb\"),\n  person(\"Ofek\",\"Shilon\",          role=\"ctb\"),\n  person(\"Vadim\",\"Khotilovich\",    role=\"ctb\"),\n  person(\"Hadley\",\"Wickham\",       role=\"ctb\"),\n  person(\"Bennet\",\"Becker\",        role=\"ctb\"),\n  person(\"Kyle\",\"Haynes\",          role=\"ctb\"),\n  person(\"Boniface Christian\",\"Kamgang\", role=\"ctb\"),\n  person(\"Olivier\",\"Delmarcell\",   role=\"ctb\"),\n  person(\"Josh\",\"O'Brien\",         role=\"ctb\"),\n  person(\"Dereck\",\"de Mezquita\",   role=\"ctb\"),\n  person(\"Michael\",\"Czekanski\",    role=\"ctb\"),\n  person(\"Dmitry\", \"Shemetov\",     role=\"ctb\"),\n  person(\"Nitish\", \"Jha\",          role=\"ctb\"),\n  person(\"Joshua\", \"Wu\",           role=\"ctb\"),\n  person(\"Iago\", \"Giné-Vázquez\",   role=\"ctb\"),\n  person(\"Anirban\", \"Chetia\",      role=\"ctb\"),\n  person(\"Doris\", \"Amoakohene\",    role=\"ctb\"),\n  person(\"Angel\", \"Feliz\",         role=\"ctb\"),\n  person(\"Michael\",\"Young\",        role=\"ctb\"),\n  person(\"Mark\", \"Seeto\",          role=\"ctb\"),\n  person(\"Philippe\", \"Grosjean\",   role=\"ctb\"),\n  person(\"Vincent\", \"Runge\",       role=\"ctb\"),\n  person(\"Christian\", \"Wia\",       role=\"ctb\"),\n  person(\"Elise\", \"Maigné\",        role=\"ctb\"),\n  person(\"Vincent\", \"Rocher\",      role=\"ctb\"),\n  person(\"Vijay\", \"Lulla\",         role=\"ctb\"),\n  person(\"Aljaž\", \"Sluga\",         role=\"ctb\"),\n  person(\"Bill\", \"Evans\",          role=\"ctb\"),\n  person(\"Reino\", \"Bruner\",        role=\"ctb\"),\n  person(given=\"@badasahog\",       role=\"ctb\", comment=\"GitHub user\"),\n  person(\"Vinit\", \"Thakur\",        role=\"ctb\"),\n  person(\"Mukul\", \"Kumar\",         role=\"ctb\"),\n  person(\"Ildikó\", \"Czeller\",      role=\"ctb\"),\n  person(\"Manmita\", \"Das\",         role=\"ctb\"),\n  person(\"Tarun\", \"Thammisetty\",   role=\"ctb\")\n  )",
-        "NeedsCompilation": "yes",
-        "Packaged": "2026-05-05 05:46:53 UTC; a00932230",
-        "Author": "Tyson Barrett [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-2137-1391>),\n  Matt Dowle [aut],\n  Arun Srinivasan [aut],\n  Jan Gorecki [aut],\n  Michael Chirico [aut] (ORCID: <https://orcid.org/0000-0003-0787-087X>),\n  Toby Hocking [aut] (ORCID: <https://orcid.org/0000-0002-3146-0865>),\n  Benjamin Schwendinger [aut] (ORCID:\n    <https://orcid.org/0000-0003-3315-8114>),\n  Ivan Krylov [aut] (ORCID: <https://orcid.org/0000-0002-0172-3812>),\n  Pasha Stetsenko [ctb],\n  Tom Short [ctb],\n  Steve Lianoglou [ctb],\n  Eduard Antonyan [ctb],\n  Markus Bonsch [ctb],\n  Hugh Parsonage [ctb],\n  Scott Ritchie [ctb],\n  Kun Ren [ctb],\n  Xianying Tan [ctb],\n  Rick Saporta [ctb],\n  Otto Seiskari [ctb],\n  Xianghui Dong [ctb],\n  Michel Lang [ctb],\n  Watal Iwasaki [ctb],\n  Seth Wenchel [ctb],\n  Karl Broman [ctb],\n  Tobias Schmidt [ctb],\n  David Arenburg [ctb],\n  Ethan Smith [ctb],\n  Francois Cocquemas [ctb],\n  Matthieu Gomez [ctb],\n  Philippe Chataignon [ctb],\n  Nello Blaser [ctb],\n  Dmitry Selivanov [ctb],\n  Andrey Riabushenko [ctb],\n  Cheng Lee [ctb],\n  Declan Groves [ctb],\n  Daniel Possenriede [ctb],\n  Felipe Parages [ctb],\n  Denes Toth [ctb],\n  Mus Yaramaz-David [ctb],\n  Ayappan Perumal [ctb],\n  James Sams [ctb],\n  Martin Morgan [ctb],\n  Michael Quinn [ctb],\n  @javrucebo [ctb] (GitHub user),\n  Marc Halperin [ctb],\n  Roy Storey [ctb],\n  Manish Saraswat [ctb],\n  Morgan Jacob [ctb],\n  Michael Schubmehl [ctb],\n  Davis Vaughan [ctb],\n  Leonardo Silvestri [ctb],\n  Jim Hester [ctb],\n  Anthony Damico [ctb],\n  Sebastian Freundt [ctb],\n  David Simons [ctb],\n  Elliott Sales de Andrade [ctb],\n  Cole Miller [ctb],\n  Jens Peder Meldgaard [ctb],\n  Vaclav Tlapak [ctb],\n  Kevin Ushey [ctb],\n  Dirk Eddelbuettel [ctb],\n  Tony Fischetti [ctb],\n  Ofek Shilon [ctb],\n  Vadim Khotilovich [ctb],\n  Hadley Wickham [ctb],\n  Bennet Becker [ctb],\n  Kyle Haynes [ctb],\n  Boniface Christian Kamgang [ctb],\n  Olivier Delmarcell [ctb],\n  Josh O'Brien [ctb],\n  Dereck de Mezquita [ctb],\n  Michael Czekanski [ctb],\n  Dmitry Shemetov [ctb],\n  Nitish Jha [ctb],\n  Joshua Wu [ctb],\n  Iago Giné-Vázquez [ctb],\n  Anirban Chetia [ctb],\n  Doris Amoakohene [ctb],\n  Angel Feliz [ctb],\n  Michael Young [ctb],\n  Mark Seeto [ctb],\n  Philippe Grosjean [ctb],\n  Vincent Runge [ctb],\n  Christian Wia [ctb],\n  Elise Maigné [ctb],\n  Vincent Rocher [ctb],\n  Vijay Lulla [ctb],\n  Aljaž Sluga [ctb],\n  Bill Evans [ctb],\n  Reino Bruner [ctb],\n  @badasahog [ctb] (GitHub user),\n  Vinit Thakur [ctb],\n  Mukul Kumar [ctb],\n  Ildikó Czeller [ctb],\n  Manmita Das [ctb],\n  Tarun Thammisetty [ctb]",
-        "Maintainer": "Tyson Barrett <t.barrett88@gmail.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-05-06 05:10:20 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-05-07 06:50:24 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "data.table",
-        "RemotePkgRef": "data.table",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.18.4"
-      }
-    },
     "desc": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -1205,9 +1102,9 @@
       "description": {
         "Package": "duckdb",
         "Title": "DBI Package for the DuckDB Database Management System",
-        "Version": "1.5.5",
+        "Version": "1.5.5.9001",
         "Authors@R": "c(\n    person(\"Hannes\", \"Mühleisen\", , \"hannes@cwi.nl\", role = \"aut\",\n           comment = c(ORCID = \"0000-0001-8552-0029\")),\n    person(\"Mark\", \"Raasveldt\", , \"mark.raasveldt@cwi.nl\", role = \"aut\",\n           comment = c(ORCID = \"0000-0001-5005-6844\")),\n    person(\"Kirill\", \"Müller\", , \"kirill@cynkra.com\", role = \"cre\",\n           comment = c(ORCID = \"0000-0002-1416-3412\")),\n    person(\"Stichting DuckDB Foundation\", role = \"cph\"),\n    person(\"Apache Software Foundation\", role = \"cph\"),\n    person(\"PostgreSQL Global Development Group\", role = \"cph\"),\n    person(\"The Regents of the University of California\", role = \"cph\"),\n    person(\"Cameron Desrochers\", role = \"cph\"),\n    person(\"Victor Zverovich\", role = \"cph\"),\n    person(\"RAD Game Tools\", role = \"cph\"),\n    person(\"Valve Software\", role = \"cph\"),\n    person(\"Rich Geldreich\", role = \"cph\"),\n    person(\"Tenacious Software LLC\", role = \"cph\"),\n    person(\"The RE2 Authors\", role = \"cph\"),\n    person(\"Google Inc.\", role = \"cph\"),\n    person(\"Facebook Inc.\", role = \"cph\"),\n    person(\"Steven G. Johnson\", role = \"cph\"),\n    person(\"Jiahao Chen\", role = \"cph\"),\n    person(\"Tony Kelman\", role = \"cph\"),\n    person(\"Jonas Fonseca\", role = \"cph\"),\n    person(\"Lukas Fittl\", role = \"cph\"),\n    person(\"Salvatore Sanfilippo\", role = \"cph\"),\n    person(\"Art.sy, Inc.\", role = \"cph\"),\n    person(\"Oran Agra\", role = \"cph\"),\n    person(\"Redis Labs, Inc.\", role = \"cph\"),\n    person(\"Melissa O'Neill\", role = \"cph\"),\n    person(\"PCG Project contributors\", role = \"cph\")\n  )",
-        "Description": "The DuckDB project is an embedded analytical data management\n    system with support for the Structured Query Language (SQL). This\n    package includes all of DuckDB and an R Database Interface (DBI)\n    connector.",
+        "Description": "The DuckDB project is an embedded analytical data\n        management system with support for the Structured Query\n        Language (SQL). This package includes all of DuckDB and an R\n        Database Interface (DBI) connector.",
         "License": "MIT + file LICENSE",
         "URL": "https://r.duckdb.org/, https://github.com/duckdb/duckdb-r",
         "BugReports": "https://github.com/duckdb/duckdb-r/issues",
@@ -1220,22 +1117,22 @@
         "Config/comment/compilation-database": "Generate manually with\npkgload:::generate_db() for faster pkgload::load_all()",
         "Config/testthat/edition": "3",
         "Encoding": "UTF-8",
+        "Roxygen": "list(markdown = TRUE)",
         "SystemRequirements": "xz (for building from source)",
         "Config/roxygen2/version": "8.0.0.9000",
+        "Config/pak/sysreqs": "xz-utils",
+        "Repository": "https://duckdb.r-universe.dev",
+        "Date/Publication": "2026-07-28 21:12:09 UTC",
         "NeedsCompilation": "yes",
-        "Packaged": "2026-07-24 10:43:59 UTC; kirill",
+        "Packaged": "2026-07-28 21:50:38 UTC; root",
         "Author": "Hannes Mühleisen [aut] (ORCID: <https://orcid.org/0000-0001-8552-0029>),\n  Mark Raasveldt [aut] (ORCID: <https://orcid.org/0000-0001-5005-6844>),\n  Kirill Müller [cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>),\n  Stichting DuckDB Foundation [cph],\n  Apache Software Foundation [cph],\n  PostgreSQL Global Development Group [cph],\n  The Regents of the University of California [cph],\n  Cameron Desrochers [cph],\n  Victor Zverovich [cph],\n  RAD Game Tools [cph],\n  Valve Software [cph],\n  Rich Geldreich [cph],\n  Tenacious Software LLC [cph],\n  The RE2 Authors [cph],\n  Google Inc. [cph],\n  Facebook Inc. [cph],\n  Steven G. Johnson [cph],\n  Jiahao Chen [cph],\n  Tony Kelman [cph],\n  Jonas Fonseca [cph],\n  Lukas Fittl [cph],\n  Salvatore Sanfilippo [cph],\n  Art.sy, Inc. [cph],\n  Oran Agra [cph],\n  Redis Labs, Inc. [cph],\n  Melissa O'Neill [cph],\n  PCG Project contributors [cph]",
         "Maintainer": "Kirill Müller <kirill@cynkra.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-07-25 04:40:07 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-07-30 04:55:19 UTC; windows",
+        "Built": "R 4.5.3; x86_64-w64-mingw32; 2026-07-28 22:20:47 UTC; windows",
         "Archs": "x64",
-        "RemoteType": "standard",
-        "RemotePkgRef": "duckdb",
-        "RemoteRef": "duckdb",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemotePkgPlatform": "i386+x86_64-w64-mingw32",
-        "RemoteSha": "1.5.5"
+        "RemoteType": "repository",
+        "RemoteUrl": "https://github.com/duckdb/duckdb-r",
+        "RemoteRef": "HEAD",
+        "RemoteSha": "1c708ee0e5b4e575342ea8c07ae6a4577feecc1b"
       }
     },
     "ellipsis": {
@@ -1701,76 +1598,6 @@
         "RemoteSha": "0.12"
       }
     },
-    "hms": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "hms",
-        "Title": "Pretty Time of Day",
-        "Date": "2025-10-11",
-        "Version": "1.1.4",
-        "Authors@R": "c(\n    person(\"Kirill\", \"Müller\", , \"kirill@cynkra.com\", role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"0000-0002-1416-3412\")),\n    person(\"R Consortium\", role = \"fnd\"),\n    person(\"Posit Software, PBC\", role = \"fnd\",\n           comment = c(ROR = \"03wc8by49\"))\n  )",
-        "Description": "Implements an S3 class for storing and formatting time-of-day\n    values, based on the 'difftime' class.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://hms.tidyverse.org/, https://github.com/tidyverse/hms",
-        "BugReports": "https://github.com/tidyverse/hms/issues",
-        "Imports": "cli, lifecycle, methods, pkgconfig, rlang (>= 1.0.2), vctrs\n(>= 0.3.8)",
-        "Suggests": "crayon, lubridate, pillar (>= 1.1.0), testthat (>= 3.0.0)",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "RoxygenNote": "7.3.3.9000",
-        "NeedsCompilation": "no",
-        "Packaged": "2025-10-16 19:10:16 UTC; kirill",
-        "Author": "Kirill Müller [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-1416-3412>),\n  R Consortium [fnd],\n  Posit Software, PBC [fnd] (ROR: <https://ror.org/03wc8by49>)",
-        "Maintainer": "Kirill Müller <kirill@cynkra.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-10-17 05:10:11 UTC",
-        "Built": "R 4.5.0; ; 2025-12-02 12:40:59 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "hms",
-        "RemotePkgRef": "hms",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.1.4"
-      }
-    },
-    "hoopR": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "hoopR",
-        "Title": "Access Men's Basketball Play by Play Data",
-        "Version": "3.0.0",
-        "Authors@R": "\n    c(person(given = \"Saiem\",\n             family = \"Gilani\",\n             role = c(\"aut\", \"cre\"),\n             email = \"saiem.gilani@gmail.com\",\n             comment = c(ORCID = \"0000-0002-7194-9067\")),\n      person(given = \"Jason\",\n             family = \"Lee\",\n             role = c(\"ctb\"),\n             email = \"Jason@aisportsfirm.com\"),\n      person(given = \"Billy\",\n             family = \"Fryer\",\n             role = c(\"ctb\"),\n             email = \"billyfryer@att.net\"),\n      person(given = \"Ross\",\n             family = \"Drucker\",\n             role = c(\"ctb\"),\n             email = \"ross.a.drucker@gmail.com\"),\n      person(given = \"Vladislav\",\n             family = \"Shufinskiy\",\n             role = c(\"ctb\"),\n             email = \"hollywood.90210@mail.ru\"))",
-        "Description": "A utility to quickly obtain clean and tidy men's\n    basketball play by play data. Provides functions to access\n    live play by play and box score data from ESPN<https://www.espn.com> with shot locations\n    when available. It is also a full NBA Stats API<https://www.nba.com/stats/> wrapper.\n    It is also a scraping and aggregating interface for Ken Pomeroy's\n    men's college basketball statistics website<https://kenpom.com>. It provides users with an\n    active subscription the capability to scrape the website tables and\n    analyze the data for themselves.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://github.com/sportsdataverse/hoopR,\nhttp://hoopr.sportsdataverse.org/",
-        "BugReports": "https://github.com/sportsdataverse/hoopR/issues",
-        "SystemRequirements": "pandoc (>= 1.12.3), pandoc-citeproc",
-        "Depends": "R (>= 4.1.0)",
-        "Imports": "cli (>= 1.1.0), data.table (>= 1.14.0), dplyr, glue, httr2 (>=\n1.0.0), janitor, jsonlite, lifecycle, lubridate, magrittr,\nprogressr (>= 0.6.0), purrr (>= 0.3.0), Rcpp (>= 1.0.7),\nRcppParallel (>= 5.1.4), rlang (>= 0.4.0), rvest (>= 1.0.0),\nstringr (>= 1.3.0), tidyr (>= 1.0.0)",
-        "Suggests": "crayon (>= 1.3.4), curl, DBI, furrr (>= 0.3.0), future (>=\n1.24.0), ggplot2, ggrepel, rmarkdown, RSQLite, stats, stringi,\ntestthat, tibble (>= 3.0), usethis (>= 1.6.0), xml2 (>= 1.3),\nyaml",
-        "Encoding": "UTF-8",
-        "LazyData": "true",
-        "RoxygenNote": "7.3.2",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-03-24 05:03:07 UTC; saiem",
-        "Author": "Saiem Gilani [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-7194-9067>),\n  Jason Lee [ctb],\n  Billy Fryer [ctb],\n  Ross Drucker [ctb],\n  Vladislav Shufinskiy [ctb]",
-        "Maintainer": "Saiem Gilani <saiem.gilani@gmail.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-03-24 08:50:12 UTC",
-        "Built": "R 4.5.0; ; 2026-03-25 05:05:04 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "hoopR",
-        "RemotePkgRef": "hoopR",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "3.0.0"
-      }
-    },
     "htmltools": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -1882,41 +1709,6 @@
         "RemoteSha": "1.6.17"
       }
     },
-    "httr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "httr",
-        "Title": "Tools for Working with URLs and HTTP",
-        "Version": "1.4.8",
-        "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Useful tools for working with HTTP organised by HTTP verbs\n    (GET(), POST(), etc). Configuration functions make it easy to control\n    additional request components (authenticate(), add_headers() and so\n    on).",
-        "License": "MIT + file LICENSE",
-        "URL": "https://httr.r-lib.org/, https://github.com/r-lib/httr",
-        "BugReports": "https://github.com/r-lib/httr/issues",
-        "Depends": "R (>= 3.6)",
-        "Imports": "curl (>= 5.1.0), jsonlite, mime, openssl (>= 0.8), R6",
-        "Suggests": "covr, httpuv, jpeg, knitr, png, readr, rmarkdown, testthat\n(>= 0.8.0), xml2",
-        "VignetteBuilder": "knitr",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Encoding": "UTF-8",
-        "RoxygenNote": "7.3.3",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-02-13 13:25:45 UTC; hadleywickham",
-        "Author": "Hadley Wickham [aut, cre],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Hadley Wickham <hadley@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-02-13 16:20:15 UTC",
-        "Built": "R 4.5.0; ; 2026-02-15 04:40:06 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "httr",
-        "RemotePkgRef": "httr",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.4.8"
-      }
-    },
     "httr2": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -1986,77 +1778,6 @@
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "x86_64-w64-mingw32",
         "RemoteSha": "0.3.1"
-      }
-    },
-    "janitor": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "janitor",
-        "Title": "Simple Tools for Examining and Cleaning Dirty Data",
-        "Version": "2.2.1",
-        "Authors@R": "c(person(\"Sam\", \"Firke\", email = \"samuel.firke@gmail.com\", role = c(\"aut\", \"cre\")),\n    person(\"Bill\", \"Denney\", email = \"wdenney@humanpredictions.com\", role = \"ctb\"),\n    person(\"Chris\", \"Haid\", email = \"chrishaid@gmail.com\", role = \"ctb\"),\n    person(\"Ryan\", \"Knight\", email = \"ryangknight@gmail.com\", role = \"ctb\"),\n    person(\"Malte\", \"Grosser\", email = \"malte.grosser@gmail.com\", role = \"ctb\"),\n    person(\"Jonathan\", \"Zadra\", email = \"jonathan.zadra@sorensonimpact.com\", role = \"ctb\"))",
-        "Description": "The main janitor functions can: perfectly format data.frame column\n    names; provide quick counts of variable combinations (i.e., frequency\n    tables and crosstabs); and explore duplicate records. Other janitor functions\n    nicely format the tabulation results. These tabulate-and-report functions\n    approximate popular features of SPSS and Microsoft Excel. This package\n    follows the principles of the \"tidyverse\" and works well with the pipe function\n    %>%. janitor was built with beginning-to-intermediate R users in mind and is\n    optimized for user-friendliness.",
-        "URL": "https://github.com/sfirke/janitor,\nhttps://sfirke.github.io/janitor/",
-        "BugReports": "https://github.com/sfirke/janitor/issues",
-        "Depends": "R (>= 3.1.2)",
-        "Imports": "dplyr (>= 1.0.0), hms, lifecycle, lubridate, magrittr, purrr,\nrlang, stringi, stringr, snakecase (>= 0.9.2), tidyselect (>=\n1.0.0), tidyr (>= 0.7.0)",
-        "License": "MIT + file LICENSE",
-        "RoxygenNote": "7.2.3",
-        "Suggests": "dbplyr, knitr, rmarkdown, RSQLite, sf, testthat (>= 3.0.0),\ntibble, tidygraph",
-        "VignetteBuilder": "knitr",
-        "Encoding": "UTF-8",
-        "Config/testthat/edition": "3",
-        "NeedsCompilation": "no",
-        "Packaged": "2024-12-22 15:53:13 UTC; sam",
-        "Author": "Sam Firke [aut, cre],\n  Bill Denney [ctb],\n  Chris Haid [ctb],\n  Ryan Knight [ctb],\n  Malte Grosser [ctb],\n  Jonathan Zadra [ctb]",
-        "Maintainer": "Sam Firke <samuel.firke@gmail.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2024-12-22 16:30:01 UTC",
-        "Built": "R 4.5.0; ; 2025-04-08 03:49:08 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "janitor",
-        "RemotePkgRef": "janitor",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "2.2.1"
-      }
-    },
-    "jose": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "jose",
-        "Type": "Package",
-        "Title": "JavaScript Object Signing and Encryption",
-        "Version": "2.0.0",
-        "Authors@R": "person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), \n    email = \"jeroenooms@gmail.com\", comment = c(ORCID = \"0000-0002-4035-0289\"))",
-        "Description": "Read and write JSON Web Keys (JWK, rfc7517), generate and verify JSON\n    Web Signatures (JWS, rfc7515) and encode/decode JSON Web Tokens (JWT, rfc7519)\n    <https://datatracker.ietf.org/wg/jose/documents/>. These standards provide \n    modern signing and encryption formats that are natively supported by browsers\n    via the JavaScript WebCryptoAPI <https://www.w3.org/TR/webcrypto/#jose>, \n    and used by services like OAuth 2.0, LetsEncrypt, and Github Apps.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://r-lib.r-universe.dev/jose",
-        "BugReports": "https://github.com/r-lib/jose/issues",
-        "Depends": "openssl (>= 1.2.1)",
-        "Imports": "jsonlite",
-        "RoxygenNote": "7.3.3.9000",
-        "VignetteBuilder": "knitr",
-        "Suggests": "spelling, testthat, knitr, rmarkdown",
-        "Encoding": "UTF-8",
-        "Language": "en-US",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-04-21 21:15:42 UTC; jeroen",
-        "Author": "Jeroen Ooms [aut, cre] (ORCID: <https://orcid.org/0000-0002-4035-0289>)",
-        "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-04-22 06:40:03 UTC",
-        "Built": "R 4.5.0; ; 2026-04-23 18:11:45 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "jose",
-        "RemotePkgRef": "jose",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "2.0.0"
       }
     },
     "jquerylib": {
@@ -2228,48 +1949,6 @@
         "RemoteRef": "lifecycle",
         "RemoteRepos": "https://cloud.r-project.org",
         "RemoteSha": "1.0.5"
-      }
-    },
-    "lubridate": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Type": "Package",
-        "Package": "lubridate",
-        "Title": "Make Dealing with Dates a Little Easier",
-        "Version": "1.9.5",
-        "Authors@R": "c(\n    person(\"Vitalie\", \"Spinu\", , \"spinuvit@gmail.com\", role = c(\"aut\", \"cre\")),\n    person(\"Garrett\", \"Grolemund\", role = \"aut\"),\n    person(\"Hadley\", \"Wickham\", role = \"aut\"),\n    person(\"Davis\", \"Vaughan\", role = \"ctb\"),\n    person(\"Ian\", \"Lyttle\", role = \"ctb\"),\n    person(\"Imanuel\", \"Costigan\", role = \"ctb\"),\n    person(\"Jason\", \"Law\", role = \"ctb\"),\n    person(\"Doug\", \"Mitarotonda\", role = \"ctb\"),\n    person(\"Joseph\", \"Larmarange\", role = \"ctb\"),\n    person(\"Jonathan\", \"Boiser\", role = \"ctb\"),\n    person(\"Chel Hee\", \"Lee\", role = \"ctb\")\n  )",
-        "Maintainer": "Vitalie Spinu <spinuvit@gmail.com>",
-        "Description": "Functions to work with date-times and time-spans: fast and\n    user friendly parsing of date-time data, extraction and updating of\n    components of a date-time (years, months, days, hours, minutes, and\n    seconds), algebraic manipulation on date-time and time-span objects.\n    The 'lubridate' package has a consistent and memorable syntax that\n    makes working with dates easy and fun.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://lubridate.tidyverse.org,\nhttps://github.com/tidyverse/lubridate",
-        "BugReports": "https://github.com/tidyverse/lubridate/issues",
-        "Depends": "methods, R (>= 3.2)",
-        "Imports": "generics, timechange (>= 0.4.0)",
-        "Suggests": "covr, knitr, rmarkdown, testthat (>= 2.1.0), vctrs (>= 0.6.5)",
-        "Enhances": "chron, data.table, timeDate, tis, zoo",
-        "VignetteBuilder": "knitr",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "LazyData": "true",
-        "RoxygenNote": "7.3.3",
-        "SystemRequirements": "A system with zoneinfo data (e.g.\n/usr/share/zoneinfo). On Windows the zoneinfo included with R\nis used.",
-        "Collate": "'Dates.r' 'POSIXt.r' 'util.r' 'parse.r' 'timespans.r'\n'intervals.r' 'difftimes.r' 'durations.r' 'periods.r'\n'accessors-date.R' 'accessors-day.r' 'accessors-dst.r'\n'accessors-hour.r' 'accessors-minute.r' 'accessors-month.r'\n'accessors-quarter.r' 'accessors-second.r' 'accessors-tz.r'\n'accessors-week.r' 'accessors-year.r' 'am-pm.r' 'time-zones.r'\n'numeric.r' 'coercion.r' 'constants.r' 'cyclic_encoding.r'\n'data.r' 'decimal-dates.r' 'deprecated.r' 'format_ISO8601.r'\n'guess.r' 'hidden.r' 'instants.r' 'leap-years.r'\n'ops-addition.r' 'ops-compare.r' 'ops-division.r'\n'ops-integer-division.r' 'ops-m+.r' 'ops-modulo.r'\n'ops-multiplication.r' 'ops-subtraction.r' 'package.r'\n'pretty.r' 'round.r' 'stamp.r' 'tzdir.R' 'update.r' 'vctrs.R'\n'zzz.R'",
-        "NeedsCompilation": "yes",
-        "Packaged": "2026-02-03 09:30:08 UTC; vitalie",
-        "Author": "Vitalie Spinu [aut, cre],\n  Garrett Grolemund [aut],\n  Hadley Wickham [aut],\n  Davis Vaughan [ctb],\n  Ian Lyttle [ctb],\n  Imanuel Costigan [ctb],\n  Jason Law [ctb],\n  Doug Mitarotonda [ctb],\n  Joseph Larmarange [ctb],\n  Jonathan Boiser [ctb],\n  Chel Hee Lee [ctb]",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-02-04 09:00:02 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-02-05 04:31:16 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "lubridate",
-        "RemotePkgRef": "lubridate",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.9.5"
       }
     },
     "magrittr": {
@@ -2469,41 +2148,6 @@
         "RemoteRef": "otel",
         "RemoteRepos": "https://cran.rstudio.com",
         "RemoteSha": "0.2.0"
-      }
-    },
-    "packrat": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Type": "Package",
-        "Package": "packrat",
-        "Title": "A Dependency Management System for Projects and their R Package\nDependencies",
-        "Version": "0.9.3",
-        "Authors@R": "c(\n    person(\"Aron\", \"Atkins\", , \"aron@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Toph\", \"Allen\", role = \"aut\"),\n    person(\"Kevin\", \"Ushey\", role = \"aut\"),\n    person(\"Jonathan\", \"McPherson\", role = \"aut\"),\n    person(\"Joe\", \"Cheng\", role = \"aut\"),\n    person(\"JJ\", \"Allaire\", role = \"aut\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Manage the R packages your project depends on in an isolated,\n    portable, and reproducible way.",
-        "License": "GPL-2",
-        "URL": "https://github.com/rstudio/packrat",
-        "BugReports": "https://github.com/rstudio/packrat/issues",
-        "Depends": "R (>= 3.0.0)",
-        "Imports": "tools, utils",
-        "Suggests": "devtools, httr, knitr, mockery, rmarkdown, testthat (>=\n3.0.0), webfakes, withr",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "RoxygenNote": "7.3.2",
-        "NeedsCompilation": "no",
-        "Packaged": "2025-06-16 19:37:19 UTC; aron",
-        "Author": "Aron Atkins [aut, cre],\n  Toph Allen [aut],\n  Kevin Ushey [aut],\n  Jonathan McPherson [aut],\n  Joe Cheng [aut],\n  JJ Allaire [aut],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Aron Atkins <aron@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-06-16 20:00:02 UTC",
-        "Built": "R 4.5.0; ; 2025-06-17 04:37:40 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "packrat",
-        "RemotePkgRef": "packrat",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.9.3"
       }
     },
     "pak": {
@@ -2870,76 +2514,6 @@
         "RemoteSha": "0.4.0"
       }
     },
-    "progress": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "progress",
-        "Title": "Terminal Progress Bars",
-        "Version": "1.2.3",
-        "Authors@R": "c(\n    person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = c(\"aut\", \"cre\")),\n    person(\"Rich\", \"FitzJohn\", role = \"aut\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Configurable Progress bars, they may include percentage,\n    elapsed time, and/or the estimated completion time. They work in\n    terminals, in 'Emacs' 'ESS', 'RStudio', 'Windows' 'Rgui' and the\n    'macOS' 'R.app'. The package also provides a 'C++' 'API', that works\n    with or without 'Rcpp'.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://github.com/r-lib/progress#readme,\nhttp://r-lib.github.io/progress/",
-        "BugReports": "https://github.com/r-lib/progress/issues",
-        "Depends": "R (>= 3.6)",
-        "Imports": "crayon, hms, prettyunits, R6",
-        "Suggests": "Rcpp, testthat (>= 3.0.0), withr",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "RoxygenNote": "7.2.3",
-        "NeedsCompilation": "no",
-        "Packaged": "2023-12-05 09:33:10 UTC; gaborcsardi",
-        "Author": "Gábor Csárdi [aut, cre],\n  Rich FitzJohn [aut],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2023-12-06 10:30:02 UTC",
-        "Built": "R 4.5.0; ; 2025-04-06 06:12:20 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "progress",
-        "RemotePkgRef": "progress",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.2.3"
-      }
-    },
-    "progressr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "progressr",
-        "Version": "1.0.0",
-        "Title": "An Inclusive, Unifying API for Progress Updates",
-        "Description": "A minimal, unifying API for scripts and packages to report progress updates from anywhere including when using parallel processing.  The package is designed such that the developer can to focus on what progress should be reported on without having to worry about how to present it.  The end user has full control of how, where, and when to render these progress updates, e.g. in the terminal using utils::txtProgressBar(), cli::cli_progress_bar(), in a graphical user interface using utils::winProgressBar(), tcltk::tkProgressBar() or shiny::withProgress(), via the speakers using beepr::beep(), or on a file system via the size of a file. Anyone can add additional, customized, progression handlers. The 'progressr' package uses R's condition framework for signaling progress updated. Because of this, progress can be reported from almost anywhere in R, e.g. from classical for and while loops, from map-reduce API:s like the lapply() family of functions, 'purrr', 'plyr', and 'foreach'. It will also work with parallel processing via the 'future' framework, e.g. 'lapply(...) |> futurize()' and 'purrr::map(...) |> futurize()', which uses future.apply::future_lapply() and furrr::future_map() internally. The package is compatible with Shiny applications.",
-        "Authors@R": "c(person(\"Henrik\", \"Bengtsson\",\n                    role = c(\"aut\", \"cre\", \"cph\"),\n                    email = \"henrikb@braju.com\",\n                    comment = c(ORCID = \"0000-0002-7579-5165\")))",
-        "License": "Apache License (>= 2)",
-        "Depends": "R (>= 3.5.0)",
-        "Imports": "digest, utils",
-        "Suggests": "graphics, tcltk, beepr, cli, crayon, pbmcapply, progress,\npurrr, foreach, plyr, doFuture, future, future.apply, furrr,\nntfy, RPushbullet, rstudioapi, shiny, commonmark, base64enc,\ntools",
-        "VignetteBuilder": "progressr",
-        "Language": "en-US",
-        "Encoding": "UTF-8",
-        "URL": "https://progressr.futureverse.org,\nhttps://github.com/futureverse/progressr",
-        "BugReports": "https://github.com/futureverse/progressr/issues",
-        "Config/roxygen2/version": "8.0.0",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-07-03 23:06:48 UTC; hb",
-        "Author": "Henrik Bengtsson [aut, cre, cph] (ORCID:\n    <https://orcid.org/0000-0002-7579-5165>)",
-        "Maintainer": "Henrik Bengtsson <henrikb@braju.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-07-04 01:00:02 UTC",
-        "Built": "R 4.5.0; ; 2026-07-04 05:13:01 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "progressr",
-        "RemotePkgRef": "progressr",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.0.0"
-      }
-    },
     "promises": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -3269,47 +2843,6 @@
         "RemoteSha": "0.4.5"
       }
     },
-    "readr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "readr",
-        "Title": "Read Rectangular Text Data",
-        "Version": "2.2.0",
-        "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\"),\n    person(\"Jim\", \"Hester\", role = \"aut\"),\n    person(\"Romain\", \"Francois\", role = \"ctb\"),\n    person(\"Jennifer\", \"Bryan\", , \"jenny@posit.co\", role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"0000-0002-6983-2759\")),\n    person(\"Shelby\", \"Bearrows\", role = \"ctb\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"),\n           comment = c(ROR = \"03wc8by49\")),\n    person(\"https://github.com/mandreyel/\", role = \"cph\",\n           comment = \"mio library\"),\n    person(\"Jukka\", \"Jylänki\", role = c(\"ctb\", \"cph\"),\n           comment = \"grisu3 implementation\"),\n    person(\"Mikkel\", \"Jørgensen\", role = c(\"ctb\", \"cph\"),\n           comment = \"grisu3 implementation\")\n  )",
-        "Description": "The goal of 'readr' is to provide a fast and friendly way to\n    read rectangular data (like 'csv', 'tsv', and 'fwf').  It is designed\n    to flexibly parse many types of data found in the wild, while still\n    cleanly failing when data unexpectedly changes.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://readr.tidyverse.org, https://github.com/tidyverse/readr",
-        "BugReports": "https://github.com/tidyverse/readr/issues",
-        "Depends": "R (>= 4.1)",
-        "Imports": "cli, clipr, crayon, glue, hms (>= 0.4.1), lifecycle, methods,\nR6, rlang, tibble, utils, vroom (>= 1.7.0), withr",
-        "Suggests": "covr, curl, datasets, knitr, rmarkdown, spelling, stringi,\ntestthat (>= 3.2.0), tzdb (>= 0.1.1), waldo, xml2",
-        "LinkingTo": "cpp11, tzdb (>= 0.1.1)",
-        "VignetteBuilder": "knitr",
-        "Config/Needs/website": "tidyverse, tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Config/testthat/parallel": "false",
-        "Config/usethis/last-upkeep": "2025-11-14",
-        "Encoding": "UTF-8",
-        "Language": "en-US",
-        "RoxygenNote": "7.3.3",
-        "NeedsCompilation": "yes",
-        "Packaged": "2026-02-19 07:07:31 UTC; jenny",
-        "Author": "Hadley Wickham [aut],\n  Jim Hester [aut],\n  Romain Francois [ctb],\n  Jennifer Bryan [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-6983-2759>),\n  Shelby Bearrows [ctb],\n  Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>),\n  https://github.com/mandreyel/ [cph] (mio library),\n  Jukka Jylänki [ctb, cph] (grisu3 implementation),\n  Mikkel Jørgensen [ctb, cph] (grisu3 implementation)",
-        "Maintainer": "Jennifer Bryan <jenny@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-02-19 18:10:02 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-05-07 06:59:51 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "readr",
-        "RemotePkgRef": "readr",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "2.2.0"
-      }
-    },
     "renv": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -3498,45 +3031,6 @@
         "RemoteSha": "2.1.1"
       }
     },
-    "rsconnect": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Type": "Package",
-        "Package": "rsconnect",
-        "Title": "Deploy Docs, Apps, and APIs to 'Posit Connect', 'shinyapps.io',\nand 'RPubs'",
-        "Version": "1.10.1",
-        "Authors@R": "c(\n    person(\"Aron\", \"Atkins\", , \"aron@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Toph\", \"Allen\", role = \"aut\"),\n    person(\"Hadley\", \"Wickham\", role = \"aut\"),\n    person(\"Jonathan\", \"McPherson\", role = \"aut\"),\n    person(\"JJ\", \"Allaire\", role = \"aut\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Programmatic deployment interface for 'RPubs',\n    'shinyapps.io', and 'Posit Connect'. Supported content types include R\n    Markdown documents, Shiny applications, Plumber APIs, plots, and\n    static web content.",
-        "License": "GPL-2",
-        "URL": "https://rstudio.github.io/rsconnect/,\nhttps://github.com/rstudio/rsconnect",
-        "BugReports": "https://github.com/rstudio/rsconnect/issues",
-        "Depends": "R (>= 3.5.0)",
-        "Imports": "cli, curl (>= 7.0.0), digest, httr2, jsonlite, lifecycle,\nopenssl (>= 2.4.2), packrat (>= 0.6), renv (>= 1.0.0), rlang\n(>= 1.0.0), rstudioapi (>= 0.18.0), snowflakeauth, tools, yaml\n(>= 2.1.5), utils",
-        "Suggests": "Biobase, BiocManager, foreign, knitr, MASS, plumber (>=\n0.3.2), quarto, reticulate, rmarkdown (>= 1.1), shiny, testthat\n(>= 3.1.9), webfakes, withr",
-        "VignetteBuilder": "knitr, rmarkdown",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Config/testthat/parallel": "true",
-        "Config/Python/Note": "Python <= 3.10 requires tomllib package for\npyproject.toml parsing",
-        "Encoding": "UTF-8",
-        "Config/roxygen2/version": "8.0.0",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-07-06 20:44:15 UTC; aron",
-        "Author": "Aron Atkins [aut, cre],\n  Toph Allen [aut],\n  Hadley Wickham [aut],\n  Jonathan McPherson [aut],\n  JJ Allaire [aut],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Aron Atkins <aron@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-07-08 06:40:02 UTC",
-        "Built": "R 4.5.0; ; 2026-07-09 17:37:42 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "rsconnect",
-        "RemotePkgRef": "rsconnect",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.10.1"
-      }
-    },
     "rstudioapi": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -3602,44 +3096,6 @@
         "RemoteSha": "3.0.0"
       }
     },
-    "rvest": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "rvest",
-        "Title": "Easily Harvest (Scrape) Web Pages",
-        "Version": "1.0.5",
-        "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"),\n           comment = c(ROR = \"03wc8by49\"))\n  )",
-        "Description": "Wrappers around the 'xml2' and 'httr' packages to make it\n    easy to download, then manipulate, HTML and XML.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://rvest.tidyverse.org/, https://github.com/tidyverse/rvest",
-        "BugReports": "https://github.com/tidyverse/rvest/issues",
-        "Depends": "R (>= 4.1)",
-        "Imports": "cli, glue, httr (>= 0.5), lifecycle (>= 1.0.3), magrittr,\nrlang (>= 1.1.0), selectr, tibble, xml2 (>= 1.4.0)",
-        "Suggests": "chromote, covr, knitr, purrr, R6, readr, repurrrsive,\nrmarkdown, spelling, stringi (>= 0.3.1), testthat (>= 3.0.2),\ntidyr, webfakes",
-        "VignetteBuilder": "knitr",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Config/testthat/parallel": "true",
-        "Encoding": "UTF-8",
-        "Language": "en-US",
-        "RoxygenNote": "7.3.2",
-        "NeedsCompilation": "no",
-        "Packaged": "2025-08-29 12:57:41 UTC; hadleywickham",
-        "Author": "Hadley Wickham [aut, cre],\n  Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
-        "Maintainer": "Hadley Wickham <hadley@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-08-29 14:00:02 UTC",
-        "Built": "R 4.5.0; ; 2025-08-30 04:42:12 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "rvest",
-        "RemotePkgRef": "rvest",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.0.5"
-      }
-    },
     "sass": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -3673,39 +3129,6 @@
         "RemoteRef": "sass",
         "RemoteRepos": "https://cloud.r-project.org",
         "RemoteSha": "0.4.10"
-      }
-    },
-    "selectr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "selectr",
-        "Type": "Package",
-        "Title": "Translate CSS Selectors to XPath Expressions",
-        "Version": "0.6-0",
-        "Authors@R": "c(person(\"Simon\", \"Potter\",\n                    role = c(\"aut\", \"trl\", \"cre\"),\n                    email = \"simon@sjp.co.nz\"),\n             person(\"Simon\", \"Sapin\", role = \"aut\"),\n             person(\"Ian\", \"Bicking\", role = \"aut\"))",
-        "License": "BSD_3_clause + file LICENCE",
-        "Encoding": "UTF-8",
-        "Depends": "R (>= 3.3)",
-        "Imports": "R6",
-        "Suggests": "testthat, XML, xml2",
-        "URL": "https://sjp.co.nz/projects/selectr/",
-        "BugReports": "https://github.com/sjp/selectr/issues",
-        "Description": "Translates a CSS selector into an equivalent XPath\n  expression. This allows us to use CSS selectors when working with\n  the XML package as it can only evaluate XPath expressions. Also\n  provided are convenience functions useful for using CSS selectors on\n  XML nodes. This package is a port of the Python package 'cssselect'\n  (<https://cssselect.readthedocs.io/>).",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-06-22 23:18:36 UTC; vscode",
-        "Author": "Simon Potter [aut, trl, cre],\n  Simon Sapin [aut],\n  Ian Bicking [aut]",
-        "Maintainer": "Simon Potter <simon@sjp.co.nz>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-06-23 05:10:21 UTC",
-        "Built": "R 4.5.0; ; 2026-06-24 05:38:16 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "selectr",
-        "RemotePkgRef": "selectr",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.6-0"
       }
     },
     "sessioninfo": {
@@ -3770,82 +3193,16 @@
         "Packaged": "2026-06-18 18:59:37 UTC; cpsievert",
         "Author": "Winston Chang [aut] (ORCID: <https://orcid.org/0000-0002-1576-2126>),\n  Joe Cheng [aut],\n  JJ Allaire [aut],\n  Carson Sievert [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-4958-2844>),\n  Barret Schloerke [aut] (ORCID: <https://orcid.org/0000-0001-9986-114X>),\n  Garrick Aden-Buie [aut] (ORCID:\n    <https://orcid.org/0000-0002-7111-0077>),\n  Yihui Xie [aut],\n  Jeff Allen [aut],\n  Jonathan McPherson [aut],\n  Alan Dipert [aut],\n  Barbara Borges [aut],\n  Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>),\n  jQuery Foundation [cph] (jQuery library and jQuery UI library),\n  jQuery contributors [ctb, cph] (jQuery library; authors listed in\n    inst/www/shared/jquery-AUTHORS.txt),\n  jQuery UI contributors [ctb, cph] (jQuery UI library; authors listed in\n    inst/www/shared/jqueryui/AUTHORS.txt),\n  Mark Otto [ctb] (Bootstrap library),\n  Jacob Thornton [ctb] (Bootstrap library),\n  Bootstrap contributors [ctb] (Bootstrap library),\n  Twitter, Inc [cph] (Bootstrap library),\n  Prem Nawaz Khan [ctb] (Bootstrap accessibility plugin),\n  Victor Tsaran [ctb] (Bootstrap accessibility plugin),\n  Dennis Lembree [ctb] (Bootstrap accessibility plugin),\n  Srinivasu Chakravarthula [ctb] (Bootstrap accessibility plugin),\n  Cathy O'Connor [ctb] (Bootstrap accessibility plugin),\n  PayPal, Inc [cph] (Bootstrap accessibility plugin),\n  Stefan Petre [ctb, cph] (Bootstrap-datepicker library),\n  Andrew Rowls [ctb, cph] (Bootstrap-datepicker library),\n  Brian Reavis [ctb, cph] (selectize.js library),\n  Salmen Bejaoui [ctb, cph] (selectize-plugin-a11y library),\n  Denis Ineshin [ctb, cph] (ion.rangeSlider library),\n  Sami Samhuri [ctb, cph] (Javascript strftime library),\n  SpryMedia Limited [ctb, cph] (DataTables library),\n  Ivan Sagalaev [ctb, cph] (highlight.js library),\n  R Core Team [ctb, cph] (tar implementation from R)",
         "Maintainer": "Carson Sievert <carson@posit.co>",
-        "Repository": "CRAN",
+        "Repository": "RSPM",
         "Date/Publication": "2026-06-21 14:10:08 UTC",
-        "Built": "R 4.5.3; ; 2026-07-04 03:25:08 UTC; windows",
+        "Built": "R 4.5.2; ; 2026-08-19 10:56:30 UTC; windows",
         "RemoteType": "standard",
-        "RemotePkgRef": "shiny",
         "RemoteRef": "shiny",
-        "RemoteRepos": "https://cran.rstudio.com",
+        "RemotePkgRef": "shiny",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
+        "RemoteReposName": "CRAN",
+        "RemotePkgPlatform": "source",
         "RemoteSha": "1.14.0"
-      }
-    },
-    "snakecase": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "snakecase",
-        "Version": "0.11.1",
-        "Date": "2023-08-27",
-        "Title": "Convert Strings into any Case",
-        "Description": "A consistent, flexible and easy to use tool to parse and convert strings into cases like snake or camel among others.",
-        "Authors@R": "c(\n    person(\"Malte\", \"Grosser\", , \"malte.grosser@gmail.com\", role = c(\"aut\", \"cre\")))",
-        "Maintainer": "Malte Grosser <malte.grosser@gmail.com>",
-        "Depends": "R (>= 3.2)",
-        "Imports": "stringr, stringi",
-        "Suggests": "testthat, covr, tibble, purrrlyr, knitr, rmarkdown, magrittr",
-        "URL": "https://github.com/Tazinho/snakecase",
-        "BugReports": "https://github.com/Tazinho/snakecase/issues",
-        "Encoding": "UTF-8",
-        "License": "GPL-3",
-        "RoxygenNote": "6.1.1",
-        "VignetteBuilder": "knitr",
-        "NeedsCompilation": "no",
-        "Packaged": "2023-08-27 20:30:20 UTC; malte",
-        "Author": "Malte Grosser [aut, cre]",
-        "Repository": "RSPM",
-        "Date/Publication": "2023-08-27 22:50:09 UTC",
-        "Built": "R 4.5.0; ; 2025-12-02 12:40:54 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "snakecase",
-        "RemotePkgRef": "snakecase",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.11.1"
-      }
-    },
-    "snowflakeauth": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "snowflakeauth",
-        "Title": "Authentication Helpers for 'Snowflake'",
-        "Version": "0.2.2",
-        "Authors@R": "c(\n    person(\"Aaron\", \"Jacobs\", , \"aaron.jacobs@posit.co\", role = c(\"aut\")),\n    person(\"E. David\", \"Aja\", , \"david@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Authentication helpers for 'Snowflake'.\n    It provides compatibility with authentication approaches supported\n    by the 'Snowflake Connector for Python' <https://pypi.org/project/snowflake-connector-python>\n    and the 'Snowflake CLI' <https://pypi.org/project/snowflake-cli>.",
-        "License": "MIT + file LICENSE",
-        "Encoding": "UTF-8",
-        "Imports": "cli, curl, jsonlite, RcppTOML, rlang, jose, openssl",
-        "Suggests": "httpuv, keyring, testthat (>= 3.0.0), withr",
-        "RoxygenNote": "7.3.2",
-        "Config/testthat/edition": "3",
-        "URL": "https://posit-dev.github.io/snowflakeauth/,\nhttps://github.com/posit-dev/snowflakeauth",
-        "BugReports": "https://github.com/posit-dev/snowflakeauth/issues",
-        "NeedsCompilation": "no",
-        "Packaged": "2026-02-24 17:45:53 UTC; edavidaja",
-        "Author": "Aaron Jacobs [aut],\n  E. David Aja [aut, cre],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "E. David Aja <david@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-02-25 06:30:23 UTC",
-        "Built": "R 4.5.0; ; 2026-02-26 04:43:29 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "snowflakeauth",
-        "RemotePkgRef": "snowflakeauth",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.2.2"
       }
     },
     "sourcetools": {
@@ -3915,44 +3272,6 @@
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "x86_64-w64-mingw32",
         "RemoteSha": "1.8.9"
-      }
-    },
-    "stringr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "stringr",
-        "Title": "Simple, Consistent Wrappers for Common String Operations",
-        "Version": "1.6.0",
-        "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\", \"cph\")),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "A consistent, simple and easy to use set of wrappers around\n    the fantastic 'stringi' package. All function and argument names (and\n    positions) are consistent, all functions deal with \"NA\"'s and zero\n    length vectors in the same way, and the output from one function is\n    easy to feed into the input of another.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://stringr.tidyverse.org,\nhttps://github.com/tidyverse/stringr",
-        "BugReports": "https://github.com/tidyverse/stringr/issues",
-        "Depends": "R (>= 4.1.0)",
-        "Imports": "cli, glue (>= 1.6.1), lifecycle (>= 1.0.3), magrittr, rlang\n(>= 1.0.0), stringi (>= 1.5.3), vctrs (>= 0.4.0)",
-        "Suggests": "covr, dplyr, gt, htmltools, htmlwidgets, knitr, rmarkdown,\ntestthat (>= 3.0.0), tibble",
-        "VignetteBuilder": "knitr",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/potools/style": "explicit",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "LazyData": "true",
-        "RoxygenNote": "7.3.3",
-        "NeedsCompilation": "no",
-        "Packaged": "2025-11-03 22:09:58 UTC; hadleywickham",
-        "Author": "Hadley Wickham [aut, cre, cph],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Hadley Wickham <hadley@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-11-04 14:00:02 UTC",
-        "Built": "R 4.5.0; ; 2025-12-02 12:40:32 UTC; windows",
-        "RemoteType": "standard",
-        "RemoteRef": "stringr",
-        "RemotePkgRef": "stringr",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.6.0"
       }
     },
     "sys": {
@@ -4152,46 +3471,6 @@
         "RemoteSha": "3.3.1"
       }
     },
-    "tidyr": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "tidyr",
-        "Title": "Tidy Messy Data",
-        "Version": "1.3.2",
-        "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Davis\", \"Vaughan\", , \"davis@posit.co\", role = \"aut\"),\n    person(\"Maximilian\", \"Girlich\", role = \"aut\"),\n    person(\"Kevin\", \"Ushey\", , \"kevin@posit.co\", role = \"ctb\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Tools to help to create tidy data, where each column is a\n    variable, each row is an observation, and each cell contains a single\n    value. 'tidyr' contains tools for changing the shape (pivoting) and\n    hierarchy (nesting and 'unnesting') of a dataset, turning deeply\n    nested lists into rectangular data frames ('rectangling'), and\n    extracting values out of string columns. It also includes tools for\n    working with missing values (both implicit and explicit).",
-        "License": "MIT + file LICENSE",
-        "URL": "https://tidyr.tidyverse.org, https://github.com/tidyverse/tidyr",
-        "BugReports": "https://github.com/tidyverse/tidyr/issues",
-        "Depends": "R (>= 4.1.0)",
-        "Imports": "cli (>= 3.4.1), dplyr (>= 1.1.0), glue, lifecycle (>= 1.0.3),\nmagrittr, purrr (>= 1.0.1), rlang (>= 1.1.1), stringr (>=\n1.5.0), tibble (>= 2.1.1), tidyselect (>= 1.2.1), utils, vctrs\n(>= 0.5.2)",
-        "Suggests": "covr, data.table, knitr, readr, repurrrsive (>= 1.1.0),\nrmarkdown, testthat (>= 3.0.0)",
-        "LinkingTo": "cpp11 (>= 0.4.0)",
-        "VignetteBuilder": "knitr",
-        "Config/build/compilation-database": "true",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "LazyData": "true",
-        "RoxygenNote": "7.3.3",
-        "NeedsCompilation": "yes",
-        "Packaged": "2025-12-17 23:35:11 UTC; hadleywickham",
-        "Author": "Hadley Wickham [aut, cre],\n  Davis Vaughan [aut],\n  Maximilian Girlich [aut],\n  Kevin Ushey [ctb],\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Hadley Wickham <hadley@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-12-19 09:20:02 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-05-07 06:53:26 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "tidyr",
-        "RemotePkgRef": "tidyr",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.3.2"
-      }
-    },
     "tidyselect": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -4228,41 +3507,6 @@
         "RemoteSha": "1.2.1"
       }
     },
-    "timechange": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "timechange",
-        "Title": "Efficient Manipulation of Date-Times",
-        "Version": "0.4.0",
-        "Authors@R": "c(person(\"Vitalie\", \"Spinu\", email = \"spinuvit@gmail.com\", role = c(\"aut\", \"cre\")),\n             person(\"Google Inc.\", role = c(\"ctb\", \"cph\")))",
-        "Description": "Efficient routines for manipulation of date-time objects while\n   accounting for time-zones and daylight saving times. The package includes\n   utilities for updating of date-time components (year, month, day etc.),\n   modification of time-zones, rounding of date-times, period addition and\n   subtraction etc. Parts of the 'CCTZ' source code, released under the Apache\n   2.0 License, are included in this package. See\n   <https://github.com/google/cctz> for more details.",
-        "Depends": "R (>= 3.3)",
-        "License": "GPL (>= 3)",
-        "Encoding": "UTF-8",
-        "LinkingTo": "cpp11 (>= 0.2.7)",
-        "Suggests": "testthat (>= 0.7.1.99), knitr",
-        "SystemRequirements": "A system with zoneinfo data (e.g.\n/usr/share/zoneinfo). On Windows the zoneinfo included with R\nis used.",
-        "BugReports": "https://github.com/vspinu/timechange/issues",
-        "URL": "https://github.com/vspinu/timechange/",
-        "RoxygenNote": "7.2.1",
-        "NeedsCompilation": "yes",
-        "Packaged": "2026-01-29 08:59:34 UTC; vitalie",
-        "Author": "Vitalie Spinu [aut, cre],\n  Google Inc. [ctb, cph]",
-        "Maintainer": "Vitalie Spinu <spinuvit@gmail.com>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-01-29 22:20:08 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-05-07 06:51:53 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "timechange",
-        "RemotePkgRef": "timechange",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.4.0"
-      }
-    },
     "tinytex": {
       "Source": "CRAN",
       "Repository": "https://packagemanager.posit.co/cran/latest",
@@ -4294,43 +3538,6 @@
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "x86_64-w64-mingw32",
         "RemoteSha": "0.60"
-      }
-    },
-    "tzdb": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "tzdb",
-        "Title": "Time Zone Database Information",
-        "Version": "0.5.0",
-        "Authors@R": "c(\n    person(\"Davis\", \"Vaughan\", , \"davis@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Howard\", \"Hinnant\", role = \"cph\",\n           comment = \"Author of the included date library\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
-        "Description": "Provides an up-to-date copy of the Internet Assigned Numbers\n    Authority (IANA) Time Zone Database. It is updated periodically to\n    reflect changes made by political bodies to time zone boundaries, UTC\n    offsets, and daylight saving time rules. Additionally, this package\n    provides a C++ interface for working with the 'date' library. 'date'\n    provides comprehensive support for working with dates and date-times,\n    which this package exposes to make it easier for other R packages to\n    utilize. Headers are provided for calendar specific calculations,\n    along with a limited interface for time zone manipulations.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://tzdb.r-lib.org, https://github.com/r-lib/tzdb",
-        "BugReports": "https://github.com/r-lib/tzdb/issues",
-        "Depends": "R (>= 4.0.0)",
-        "Suggests": "covr, testthat (>= 3.0.0)",
-        "LinkingTo": "cpp11 (>= 0.5.2)",
-        "Biarch": "yes",
-        "Config/Needs/website": "tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Encoding": "UTF-8",
-        "RoxygenNote": "7.3.2",
-        "NeedsCompilation": "yes",
-        "Packaged": "2025-03-14 18:41:13 UTC; davis",
-        "Author": "Davis Vaughan [aut, cre],\n  Howard Hinnant [cph] (Author of the included date library),\n  Posit Software, PBC [cph, fnd]",
-        "Maintainer": "Davis Vaughan <davis@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2025-03-15 22:50:02 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-05-07 06:51:03 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "tzdb",
-        "RemotePkgRef": "tzdb",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "0.5.0"
       }
     },
     "urlchecker": {
@@ -4484,49 +3691,6 @@
         "RemoteReposName": "CRAN",
         "RemotePkgPlatform": "x86_64-w64-mingw32",
         "RemoteSha": "0.7.3"
-      }
-    },
-    "vroom": {
-      "Source": "CRAN",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "description": {
-        "Package": "vroom",
-        "Title": "Read and Write Rectangular Text Data Quickly",
-        "Version": "1.7.1",
-        "Authors@R": "c(\n    person(\"Jim\", \"Hester\", role = \"aut\",\n           comment = c(ORCID = \"0000-0002-2739-7082\")),\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\",\n           comment = c(ORCID = \"0000-0003-4757-117X\")),\n    person(\"Jennifer\", \"Bryan\", , \"jenny@posit.co\", role = c(\"aut\", \"cre\"),\n           comment = c(ORCID = \"0000-0002-6983-2759\")),\n    person(\"Shelby\", \"Bearrows\", role = \"ctb\"),\n    person(\"https://github.com/mandreyel/\", role = \"cph\",\n           comment = \"mio library\"),\n    person(\"Jukka\", \"Jylänki\", role = \"cph\",\n           comment = \"grisu3 implementation\"),\n    person(\"Mikkel\", \"Jørgensen\", role = \"cph\",\n           comment = \"grisu3 implementation\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"), comment = c(ROR = \"03wc8by49\"))\n  )",
-        "Description": "The goal of 'vroom' is to read and write data (like 'csv',\n    'tsv' and 'fwf') quickly. When reading it uses a quick initial\n    indexing step, then reads the values lazily , so only the data you\n    actually use needs to be read.  The writer formats the data in\n    parallel and writes to disk asynchronously from formatting.",
-        "License": "MIT + file LICENSE",
-        "URL": "https://vroom.tidyverse.org, https://github.com/tidyverse/vroom",
-        "BugReports": "https://github.com/tidyverse/vroom/issues",
-        "Depends": "R (>= 4.1)",
-        "Imports": "bit64, cli (>= 3.2.0), crayon, glue, hms, lifecycle (>=\n1.0.3), methods, rlang (>= 1.1.0), stats, tibble (>= 2.0.0),\ntidyselect, tzdb (>= 0.1.1), vctrs (>= 0.2.0), withr",
-        "Suggests": "archive, bench (>= 1.1.0), covr, curl, dplyr, forcats, fs,\nggplot2, knitr, patchwork, prettyunits, purrr, rmarkdown,\nrstudioapi, scales, spelling, testthat (>= 2.1.0), tidyr,\nutils, waldo, xml2",
-        "LinkingTo": "cpp11 (>= 0.2.0), progress (>= 1.2.3), tzdb (>= 0.1.1)",
-        "VignetteBuilder": "knitr",
-        "Config/Needs/website": "nycflights13, tidyverse/tidytemplate",
-        "Config/testthat/edition": "3",
-        "Config/testthat/parallel": "false",
-        "Config/usethis/last-upkeep": "2025-11-25",
-        "Copyright": "file COPYRIGHTS",
-        "Encoding": "UTF-8",
-        "Language": "en-US",
-        "RoxygenNote": "7.3.3",
-        "Config/build/compilation-database": "true",
-        "NeedsCompilation": "yes",
-        "Packaged": "2026-03-30 20:25:37 UTC; jenny",
-        "Author": "Jim Hester [aut] (ORCID: <https://orcid.org/0000-0002-2739-7082>),\n  Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>),\n  Jennifer Bryan [aut, cre] (ORCID:\n    <https://orcid.org/0000-0002-6983-2759>),\n  Shelby Bearrows [ctb],\n  https://github.com/mandreyel/ [cph] (mio library),\n  Jukka Jylänki [cph] (grisu3 implementation),\n  Mikkel Jørgensen [cph] (grisu3 implementation),\n  Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)",
-        "Maintainer": "Jennifer Bryan <jenny@posit.co>",
-        "Repository": "RSPM",
-        "Date/Publication": "2026-03-31 05:10:02 UTC",
-        "Built": "R 4.5.0; x86_64-w64-mingw32; 2026-05-07 06:58:04 UTC; windows",
-        "Archs": "x64",
-        "RemoteType": "standard",
-        "RemoteRef": "vroom",
-        "RemotePkgRef": "vroom",
-        "RemoteRepos": "https://packagemanager.posit.co/cran/latest",
-        "RemoteReposName": "CRAN",
-        "RemotePkgPlatform": "x86_64-w64-mingw32",
-        "RemoteSha": "1.7.1"
       }
     },
     "waldo": {
@@ -4852,14 +4016,86 @@
     " TBI_REPAIR_2025_26_REGULAR_SEASON_AND_POSITION_VALIDATION.R": {
       "checksum": "e2cfae39f5bde4725a33cdb74ec3721a"
     },
+    "({id": {
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    ".context/compound-engineering/ce-optimize/command-center-draft-simulation/benchmark-current.R": {
+      "checksum": "18f02b3a2e20dc23638f26457bcb62b8"
+    },
+    ".context/compound-engineering/ce-optimize/command-center-draft-simulation/experiment-log.yaml": {
+      "checksum": "9c2376e167d6866c05653a9e510c2976"
+    },
+    ".context/compound-engineering/ce-optimize/command-center-draft-simulation/spec.yaml": {
+      "checksum": "fc39d04f24bfb3252294d30eb6c053d1"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-loading/benchmark-current.R": {
+      "checksum": "ba5439c59edd469c54bc0a8903b39b56"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-loading/experiment-001/result.yaml": {
+      "checksum": "3fccc79b22fcc0323794d46fbf55e4f7"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-loading/experiment-002/result.yaml": {
+      "checksum": "4db8e42100f76beb75bd12869e57d9cb"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-loading/experiment-log.yaml": {
+      "checksum": "34030dd80af1db9e582ff713ddccc737"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-loading/spec.yaml": {
+      "checksum": "9d9dad4c93bc358b705c2c868ed14ceb"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-loading/strategy-digest.md": {
+      "checksum": "211c03560d422da34f1ca15e205362f1"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/baseline-outputs.rds": {
+      "checksum": "7fddc1a6840997f7f938b5f2c13bba1c"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/benchmark.R": {
+      "checksum": "a652f34a9314c92adaafdce6cd2b837e"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/capture-output-reference.R": {
+      "checksum": "133463f68bcc526c8f44f2dbcfa72abf"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/experiment-001/result.yaml": {
+      "checksum": "93fd93cf55dcaf676be4ceadd7df98c6"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/experiment-002/result.yaml": {
+      "checksum": "4bc7a6717c818cb3399090e859d2fc36"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/experiment-log.yaml": {
+      "checksum": "de9c0f5fe9a54aba277579f9f05e8271"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/inspect-outputs.R": {
+      "checksum": "f29e194f7c40c8e3239e059e2e68993a"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/spec.yaml": {
+      "checksum": "0378503ffc4c54d39c032246fc739ed9"
+    },
+    ".context/compound-engineering/ce-optimize/depth-chart-subsecond/strategy-digest.md": {
+      "checksum": "343ddfb6cf724b1822336830857275cf"
+    },
+    ".impeccable/critique/2026-08-18T16-53-01Z__r-app-ui-r.md": {
+      "checksum": "a4d4e0e4775b4bb65a30ecb3a62ddb88"
+    },
     ".Rbuildignore": {
       "checksum": "6afa2008bb4d9aef319749bd1ae9a99c"
     },
     ".Rprofile": {
-      "checksum": "39f191aca965674dd735dda52d031ecf"
+      "checksum": "16323713a299af3f0508d4d0cc6fb94b"
+    },
+    "0": {
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "1": {
+      "checksum": "612da31bf6a7f21ce2aec6f2a4728f89"
+    },
+    "AGENTS.md": {
+      "checksum": "a1b5d3b3f38c00c99a77e591067e59a7"
     },
     "app.R": {
-      "checksum": "ba03c8466cf1a023786c0f371a3fc059"
+      "checksum": "ff9cf19a24a3809ae134c6a6cab0068f"
+    },
+    "backups/app_ui_PRE_TOP_NAV_SUBTABS_20260817_121541.R": {
+      "checksum": "2ecd0f8b5dd496de991e7442fa317ea8"
     },
     "backups/app_ui_PRE_V1_FINAL_POLISH_20260813_032240.R": {
       "checksum": "1b4a0520170bdfc849213246a3f03a0b"
@@ -4912,8 +4148,98 @@
     "backups/roster_intelligence_integration_PRE_V1_PRESEASON_20260813_034305.R": {
       "checksum": "0fa9a172b008b3060523e4b2237028af"
     },
+    "backups/tbi_ux_foundation_PRE_CAP_SUBTABS_20260817_132543.js": {
+      "checksum": "0ee8479034fadceab6a04d1c691b3989"
+    },
+    "backups/tbi_ux_foundation_PRE_COMMAND_CENTER_TABS_20260817_141636.js": {
+      "checksum": "c48a47a2251ef20f0227a3ffc0e678fe"
+    },
+    "backups/tbi_ux_foundation_PRE_DEPTH_MODULE_HEADER_20260817_140534.js": {
+      "checksum": "254f3bea10b9d341849a02abf3d8b372"
+    },
+    "backups/tbi_ux_foundation_PRE_DEPTH_MODULE_HEADER_20260817_140734.js": {
+      "checksum": "804a8bd3b0ed5d37d88b0185cbbfcd6b"
+    },
+    "backups/tbi_ux_foundation_PRE_DEPTH_SUBTABS_20260817_131012.js": {
+      "checksum": "b36f4015ad2a3a75d45e7a80b8ed9fbd"
+    },
+    "backups/tbi_ux_foundation_PRE_DRAFT_SUBTABS_20260817_134907.js": {
+      "checksum": "5eb3256eed8fa4838b2b78c1f520efed"
+    },
+    "backups/tbi_ux_foundation_PRE_DRAFT_SUBTABS_20260817_135129.js": {
+      "checksum": "556d448adbd4da6f1d2c94009546e4f6"
+    },
+    "backups/tbi_ux_foundation_PRE_ROSTER_CORRECTION_20260817_130136.js": {
+      "checksum": "dd7e3cf9b9baaa3c03a7171a1bd3b34f"
+    },
+    "backups/tbi_ux_foundation_PRE_ROSTER_SUBTABS_20260817_124801.js": {
+      "checksum": "6bd639ac2f1635f8d7409475eaeba6db"
+    },
+    "backups/tbi_ux_foundation_PRE_TEAM_OVERVIEW_TABS_20260818_130939.js": {
+      "checksum": "201a6e2d6a37bb1e9dac6b0176bbe3a1"
+    },
+    "backups/tbi_ux_foundation_PRE_TRADE_SUBTABS_20260817_133751.js": {
+      "checksum": "ece558bba191c49f5e6572e720144250"
+    },
+    "backups/tbi_v2_PRE_CAP_SUBTABS_20260817_132543.css": {
+      "checksum": "042af9751fc36662a17cee0f5884e0e3"
+    },
+    "backups/tbi_v2_PRE_COMMAND_CENTER_TABS_20260817_141636.css": {
+      "checksum": "4fd6c187fd6ccaff84e43e876336cfd6"
+    },
+    "backups/tbi_v2_PRE_DEPTH_FULL_WIDTH_20260817_131609.css": {
+      "checksum": "f8448b1285043417121ff720afd1562b"
+    },
+    "backups/tbi_v2_PRE_DEPTH_MODULE_HEADER_20260817_140534.css": {
+      "checksum": "839a4f2596d244295af7dfd83b8822b2"
+    },
+    "backups/tbi_v2_PRE_DEPTH_MODULE_HEADER_20260817_140734.css": {
+      "checksum": "fee2ebc288d516a96779e60d4c1498e2"
+    },
+    "backups/tbi_v2_PRE_DEPTH_SUBTABS_20260817_131012.css": {
+      "checksum": "ff13fd8f5653c5b4bf105bd973ad3e21"
+    },
+    "backups/tbi_v2_PRE_DEPTH_TAB_POSITION_20260817_132020.css": {
+      "checksum": "b0a95e7cefa70e14f661b905ff295e18"
+    },
+    "backups/tbi_v2_PRE_DRAFT_SUBTABS_20260817_134907.css": {
+      "checksum": "5ce404b05116d0d6197be30aee82fb61"
+    },
+    "backups/tbi_v2_PRE_DRAFT_SUBTABS_20260817_135129.css": {
+      "checksum": "98d69750a4cacb07943f4786b9b853fb"
+    },
+    "backups/tbi_v2_PRE_GLOBAL_TAB_ALIGNMENT_20260817_135737.css": {
+      "checksum": "a15142eab32c7752d0a0e501d12b06e9"
+    },
+    "backups/tbi_v2_PRE_GLOBAL_TAB_ALIGNMENT_20260817_135902.css": {
+      "checksum": "0cdb4812414041871279cbf511e20cf2"
+    },
+    "backups/tbi_v2_PRE_ROSTER_SUBTABS_20260817_124801.css": {
+      "checksum": "38379ba1846b3798110f461fdb49da40"
+    },
+    "backups/tbi_v2_PRE_TEAM_OVERVIEW_TABS_20260818_130939.css": {
+      "checksum": "48d0be56a5556d8e4be08d84fd11abfe"
+    },
+    "backups/tbi_v2_PRE_TOP_NAV_HOTFIX_20260817_124158.css": {
+      "checksum": "cdacc2a4d2487822a3a191faa2f8f2f5"
+    },
+    "backups/tbi_v2_PRE_TOP_NAV_HOTFIX_20260817_124252.css": {
+      "checksum": "ef355daac0acfff812788e41a2bc8f1e"
+    },
+    "backups/tbi_v2_PRE_TOP_NAV_SUBTABS_20260817_121541.css": {
+      "checksum": "fa0f8e1a8bc7fe97ee0765e66ff6e282"
+    },
+    "backups/tbi_v2_PRE_TRADE_SUBTABS_20260817_133751.css": {
+      "checksum": "2e76f8ee843c280807bcbed684c47b03"
+    },
     "backups/tbi_v2_PRE_V1_FINAL_POLISH_20260813_032240.css": {
       "checksum": "c387bb11139803fbe45870a5743efd6b"
+    },
+    "backups/web_demo_security_PRE_FIRST_OPEN_20260813_130206.R": {
+      "checksum": "9ada5d9eab3755ec1d9dafc75ccb1c90"
+    },
+    "backups/web_demo_security_PRE_UNIQUE_LINKS_20260813_121900.R": {
+      "checksum": "71443896c2f29f5a0388d396f463eb5f"
     },
     "CHANGELOG.md": {
       "checksum": "231323ea4da3b91ff4a115addd1ffc79"
@@ -6476,7 +5802,7 @@
       "checksum": "930193e531a5a483a040722cb892d0f8"
     },
     "DESCRIPTION": {
-      "checksum": "0f169b93745f441af8c8ecc038bb0eda"
+      "checksum": "b842289d481de8a9b88a398a9d7cd191"
     },
     "dev/01_import_salaryswish.R": {
       "checksum": "bc55c988e7761f81104180c2bf1ae07e"
@@ -6593,10 +5919,73 @@
       "checksum": "698e176e98e17a6367faedee76873b1f"
     },
     "docs/architecture.md": {
-      "checksum": "ed71e0a5dccc1f83a334c933b676d778"
+      "checksum": "80c47b477a49dd8d14c992dc93b4d010"
     },
     "docs/data-dictionary/core-schema.md": {
       "checksum": "63ebfab59e25b1ed717d9ecc0b561f05"
+    },
+    "docs/overnight-master-report-2026-08-19.md": {
+      "checksum": "b79e925eafc98e3f0e613328f88739e2"
+    },
+    "docs/release-hardening-2026-08-18.md": {
+      "checksum": "80b3173d02b1d28e89c13b667f3bb68d"
+    },
+    "docs/trade-cba-multiteam-readiness.md": {
+      "checksum": "73e7bef131ebd9476586d9d78664eae9"
+    },
+    "docs/v2-cap-intelligence-stabilization-2026-08-21.md": {
+      "checksum": "bf520d2c34f48ebdcb0e92017c3a32e8"
+    },
+    "docs/v2-command-center-stabilization-2026-08-21.md": {
+      "checksum": "3424f721380cb400957e0634b29e5896"
+    },
+    "docs/v2-depth-chart-layout-qa-2026-08-21.md": {
+      "checksum": "df2823731a053db5780171a2085e6cf7"
+    },
+    "docs/v2-depth-chart-stabilization-2026-08-21.md": {
+      "checksum": "860a7537b5215162953729f70665d15c"
+    },
+    "docs/v2-draft-intelligence-stabilization-2026-08-21.md": {
+      "checksum": "688aca02cc317ed4cce6b79ffe70b8dc"
+    },
+    "docs/v2-elite-readiness-2026-08-19.md": {
+      "checksum": "36c23c65680cd44fae5a355e94a1ddc1"
+    },
+    "docs/v2-feedback-candidate-overnight-2026-08-20.md": {
+      "checksum": "1f5889df955ff3d558f5ccd0e27c69cd"
+    },
+    "docs/v2-final-manual-audit-corrections-2026-08-20.md": {
+      "checksum": "3cc8d00e023910e03d52c44e87514350"
+    },
+    "docs/v2-five-year-outlook-stabilization-2026-08-21.md": {
+      "checksum": "3012e2df17333b894d225e058faa4d32"
+    },
+    "docs/v2-phase1e-completion-2026-08-19.md": {
+      "checksum": "918cb2320b0afc34c520070709547175"
+    },
+    "docs/v2-phase2abc-completion-2026-08-19.md": {
+      "checksum": "18a70fe6c4c72a43691d768fd71195dd"
+    },
+    "docs/v2-phase3-overnight-completion-2026-08-20.md": {
+      "checksum": "438bb93306403ba482eff8e3a0701f24"
+    },
+    "docs/v2-phase3k-page-equality-2026-08-20.md": {
+      "checksum": "ff0a3f25e146e6af02f6b7412dcec1a3"
+    },
+    "docs/v2-player-management-stabilization-2026-08-21.md": {
+      "checksum": "09a318d8467bef9773021beaeb876d15"
+    },
+    "docs/v2-roster-intelligence-stabilization-2026-08-21.md": {
+      "checksum": "39ca4398b63550d27f0abcb9e8e8b961"
+    },
+    "docs/v2-rotation-engine-roadmap.md": {
+      "checksum": "18abf2f7f8b07ee493031fd89790539f"
+    },
+    "docs/v2-trade-intelligence-repair-2026-08-20.md": {
+      "checksum": "74801be607d7f8cd9920a396dce86e40"
+    },
+    "docs/v2-v3-product-roadmap.md": {
+      "checksum": "a22bb6a0f380f17efdfd284b6d67323f"
     },
     "etl/update_standings.R": {
       "checksum": "3e9254358bf133db5f7e37bf3d6dad8c"
@@ -6614,16 +6003,25 @@
       "checksum": "cdf6de9792728dbbd373c782bf5e8145"
     },
     "inst/app/www/tbi_demo.css": {
-      "checksum": "8700fe2855cc850bd2fa6909da60abd5"
+      "checksum": "734721488b88a013c03ff48c841488f8"
     },
     "inst/app/www/tbi_demo.js": {
-      "checksum": "097bf4041c995b86be8e734d562384ee"
+      "checksum": "52255a8cfd4010939b03824e10428f82"
     },
     "inst/app/www/tbi_phase14.css": {
       "checksum": "16a111c41a1baff47fd1c4a1ec085d0c"
     },
+    "inst/app/www/tbi_phase3.css": {
+      "checksum": "709f725e565389f90d324424fe329c9e"
+    },
+    "inst/app/www/tbi_ux_foundation.css": {
+      "checksum": "ec7f5232eb748c157cb7266b73611a92"
+    },
+    "inst/app/www/tbi_ux_foundation.js": {
+      "checksum": "4205f5624ca807cf79d09410e0be2dc8"
+    },
     "inst/app/www/tbi_v2.css": {
-      "checksum": "fa0f8e1a8bc7fe97ee0765e66ff6e282"
+      "checksum": "c45b2d245700ef0e83861c1c2eb37125"
     },
     "inst/basketball_ops.sqlite": {
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
@@ -6668,7 +6066,7 @@
       "checksum": "ec97817786f93bc4bc979ba517dfb741"
     },
     "inst/database/tbi.sqlite": {
-      "checksum": "5e2e5aca78418eb2c2c6b25e31fb4b9d"
+      "checksum": "dfaf1911c5fc64510bced0bba25042f3"
     },
     "inst/database/tbi.zip": {
       "checksum": "c5ad3f688616c762f0fad4ed83b60a8e"
@@ -6740,7 +6138,7 @@
       "checksum": "db153f001c7c98594f4a6e64193fbf8a"
     },
     "NAMESPACE": {
-      "checksum": "0326d3c9d633347f9f3dab5255f4a497"
+      "checksum": "b63285b2bb6ea601495de8e2f2cc5753"
     },
     "qa/phase15_30_team_qa.csv": {
       "checksum": "48dba9aa1846445f3af569b8e3031880"
@@ -8246,10 +7644,10 @@
       "checksum": "48f4feb007c535cc4bd9f43db831b5b6"
     },
     "R/app_server.R": {
-      "checksum": "c188f7ee6bdf623747a49da286e51258"
+      "checksum": "9c6c13183958d4f24b91daacf5e28304"
     },
     "R/app_ui.R": {
-      "checksum": "2ecd0f8b5dd496de991e7442fa317ea8"
+      "checksum": "b702f3ffc30091becc004bd965269f1e"
     },
     "R/basketball_intelligence_engine.R": {
       "checksum": "062acb9ca6380505204c62716fcd5a8c"
@@ -8270,10 +7668,10 @@
       "checksum": "b8ee86a52f27be82ecd7caf81f36d68c"
     },
     "R/database.R": {
-      "checksum": "d6e122148eefab8661c23c65729e6de7"
+      "checksum": "d53e94ab3cab2133970a9e91cc3299ea"
     },
     "R/db_payroll.R": {
-      "checksum": "dca3d17d2f323fd77f50e28095d779ac"
+      "checksum": "66d01a1b41ec41a9544282847036a050"
     },
     "R/db_validation.R": {
       "checksum": "97f75ae3d69b28752560e866cf3b0667"
@@ -8282,19 +7680,19 @@
       "checksum": "9964ba6435351fb09d2d2b8300f07b89"
     },
     "R/draft_assets_engine.R": {
-      "checksum": "66f19f8257428413aa43ffa835733d22"
+      "checksum": "980ae4fb731559ce157b3026ca568c04"
     },
     "R/draft_simulation_engine.R": {
-      "checksum": "a233744e95f855051a716a58b0b74e53"
+      "checksum": "a7cb63649bf8b34b844c6cfd77dccf02"
     },
     "R/draft_value_engine.R": {
       "checksum": "cb64e976d70994af73e361db756613a3"
     },
     "R/executive_experience_helpers.R": {
-      "checksum": "7b9cfdf29066665ff98a52e7539efe12"
+      "checksum": "d3caa24999742301ac678f50cfdaff4a"
     },
     "R/extension_engine.R": {
-      "checksum": "93aa4828cdc65fdda8463d415b8b3f71"
+      "checksum": "93b865366b67145bc1bd7c4f74be857a"
     },
     "R/final_qa_phase15.R": {
       "checksum": "621aa7b22c9bfe9aa32490642ae4c2d5"
@@ -8318,43 +7716,43 @@
       "checksum": "fa6cc818064b1a17e9a875b3d189ae7b"
     },
     "R/mod_cba_glossary.R": {
-      "checksum": "13b66e55638e7e4d7f3b442fd8db28d6"
+      "checksum": "e650ae0d7fd692c55cc065b7436dd7d7"
     },
     "R/mod_depth_chart.R": {
-      "checksum": "c23927fc395185cf79197a5a2cdd19b5"
+      "checksum": "d3e6bcda048d7736662c4dc684be8baa"
     },
     "R/mod_draft_assets.R": {
-      "checksum": "73fd98f5e830876066278cbe7e84385f"
+      "checksum": "4badc000771a488d5e45be07de5eaca7"
     },
     "R/mod_executive_dashboard.R": {
-      "checksum": "2c1a1b9e55a53ef9dc1e8e97065a5a2f"
+      "checksum": "eedf73e47cf6eb6d73e4eb309d2f15d7"
     },
     "R/mod_extension_simulator.R": {
-      "checksum": "7127ceab738f4006ea41afc635051a37"
+      "checksum": "e8d86997e2f8e0757ac4261d0556dd4e"
     },
     "R/mod_five_year_outlook.R": {
-      "checksum": "52cb8e618a758926ca4300832df6f710"
+      "checksum": "bd55f8e770ee4dc136ca398d176252d5"
     },
     "R/mod_player_manager.R": {
-      "checksum": "37cc745da8d5f8c4501c85c218f7c611"
+      "checksum": "200ca4d371c038d0d322be704e3fd03c"
     },
     "R/mod_roster_contracts.R": {
-      "checksum": "08cc1ba4fb698f2e1d3eb42b5b2a0b7f"
+      "checksum": "641a47db2dd8d623cbe796d335511ec3"
     },
     "R/mod_salary_cap.R": {
-      "checksum": "f946083d6515f7c2f2630495e5b1b9f6"
+      "checksum": "ecf453bca889cb32a8fbf2f846793d65"
     },
     "R/mod_team_overview.R": {
-      "checksum": "0f86d743ad1a9ea551eb4d6f4f7fb555"
+      "checksum": "182c99d4599d99f38b282727cdaed11e"
     },
     "R/mod_trade_analyzer.R": {
-      "checksum": "9683fae9723570d99af3677f7063fff2"
+      "checksum": "2dc17e35ee59839c190474e8b35e5eaf"
     },
     "R/nba_data_ingestion.R": {
       "checksum": "e482d3a59fdea7ad02f3d0442963f5ff"
     },
     "R/performance_optimization.R": {
-      "checksum": "b0d2a0ece6644eacb15605584a224eff"
+      "checksum": "6bfb0c98e583408e22bea7a754a7ed63"
     },
     "R/phase3_dashboard_integration.R": {
       "checksum": "afd6c1abfe19d27de3d809478a07a447"
@@ -8392,6 +7790,9 @@
     "R/run_app.R": {
       "checksum": "8c7dd4416135685d5d40681c52f5e920"
     },
+    "R/run_tbi_feedback.R": {
+      "checksum": "007c4e5bd9563273fccc4b851ab1daa1"
+    },
     "R/salaryswish.R": {
       "checksum": "97a1f8784503a1a990dfca21291f1cb5"
     },
@@ -8414,7 +7815,7 @@
       "checksum": "d12c0976aa69654263608b8b87ee4b0a"
     },
     "R/transaction_state.R": {
-      "checksum": "d437c8e881b6a26ca30585fd55b702c8"
+      "checksum": "c65e15119ab319abd06e65b5e298f500"
     },
     "R/ui_helpers.R": {
       "checksum": "fa3ee7bf6a99b6ea571aece7141ebdc6"
@@ -8422,8 +7823,50 @@
     "R/ui_polish_phase14.R": {
       "checksum": "2d157401213fe999c5df67fd7dfc8110"
     },
+    "R/v2_availability_evidence.R": {
+      "checksum": "23be5cf714991ef323796635cdf3ad73"
+    },
+    "R/v2_basketball_role_evidence.R": {
+      "checksum": "41a4ebb5806c17a37c8c6e2fc76da308"
+    },
+    "R/v2_contracts.R": {
+      "checksum": "d2c5eaa89d0cb1a7220ee4c724c873b4"
+    },
+    "R/v2_lineup_portfolio.R": {
+      "checksum": "b913418a5b0437794b5427f99f6cf74b"
+    },
+    "R/v2_minute_ledger.R": {
+      "checksum": "c84b3df670babb422f7f694076cbf672"
+    },
+    "R/v2_presentation.R": {
+      "checksum": "ec385ca591f541281503ad87ac58d165"
+    },
+    "R/v2_role_eligibility.R": {
+      "checksum": "46e374b1fd4c29a1abd75b55df9e3db4"
+    },
+    "R/v2_rotation_engine.R": {
+      "checksum": "eaa031d6e979e58d5ab5cf892ac15880"
+    },
+    "R/v2_rotation_shadow.R": {
+      "checksum": "72294561148552e547ce66d63682d3c1"
+    },
+    "R/v2_rotation_state.R": {
+      "checksum": "95ec7a0c88ff14f06609ed22ac52afb1"
+    },
+    "R/v2_staggering_engine.R": {
+      "checksum": "c2e637bf5491a0d648fd8982c3794f10"
+    },
+    "R/v2_starter_state.R": {
+      "checksum": "5d216a6fe98c5329f95a31f43b2de9c0"
+    },
+    "R/v2_trade_intelligence.R": {
+      "checksum": "b8d6135609957c7b618e8703dd786cb8"
+    },
+    "R/v2_transaction_foundation.R": {
+      "checksum": "c3a7f1bd9e2e17c0fbd00a2852927df6"
+    },
     "R/web_demo_security.R": {
-      "checksum": "71443896c2f29f5a0388d396f463eb5f"
+      "checksum": "09e3fc9f91c13dd9b03d50e14a90511e"
     },
     "R/zz_phase3_step11_calibrated.R": {
       "checksum": "aca196afad1a70269aab4a2a9f3b0cf1"
@@ -8436,6 +7879,12 @@
     },
     "README_NBA_V1_VALIDATION.md": {
       "checksum": "40e016a0801b54291fb1c1da710b5b0e"
+    },
+    "reference/NBA_NBPA_CBA_2023.pdf": {
+      "checksum": "eda96264c0f20f286da3dc54a8d441ac"
+    },
+    "renv.lock": {
+      "checksum": "61352a0fc39ed5a1a8c7dfc51642834d"
     },
     "REPAIR_CHANGELOG.md": {
       "checksum": "2f76d07875105fa6a04c946990797197"
@@ -8473,8 +7922,35 @@
     "TBI_POST_REPAIR_RESUME_V3.R": {
       "checksum": "c59f9f687c73b80650d8c62778a15a36"
     },
+    "tests/js/test-command-center-activate.js": {
+      "checksum": "a05e7fac8d513d52d6432e0e251f5767"
+    },
+    "tests/js/test-demo-expiration-handler.js": {
+      "checksum": "90be479af714fb3440ccca982cfaaeb7"
+    },
+    "tests/js/test-depth-lineup-dom-stability.js": {
+      "checksum": "c84646580adb4783ce5d77ff19d88cf2"
+    },
+    "tests/js/test-feedback-vault-storage.js": {
+      "checksum": "0d7334a4011d02856e69e5cb0d5b04db"
+    },
+    "tests/js/test-ux-foundation-state.js": {
+      "checksum": "844d8892f26b9a0fc4c0d4978b4b297c"
+    },
+    "tests/js/test-v2-scenario-vault.js": {
+      "checksum": "776786e7b54dd0a2921fffc996219ba0"
+    },
     "tests/testthat.R": {
       "checksum": "80203890f13906bb4a402fd056903d70"
+    },
+    "tests/testthat/helper-depth-chart-performance-reference.R": {
+      "checksum": "b82dba490af2cf7d7241f7625efdba8b"
+    },
+    "tests/testthat/helper-draft-simulation-reference.R": {
+      "checksum": "b17fd93e0c0e5ff7f99f7276149c68d2"
+    },
+    "tests/testthat/helper-player-manager-bie-reference.R": {
+      "checksum": "c501caf814744c8655ae74c853fc8fc7"
     },
     "tests/testthat/test-basketball_intelligence_engine.R": {
       "checksum": "0c160a70240a363104e0661e00576a23"
@@ -8482,8 +7958,20 @@
     "tests/testthat/test-cap_engine.R": {
       "checksum": "d534e91358d247045e083e9c24def0a4"
     },
+    "tests/testthat/test-cba-glossary.R": {
+      "checksum": "d831a44498856c3729c994b36e721501"
+    },
     "tests/testthat/test-database.R": {
       "checksum": "5ee6ec53ecc614b907434a13856ca040"
+    },
+    "tests/testthat/test-depth-chart-performance-equivalence.R": {
+      "checksum": "77ade55a7991e4a07980a91f43224c69"
+    },
+    "tests/testthat/test-depth-chart-phase11-performance-equivalence.R": {
+      "checksum": "9819c5304311050072f9b53221d172fc"
+    },
+    "tests/testthat/test-draft-simulation-equivalence.R": {
+      "checksum": "91688f224bd06ae5c648425c32b89836"
     },
     "tests/testthat/test-draft_assets_engine.R": {
       "checksum": "cb8e65539de2c6144add3621a1f0bf07"
@@ -8495,13 +7983,22 @@
       "checksum": "43bc4c0cfd533e893407d092de05a3f5"
     },
     "tests/testthat/test-executive_experience_helpers.R": {
-      "checksum": "9624b7a2cfbe636efa9537d9155a8e93"
+      "checksum": "4d3f6f787ea49ce27bf2ff6062b80c6d"
+    },
+    "tests/testthat/test-extension-simulator-subtabs.R": {
+      "checksum": "1f921ae1fc3c0c19802d4609d738bffa"
     },
     "tests/testthat/test-extension_engine.R": {
-      "checksum": "3c5a15408bb92d947b9fa33b38ac7c4c"
+      "checksum": "61580f5510ec74c64dee01777bf1e568"
+    },
+    "tests/testthat/test-feedback-launcher-safety.R": {
+      "checksum": "03a63bf3f3a997594f99fb9141605c93"
     },
     "tests/testthat/test-final_qa_phase15.R": {
       "checksum": "11dc81ef6451fd6546f3c1f0b2037cb0"
+    },
+    "tests/testthat/test-five-year-outlook-subtabs.R": {
+      "checksum": "177b8d23475d08eeb6de62928c60c9cc"
     },
     "tests/testthat/test-lineup_optimization_engine.R": {
       "checksum": "cdb9cc151af4e50b4bbcbaa7cb2321e0"
@@ -8510,34 +8007,37 @@
       "checksum": "fd747d457e3ff5fcda0379966c32802d"
     },
     "tests/testthat/test-mod_draft_assets.R": {
-      "checksum": "8334b3823166a714950af1197e708c8e"
+      "checksum": "62ab0b4a9fa9c002262ddaf44e316594"
     },
     "tests/testthat/test-mod_executive_dashboard.R": {
-      "checksum": "39528e8ef8d17394145006ac1d2c62b1"
+      "checksum": "da9a0c2e60a6765373c91046300b1862"
     },
     "tests/testthat/test-mod_extension_simulator.R": {
-      "checksum": "27612c5c0b933c8a2bf52d00374a99c9"
+      "checksum": "9d6f7e04567891ae6f291011c279f5d8"
     },
     "tests/testthat/test-mod_five_year_outlook.R": {
-      "checksum": "98284b15812177115a5c0095392a70c8"
+      "checksum": "91b60c0154ff9c33e846a68ac9e10b96"
     },
     "tests/testthat/test-mod_roster_contracts.R": {
-      "checksum": "6c1142d4ce7f2a5af2c5e6a6e98f65ce"
+      "checksum": "fcfb812108574e5191c8a584b51dcf3a"
     },
     "tests/testthat/test-mod_salary_cap.R": {
-      "checksum": "58c8dd78c7ed0b9f96ee95f72c8694f0"
+      "checksum": "cd2828253882e624195fc8d86648d8df"
     },
     "tests/testthat/test-mod_team_overview.R": {
-      "checksum": "7e5ad211f816c39bc2021040366d728e"
+      "checksum": "ee003a97174f555744b963d00b63ca60"
     },
     "tests/testthat/test-mod_trade_analyzer.R": {
-      "checksum": "5acd5aa7ff827def1b336eceb7834849"
+      "checksum": "bdf57175515bb6d2769a48037bd21e62"
     },
     "tests/testthat/test-performance_optimization.R": {
-      "checksum": "8586c9ddc3ca847dd9db194981281861"
+      "checksum": "d90f978b832bbbcf1485ed3fdf8e22f4"
+    },
+    "tests/testthat/test-player-manager-bie-equivalence.R": {
+      "checksum": "2c66bdab8cd0d61f2452b6b20c580df7"
     },
     "tests/testthat/test-player_manager.R": {
-      "checksum": "f85d3a008aba09cc9f8ed97630b77be7"
+      "checksum": "13955bb8b837c0f39e7f6ac5079cbfa5"
     },
     "tests/testthat/test-roster_intelligence_integration.R": {
       "checksum": "2cde0b10c597991f56fa71d38cbc6fa0"
@@ -8548,11 +8048,110 @@
     "tests/testthat/test-scenario_comparison_integration.R": {
       "checksum": "5521266bb86f3e2c5a89fcba8f408720"
     },
+    "tests/testthat/test-trade-output-ids.R": {
+      "checksum": "f537c6ad2cbff5bc9fd51ad408803828"
+    },
     "tests/testthat/test-trade_engine.R": {
       "checksum": "4fd2a0bb42ba1918ad5355029b8eb327"
     },
     "tests/testthat/test-ui_polish_phase14.R": {
       "checksum": "0da9236834b5c166d4c0269e8531cd3c"
+    },
+    "tests/testthat/test-ux-foundation-assets.R": {
+      "checksum": "318f2c350a17a9f02772a328da6e92e5"
+    },
+    "tests/testthat/test-v1-rotation-characterization.R": {
+      "checksum": "28d08c519bfb096149284bdf33635021"
+    },
+    "tests/testthat/test-v2-accessibility-hardening.R": {
+      "checksum": "c1ffa04a35818b113eb16b1d17dbe50f"
+    },
+    "tests/testthat/test-v2-cap-intelligence-stabilization.R": {
+      "checksum": "6bdd04d30be152bb89b52ac635bd8e4c"
+    },
+    "tests/testthat/test-v2-command-center-stabilization.R": {
+      "checksum": "88ba05a95fc1af2768ea64ba9fdaa5b1"
+    },
+    "tests/testthat/test-v2-depth-chart-stabilization.R": {
+      "checksum": "1f46be241d938683900255927863f5be"
+    },
+    "tests/testthat/test-v2-draft-intelligence-stabilization.R": {
+      "checksum": "635f73f50bd83b8c6d12520f0fbe1e26"
+    },
+    "tests/testthat/test-v2-draft-layout-balance.R": {
+      "checksum": "f837a21659a81ef94790458478f3c9ae"
+    },
+    "tests/testthat/test-v2-extension-simulator-stabilization.R": {
+      "checksum": "595344a861c037976454e5d82fc821e6"
+    },
+    "tests/testthat/test-v2-feedback-candidate-workflows.R": {
+      "checksum": "378c4179cc831e0ca5d80eb9b9a5ef69"
+    },
+    "tests/testthat/test-v2-final-manual-audit-corrections.R": {
+      "checksum": "f66db03815669571e68c6c933f3f980c"
+    },
+    "tests/testthat/test-v2-five-year-outlook-stabilization.R": {
+      "checksum": "95a7bdf899b921df1800146c4942e1ff"
+    },
+    "tests/testthat/test-v2-lineup-portfolio.R": {
+      "checksum": "82f131b8c2404c97c813fd4dbf3bfb86"
+    },
+    "tests/testthat/test-v2-minute-ledger.R": {
+      "checksum": "16b6d781803891e01aa1ef38efb5412f"
+    },
+    "tests/testthat/test-v2-official-write-guard.R": {
+      "checksum": "239df7df9df8271d9dd2025bc3d34d96"
+    },
+    "tests/testthat/test-v2-phase1e-evidence.R": {
+      "checksum": "9465384b20dd6612e2c5b4529d0cb20b"
+    },
+    "tests/testthat/test-v2-phase2-all-teams.R": {
+      "checksum": "eac163e2aad155c70c3705832a4e67c9"
+    },
+    "tests/testthat/test-v2-phase3-presentation.R": {
+      "checksum": "3570250723c09fd983f7a27edf03fd0f"
+    },
+    "tests/testthat/test-v2-player-management-stabilization.R": {
+      "checksum": "f72b9a654bb75ab0726a6cc6acfe4147"
+    },
+    "tests/testthat/test-v2-required-runtime-files.R": {
+      "checksum": "af28b348d577b1d47297581ff0d44535"
+    },
+    "tests/testthat/test-v2-role-all-teams.R": {
+      "checksum": "35037d90d71257d4c877b1b2d6605c16"
+    },
+    "tests/testthat/test-v2-role-eligibility.R": {
+      "checksum": "41b127bac536cc129bfd845c938e7209"
+    },
+    "tests/testthat/test-v2-roster-intelligence-stabilization.R": {
+      "checksum": "ada5bea631b273d61a4fd30fdc150f81"
+    },
+    "tests/testthat/test-v2-rotation-contracts.R": {
+      "checksum": "ae88338a737a0131973c412b0c9300b9"
+    },
+    "tests/testthat/test-v2-rotation-engine.R": {
+      "checksum": "d0cdea772800b748715f69ccc7f6d940"
+    },
+    "tests/testthat/test-v2-rotation-shadow.R": {
+      "checksum": "1655a1bd6c083ebd301665b86564f1dd"
+    },
+    "tests/testthat/test-v2-scenario-vault.R": {
+      "checksum": "a18727ec6036976c953d8a1e9bdb70c5"
+    },
+    "tests/testthat/test-v2-staggering.R": {
+      "checksum": "a14ca9ddada8cfd9ded7f263e62703be"
+    },
+    "tests/testthat/test-v2-team-overview-stabilization.R": {
+      "checksum": "fbe24f4dbee25cc5511d2e756b6a506e"
+    },
+    "tests/testthat/test-v2-trade-intelligence-repair.R": {
+      "checksum": "279d90c01f23e980c09cbb77a9c60519"
+    },
+    "tests/testthat/test-v2-transaction-foundation.R": {
+      "checksum": "b9349b2c45944d5e4620cd2f8257f939"
+    },
+    "tests/testthat/test-web-demo-expiration-bypass.R": {
+      "checksum": "5ceafb1c5a242c074227ff3a56de3ef7"
     },
     "UPDATE_VERIFICATION.md": {
       "checksum": "582af8082333e60e38b0baeafaff8e54"
